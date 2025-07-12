@@ -94,7 +94,13 @@ const semList = [
   { value: "11", label: "6 yr/sem 11", yearValue: "6" },
   { value: "12", label: "6 yr/sem 12", yearValue: "6" },
 ];
-
+const adjList = [
+  { label: "A1", value: "A1" },
+  { label: "N1", value: "N1" },
+  { label: "J1", value: "J1" },
+  { label: "O1", value: "O1" },
+  { label: "V1", value: "V1" },
+];
 const initialValues = {
   acyearId: null,
   schoolId: null,
@@ -103,6 +109,7 @@ const initialValues = {
   categoryId: null,
   year: null,
   sem: null,
+  adjStatus: null,
 };
 const userID = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.userId;
 const schoolID = JSON.parse(sessionStorage.getItem("userData"))?.school_id;
@@ -110,6 +117,7 @@ const deptID = JSON.parse(sessionStorage.getItem("userData"))?.dept_id;
 const roleShortName = JSON.parse(
   sessionStorage.getItem("AcharyaErpUser")
 )?.roleShortName;
+const roleId = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.roleId;
 
 function StudentDetailsIndex() {
   const navigate = useNavigate();
@@ -131,6 +139,7 @@ function StudentDetailsIndex() {
   const [rowData, setRowData] = useState([]);
   const [printLoading, setPrintLoading] = useState(false);
   const [courseWrapperOpen, setCourseWrapperOpen] = useState(false);
+  const [adjOpen, setAdjOpen] = useState(false);
   const [courseOptions, setCourseOptions] = useState([]);
   const [allRecords, setAllrecords] = useState([]);
   const [schoolOptions, setSchoolOptions] = useState([]);
@@ -155,7 +164,7 @@ function StudentDetailsIndex() {
     audit_status: false,
     laptop_status: false,
     feeTemplateRemaks: false,
-    // upload: false
+    adj_status: false,
   });
 
   const { setAlertMessage, setAlertOpen } = useAlert();
@@ -326,6 +335,7 @@ function StudentDetailsIndex() {
           params = {
             ...params,
             page: 0,
+            userId: userID,
           };
           break;
 
@@ -459,6 +469,14 @@ function StudentDetailsIndex() {
   const handleUpdateUsn = (data) => {
     setRowData(data);
     setUsnModal(true);
+  };
+  const handleChangeADJ = (data) => {
+    setValues((prev) => ({
+      ...prev,
+      adjStatus: data?.adj_status ? data?.adj_status : null,
+    }));
+    setRowData(data);
+    setAdjOpen(true);
   };
 
   const handleUpdateYearSem = (data) => {
@@ -595,6 +613,7 @@ function StudentDetailsIndex() {
       field: "usn",
       headerName: "USN",
       flex: 1,
+      align: "center",
       renderCell: (params) =>
         params.value === null ? (
           <IconButton
@@ -736,6 +755,7 @@ function StudentDetailsIndex() {
     {
       field: "Provisional",
       headerName: "Provisional",
+      align: "center",
       flex: 1,
       renderCell: (params) => (
         <IconButton
@@ -910,6 +930,47 @@ function StudentDetailsIndex() {
       },
     },
   ];
+  if ([9, 11, 1].includes(roleId)) {
+    columns.push({
+      field: "adj_status",
+      headerName: "ADM",
+      align: "center",
+      flex: 1,
+      renderCell: (params) => {
+        const handleClick = () => handleChangeADJ(params.row);
+
+        if (params.value == null) {
+          return (
+            <IconButton
+              color="primary"
+              onClick={handleClick}
+              sx={{ padding: 0 }}
+            >
+              <AddBoxIcon />
+            </IconButton>
+          );
+        }
+
+        return (
+          <Typography
+            variant="subtitle2"
+            onClick={handleClick}
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              color: "primary.main",
+              textTransform: "capitalize",
+              cursor: "pointer",
+            }}
+          >
+            {params.value}
+          </Typography>
+        );
+      },
+    });
+  }
+
   if (roleShortName === "SAA") {
     columns.push({
       field: "edit",
@@ -968,6 +1029,55 @@ function StudentDetailsIndex() {
       });
     setCourseWrapperOpen(false);
   };
+  const handleADJ = async () => {
+    const studentId = rowData?.id ?? null;
+    const adjStatus = values?.adjStatus ?? null;
+
+    if (studentId == null && adjStatus == null) {
+      setAlertMessage({
+        severity: "warning",
+        message: "Student ID and ADM Status are missing!",
+      });
+      setAlertOpen(true);
+      setAdjOpen(false);
+      return;
+    }
+
+    try {
+      const temp = {
+        student_id: studentId,
+        adj_status: adjStatus,
+      };
+
+      const res = await axios.put(
+        `/api/student/updateAdjStatus/${studentId}`,
+        temp
+      );
+
+      if (res.data.status === 200) {
+        getData();
+        setAlertMessage({
+          severity: "success",
+          message: "ADM assigned successfully !!",
+        });
+      } else {
+        setAlertMessage({
+          severity: "error",
+          message: "Something went wrong !!",
+        });
+      }
+    } catch (err) {
+      setAlertMessage({
+        severity: "error",
+        message:
+          err?.response?.data?.message || "An unexpected error occurred !!",
+      });
+    } finally {
+      setAlertOpen(true);
+      setAdjOpen(false);
+    }
+  };
+
   const handleChange = (e, newValue) => {
     setTab(newValue);
   };
@@ -1084,6 +1194,36 @@ function StudentDetailsIndex() {
           setUsnModal={setUsnModal}
           getData={getData}
         />
+      </ModalWrapper>
+      <ModalWrapper
+        open={adjOpen}
+        setOpen={setAdjOpen}
+        maxWidth={600}
+        title={"ADM (" + rowData?.student_name + ")"}
+      >
+        <Box mt={2} p={3}>
+          <Grid container rowSpacing={3}>
+            <Grid item xs={12} md={4}>
+              <CustomAutocomplete
+                name="adjStatus"
+                label="ADM Status"
+                value={values.adjStatus}
+                options={adjList}
+                handleChangeAdvance={handleChangeAdvance}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} align="right">
+              <Button
+                disabled={!values.adjStatus}
+                variant="contained"
+                onClick={handleADJ}
+              >
+                Assign
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
       </ModalWrapper>
 
       {/* Assign Course  */}
