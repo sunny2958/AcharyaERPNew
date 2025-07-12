@@ -4,6 +4,8 @@ export const maskMobile = (number) => {
       ? number.slice(0, 2) + "xxxxxx" + number.slice(8)
       : number.length === 13
       ? number.slice(0, 5) + "xxxxxx" + number.slice(8)
+      : number.length === 14
+      ? number.slice(0, 5) + "xxxxxx" + number.slice(10)
       : "";
   }
 };

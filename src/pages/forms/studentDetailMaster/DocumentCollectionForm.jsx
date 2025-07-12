@@ -38,6 +38,8 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
+const userName = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.userName;
+
 function DocumentCollectionForm() {
   const [values, setValues] = useState(initialValues);
   const [studentData, setStudentData] = useState([]);
@@ -78,57 +80,80 @@ function DocumentCollectionForm() {
       })
       .catch((err) => console.error(err));
 
+    const notsubmittedData = studentTranscript.filter(
+      (obj) => obj.will_submit_by
+    );
+
     const studentTranscriptIds = new Set(
       studentTranscript.map((item) => item.stu_transcript_id)
     );
 
-    const submittedData = allTranscript?.filter(
-      (obj) => !studentTranscriptIds.has(obj?.stu_transcript_id)
+    const temp = [];
+
+    const filtered = allTranscript?.filter((item) =>
+      notsubmittedData?.some(
+        (masterItem) => item.transcript === masterItem.transcript
+      )
     );
 
-    const collectedTranscriptIds = studentTranscript
-      .filter(
-        (obj) =>
-          obj.is_collected === "YES" ||
-          obj.not_applicable === "YES" ||
-          obj?.submitted_date
-      )
-      .map((item) => item.transcript_id);
+    filtered.forEach((item) => {
+      temp.push({
+        transcriptId: item.transcript_id || null,
+        // stuTranscriptId: item?.stu_transcript_id || null,
+        transcript: item.transcript || "",
+        submittedStatus: false,
+        lastDate: item?.will_submit_by || null,
+        notRequied: false,
+        submittedStatusDisabled: false,
+        notRequiedDisabled: false,
+        lastDateDisabled: false,
+      });
+    });
+
+    // const submittedData = allTranscript?.filter(
+    //   (obj) => !studentTranscriptIds.has(obj?.stu_transcript_id)
+    // );
+
+    // const collectedTranscriptIds = studentTranscript
+    //   .filter(
+    //     (obj) =>
+    //       obj.is_collected === "YES" ||
+    //       obj.not_applicable === "YES" ||
+    //       obj?.submitted_date
+    //   )
+    //   .map((item) => item.transcript_id);
 
     setTranscriptCollectedData(
-      studentTranscript.filter(
-        (obj) =>
-          obj.is_collected === "YES" ||
-          obj.not_applicable === "YES" ||
-          obj?.submitted_date
-      )
+      studentTranscript
+      // .filter(
+      //   (obj) =>
+      //     obj.is_collected === "YES" ||
+      //     obj.not_applicable === "YES" ||
+      //     obj?.submitted_date
+      // )
     );
 
     const transcriptObj = [];
-    submittedData
-      .filter(
-        (item) => collectedTranscriptIds.includes(item.transcript_id) === false
-      )
-      .forEach((obj) => {
-        const getStuTranscriptId = studentTranscript.filter(
-          (value) => value.transcript_id === obj.transcript_id
-        );
+    temp.forEach((obj) => {
+      const getStuTranscriptId = studentTranscript.filter(
+        (value) => value.transcript_id === obj.transcriptId
+      );
 
-        transcriptObj.push({
-          transcriptId: obj.transcript_id,
-          stuTranscriptId:
-            getStuTranscriptId.length > 0
-              ? getStuTranscriptId[0].stu_transcript_id
-              : null,
-          transcript: obj.transcript,
-          submittedStatus: false,
-          lastDate: null,
-          notRequied: false,
-          submittedStatusDisabled: false,
-          notRequiedDisabled: false,
-          lastDateDisabled: false,
-        });
+      transcriptObj.push({
+        transcriptId: obj.transcriptId,
+        stuTranscriptId:
+          getStuTranscriptId.length > 0
+            ? getStuTranscriptId[0].stu_transcript_id
+            : null,
+        transcript: obj.transcript,
+        submittedStatus: false,
+        lastDate: null,
+        notRequied: false,
+        submittedStatusDisabled: false,
+        notRequiedDisabled: false,
+        lastDateDisabled: false,
       });
+    });
 
     setValues((prev) => ({
       ...prev,
@@ -189,6 +214,8 @@ function DocumentCollectionForm() {
     }));
   };
 
+  console.log(values);
+
   const handleCreate = async () => {
     const putTemp = [];
     const postTemp = [];
@@ -214,14 +241,18 @@ function DocumentCollectionForm() {
         } else {
           putTemp.push({
             active: true,
-            // stu_transcript_id: obj.stuTranscriptId,
+            stu_transcript_id: obj.stuTranscriptId,
             transcript_id: obj.transcriptId,
             student_id: studentData.student_id,
             is_collected: obj.submittedStatus === true ? "YES" : null,
             submitted_date: obj.lastDate
-              ? moment(obj.lastDate).format("YYYY-MM-DD")
-              : moment().format("YYYY-MM-DD"),
+              ? moment(obj.lastDate).format("DD-MM-YYYY")
+              : moment(new Date()).format("DD-MM-YYYY"),
             not_applicable: obj.notRequied === true ? "YES" : null,
+            will_submit_by: obj.lastDate
+              ? moment(obj.lastDate).format("DD-MM-YYYY")
+              : null,
+            created_username: userName,
           });
         }
       }
@@ -367,13 +398,15 @@ function DocumentCollectionForm() {
                               </TableCell>
                               {obj.is_collected !== "YES" &&
                               obj.not_applicable !== "YES" ? (
-                                <TableCell>
-                                  {moment(obj.submitted_date).format(
+                                <TableCell sx={{ textAlign: "center" }}>
+                                  {moment(obj.will_submit_by).format(
                                     "DD-MM-YYYY"
                                   )}
                                 </TableCell>
                               ) : (
-                                <TableCell> </TableCell>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                  {obj.submitted_date}{" "}
+                                </TableCell>
                               )}
                               <TableCell sx={{ textAlign: "center" }}>
                                 {obj.not_applicable}

@@ -121,7 +121,10 @@ function StudentTranscriptApplication() {
                   <Grid item xs={12} md={4}>
                     <Typography variant="body2" color="textSecondary">
                       {Object.keys(studentData).length > 0
-                        ? studentData?.dateofbirth?.split("-").reverse().join("-")
+                        ? studentData?.dateofbirth
+                            ?.split("-")
+                            .reverse()
+                            .join("-")
                         : ""}
                     </Typography>
                   </Grid>
@@ -230,24 +233,10 @@ function StudentTranscriptApplication() {
                               <TableRow key={i}>
                                 <TableCell>{obj.transcript}</TableCell>
                                 <TableCell sx={{ textAlign: "center" }}>
-                                {moment(obj.submitted_date).format(
-                                    "DD-MM-YYYY"
-                                  )}
-                                  {/* {obj?.submitted_date
-                                    ?.slice(0, 10)
-                                    ?.split("-")
-                                    ?.reverse()
-                                    ?.join("-")} */}
+                                  {obj.submitted_date}
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "center" }}>
-                                  {obj?.will_submit_by
-                                    ?.slice(0, 10)
-                                    ?.split("-")
-                                    ?.reverse()
-                                    ?.join("-")}
-                                     {/* {moment(obj.will_submit_by).format(
-                                    "DD-MM-YYYY"
-                                  )} */}
+                                  {obj?.will_submit_by}
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "center" }}>
                                   {obj.created_username}

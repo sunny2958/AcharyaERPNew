@@ -766,7 +766,7 @@ function AdmissionForm() {
     }
 
     try {
-      setIsLoading(true);
+      // setIsLoading(true);
       const {
         studentName,
         dob,
@@ -931,8 +931,8 @@ function AdmissionForm() {
       std.notes = notes;
 
       const reporting = {};
-      reporting.current_year = !isRegular ? 1 : latYear;
-      reporting.current_sem = !isRegular ? 1 : latYear;
+      reporting.current_year = Math.ceil(latYear / 2);
+      reporting.current_sem = latYear;
       reporting.distinct_status = true;
       reporting.eligible_reported_status = 1;
       reporting.active = true;

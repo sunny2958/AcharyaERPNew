@@ -375,10 +375,13 @@ function StudentDocumentCollectionPdf() {
             <Text style={styles.transcriptThStyle}>Collected</Text>
           </View>
           <View style={styles.transcriptThHeaderStyle}>
-            <Text style={styles.transcriptThStyle}>Submit By</Text>
+            <Text style={styles.transcriptThStyle}>Will Submit By</Text>
           </View>
           <View style={styles.transcriptThHeaderStyle}>
             <Text style={styles.transcriptThStyle}>Collected By</Text>
+          </View>
+          <View style={styles.transcriptThHeaderStyle}>
+            <Text style={styles.transcriptThStyle}>Collected Date</Text>
           </View>
           {/* <View style={styles.transcriptThHeaderStyle}>
             <Text style={styles.transcriptThStyle}>Collected By Institute</Text>
@@ -412,6 +415,11 @@ function StudentDocumentCollectionPdf() {
               <View style={styles.transcriptTdHeaderStyle}>
                 <Text style={styles.transcriptTdStyle}>
                   {obj.created_username}
+                </Text>
+              </View>
+              <View style={styles.transcriptTdHeaderStyle}>
+                <Text style={styles.transcriptTdStyle}>
+                  {obj.submitted_date}
                 </Text>
               </View>
             </View>
