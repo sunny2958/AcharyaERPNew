@@ -118,9 +118,7 @@ const LedgerDayTransaction = () => {
                     vendorDetails: rowData,
                     totalCredit: data?.totalCredit,
                     totalDebit: data?.totalDebit,
-                    // openingBalance: data?.openingBalance < 0 ? `${Math.abs(data?.openingBalance)} Cr` : data?.openingBalance === 0 ? 0 : `${data?.openingBalance} Dr`,
                     openingBalance: formatDrCr(data?.openingBalance, queryValues?.ledgerType),
-                    // totalCumulativeBalance: totalCumulativeBalance.toFixed(2),
                     schoolName: data?.schoolName
                 });
                 setLoading(false)
@@ -173,7 +171,17 @@ const LedgerDayTransaction = () => {
             if (type === 'credit') {
                 navigate('/ledger-inflow-day-transaction-credit', { state: queryParams })
             }
-        } else {
+        }else if (queryValues?.ledgerType === 'EXPENDITURE'){
+             if (type === 'credit') {
+                navigate('/ledger-expenses-day-transaction-credit', { state: queryParams })
+            }
+        }
+        else if (queryValues?.ledgerType === 'ASSETS'){
+             if (type === 'credit') {
+                navigate('/ledger-assets-day-transaction-credit', { state: queryParams })
+            }
+        }
+        else {
             if (type === 'debit') {
                 navigate('/Accounts-ledger-day-transaction-debit', { state: queryParams })
             } else {
@@ -209,12 +217,12 @@ const LedgerDayTransaction = () => {
     const formatDrCr = (value, ledgerType) => {
         const absVal = Math.abs(value);
 
-        if (value === 0) return "0";
+        if (value === 0) return "0.00";
 
         if (ledgerType === "VENDOR" || ledgerType === "INFLOW") {
             return value < 0 ? `${absVal} Dr` : `${absVal} Cr`;
-        } else if (ledgerType === "CASHORBANK") {
-            return value > 0 ? `${absVal} Dr` : `${absVal} Cr`;
+        } else if (ledgerType === "CASHORBANK" || ledgerType === "ASSETS" || ledgerType === "EXPENDITURE") {
+            return value > 0 ? `${(absVal)} Dr` : `${(absVal)} Cr`;
         } else {
             return value;
         }
@@ -227,6 +235,8 @@ const LedgerDayTransaction = () => {
                 break;
             case 'VENDOR':
             case 'INFLOW':
+            case 'EXPENDITURE':
+            case 'ASSETS':   
                 return (credit || 0) - (debit || 0);
                 break;
             default:

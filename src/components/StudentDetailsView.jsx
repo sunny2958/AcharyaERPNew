@@ -591,13 +591,35 @@ function StudentDetailsView() {
           )
         );
         setreportingData(res.data.data.reporting_students);
-        getRegistrationData(
-          res.data.data.Student_details.application_no_npf,
-          res.data.data.Student_details.candidate_id
-        );
+        // getRegistrationData(
+        //   res.data.data.Student_details.application_no_npf,
+        //   res.data.data.Student_details.candidate_id
+        // );
+        getStudentImage(data?.student_image_path)
       });
   };
-
+  const getStudentImage = async (imagePath) => {
+    try {
+      if (imagePath) {
+        const studentImageResponse = await axios.get(
+          `/api/student/studentImageDownload?student_image_attachment_path=${imagePath}`,
+          { responseType: "blob" }
+        );
+        if (
+          studentImageResponse.status === 200 ||
+          studentImageResponse.status === 201
+        ) {
+          setImage(URL.createObjectURL(studentImageResponse.data))
+        }
+      }
+    } catch (error) {
+      setAlertMessage({
+        severity: "error",
+        message: "Something went wrong! Unable to find the Image !!",
+      });
+      setAlertOpen(true);
+    }
+  };
   const handleChangeEditStudent = (e) => {
     setEditStudentDetails((prev) => ({
       ...prev,

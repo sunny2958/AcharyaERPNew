@@ -41,14 +41,17 @@ const RazorPayPendingSettlementDetail = () => {
     {
       field: "settled_at",
       headerName: "Transaction Date",
-      flex: 1
+      flex: 1,
+      renderCell: (params) => {
+        return params?.row?.settled_at ? moment(params?.row?.settled_at).format('DD-MM-YYYY') : ""
+      }
     },
     {
-        field: "entity_id",
-        headerName: "Transaction No",
-        flex: 1,
-        //  hide: true,
-      },
+      field: "entity_id",
+      headerName: "Transaction No",
+      flex: 1,
+      //  hide: true,
+    },
     {
       field: "order_id",
       headerName: "Reference No",
@@ -64,13 +67,14 @@ const RazorPayPendingSettlementDetail = () => {
       headerName: "Bank Import",
       flex: 1,
       headerAlign: "center",
-      align:"center"
+      align: "center"
     },
-    { field: "credit", 
-      headerName: "Amount", 
-      flex: 1, 
-      headerAlign: "center", 
-      cellClassName: "rightAlignedCell" 
+    {
+      field: "credit",
+      headerName: "Amount",
+      flex: 1,
+      headerAlign: "center",
+      cellClassName: "rightAlignedCell"
     },
     // {
     //   field: "created_at",

@@ -22,7 +22,7 @@ const RazorPayReceiptDetail = () => {
       { name: "Settlement Receipt" }
     ])
   }, [settlementId])
-  
+
   const getSettlementData = () => {
     setLoading(true)
     axios.get(`/api/getReceiptGeneratedSettlements?settlementId=${settlementId}`)
@@ -41,14 +41,17 @@ const RazorPayReceiptDetail = () => {
     {
       field: "transaction_date",
       headerName: "Transaction Date",
-      flex: 1
+      flex: 1,
+      renderCell: (params) => {
+        return params?.row?.transaction_date ? moment(params?.row?.transaction_date).format('DD-MM-YYYY h:mm:ss a') : ""
+      }
     },
     {
-        field: "transaction_no",
-        headerName: "Transaction No",
-        flex: 1,
-        //  hide: true,
-      },
+      field: "transaction_no",
+      headerName: "Transaction No",
+      flex: 1,
+      //  hide: true,
+    },
     {
       field: "order_id",
       headerName: "Reference No",
@@ -59,15 +62,17 @@ const RazorPayReceiptDetail = () => {
       headerName: "Settlement Utr",
       flex: 1,
     },
-    { field: "auid", 
-      headerName: "AUID", 
+    {
+      field: "auid",
+      headerName: "AUID",
       flex: 1
     },
-    { field: "amount", 
-      headerName: "Amount", 
-      flex: 1, 
-      headerAlign: "center", 
-      cellClassName: "rightAlignedCell" 
+    {
+      field: "amount",
+      headerName: "Amount",
+      flex: 1,
+      headerAlign: "center",
+      cellClassName: "rightAlignedCell"
     },
     {
       field: "created_username",

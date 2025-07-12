@@ -80,7 +80,7 @@ const VendorMonthlyDetails = () => {
 
   const getData = async () => {
     const { voucherHeadId, fcYearId, schoolId, ledgerType, isTotalRow } = queryValues
-    const baseUrl = isTotalRow ? "api/finance/getMonthWiseSummary" : "/api/finance/getLedgerSummaryMonthlyWise"
+    const baseUrl = isTotalRow && ledgerType === "EARNINGS" ? "api/finance/getMonthWiseSummary" : "/api/finance/getLedgerSummaryMonthlyWise"
     let params = {}
     if(isTotalRow){
       params={
@@ -123,7 +123,7 @@ const VendorMonthlyDetails = () => {
           totalDebit: data?.totalDebit,
           // openingBalance: data?.openingBalance,
           schoolName: data?.schoolName,
-          closingBalance: data?.closingBalance
+          closingBalance: formatCurrency(data?.closingBalance)
         });
         setLoading(false)
       })
@@ -235,7 +235,7 @@ const VendorMonthlyDetails = () => {
 
     if (ledgerType === "VENDOR" || ledgerType === "INFLOW") {
       return value < 0 ? `${absVal} Dr` : `${absVal} Cr`;
-    } else if (ledgerType === "CASHORBANK" || ledgerType === 'EARNINGS') {
+    } else if (ledgerType === "CASHORBANK" || ledgerType === 'EARNINGS' || ledgerType === "ASSETS" || ledgerType === "EXPENDITURE") {
       return value > 0 ? `${absVal} Dr` : `${absVal} Cr`;
     } else {
       return value;

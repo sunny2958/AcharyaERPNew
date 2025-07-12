@@ -180,12 +180,10 @@ function StudentDetailsIndex() {
   useEffect(() => {
     getData();
   }, [
-    paginationData.page,
-    paginationData.pageSize,
-    filterString,
     values.acyearId,
     tab,
-  ]);
+  ])
+
 
   useEffect(() => {
     getProgram();
@@ -307,8 +305,10 @@ function StudentDetailsIndex() {
       }));
 
       let params = {
-        page,
-        page_size: pageSize,
+        // page,
+        // page_size: pageSize, // remove pagination
+        page: 0,
+        page_size: 1000000,
         sort: "created_date",
         ac_year_id: acyearId,
         ...(schoolId && { school_id: schoolId }),
@@ -329,7 +329,7 @@ function StudentDetailsIndex() {
         case "/student-master-user":
           params = {
             ...params,
-            userId: userID,
+            page: 0,
           };
           break;
 
@@ -628,15 +628,15 @@ function StudentDetailsIndex() {
       field: "acharya_email",
       headerName: "Email",
       flex: 1,
-      renderCell: (params) => (params.value ? maskEmail(params.value) : ""),
-      //  hide: true,
+      valueGetter: (value, row) =>
+        row.acharya_email ? maskEmail(row.acharya_email) : "",
     },
     {
       field: "mobile",
       headerName: "Mobile",
       flex: 1,
-      renderCell: (params) => (params.value ? maskMobile(params.value) : ""),
-      //  hide: true,
+      valueGetter: (value, row) =>
+        row.mobile ? maskMobile(row.mobile) : "",
     },
     {
       field: "date_of_admission",
@@ -1229,19 +1229,19 @@ function StudentDetailsIndex() {
         <GridIndex
           rows={paginationData.rows}
           columns={columns}
-          rowCount={paginationData.total}
-          page={paginationData.page}
-          pageSize={paginationData.pageSize}
+          // rowCount={paginationData.total}
+          // page={paginationData.page}
+          // pageSize={paginationData.pageSize}
           handleOnPageChange={handleOnPageChange}
           handleOnPageSizeChange={handleOnPageSizeChange}
           loading={paginationData.loading}
-          handleOnFilterChange={handleOnFilterChange}
+          // handleOnFilterChange={handleOnFilterChange}
           getRowClassName={getRowClassName}
           columnVisibilityModel={columnVisibilityModel}
           setColumnVisibilityModel={setColumnVisibilityModel}
         />
       </Box>
-      <PdfUploadModal  imageOpen={imageOpen} setImageUploadOpen={setImageUploadOpen} rowData={rowData} />
+      <PdfUploadModal imageOpen={imageOpen} setImageUploadOpen={setImageUploadOpen} rowData={rowData} />
     </>
   );
 }

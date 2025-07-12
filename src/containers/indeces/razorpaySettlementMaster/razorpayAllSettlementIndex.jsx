@@ -116,7 +116,10 @@ const RazorPaySettlementIndex = () => {
             flex: 1,
             align: 'left',
             headerAlign: 'left',
-            headerClassName: "header-bg"
+            headerClassName: "header-bg",
+            renderCell: (params) => {
+                return params?.row?.date ? moment(params?.row?.date).format('DD-MM-YYYY') : ""
+            }
         },
         {
             field: "settlementId",

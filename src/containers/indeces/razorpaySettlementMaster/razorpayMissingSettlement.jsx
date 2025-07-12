@@ -25,7 +25,7 @@ const RazorPayMissingSettlement = () => {
 
     const getSettlementData = () => {
         setLoading(true)
-          const formatedDate = moment(date).format("YYYY-MM-DD")
+        const formatedDate = moment(date).format("YYYY-MM-DD")
         axios.get(`api/allPendingSettlements?date=${formatedDate}`)
             .then(res => {
                 const { data } = res?.data
@@ -46,7 +46,10 @@ const RazorPayMissingSettlement = () => {
         {
             field: "settledAt",
             headerName: "Transaction Date",
-            flex: 1
+            flex: 1,
+            renderCell: (params) => {
+                return params?.row?.settledAt ? moment(params?.row?.settledAt).format('DD-MM-YYYY') : ""
+            }
         },
         {
             field: "settlementId",

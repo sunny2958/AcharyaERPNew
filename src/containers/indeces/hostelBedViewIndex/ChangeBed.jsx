@@ -192,7 +192,7 @@ const ChangeBed = ({ rowDetails, getData }) => {
     // temp.fromDate = moment(rows?.fromDate).format("YYYY-MM-DD");
     temp.remarks = rows?.remarks;
     temp.active = true;
-    temp.bedStatus = "Occupied";
+    temp.bedStatus = rows?.assignedBedStatus;
 
     try {
       const deleteResponse = await axios.delete(

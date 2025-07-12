@@ -23,6 +23,8 @@ import PrintIcon from '@mui/icons-material/Print';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SearchIcon from '@mui/icons-material/Search';
 import CustomTextField from "../../../components/Inputs/CustomTextField";
+import CustomMonthYearPicker from "../../../components/Inputs/CustomMonthYearPicker";
+import CustomDatePicker from "../../../components/Inputs/CustomDatePicker";
 
 const initialValues = {
     voucherHeadId: "",
@@ -126,7 +128,10 @@ function VendorMasterIndex() {
         hostelWaiver: false,
     })
     const [showFilters, setShowFilters] = useState(false)
-    const [selectedVoucher, setSelectedVoucher] = useState('')
+    const [selectedVoucher, setSelectedVoucher] = useState({
+        voucherType: "",
+        dateType: ""
+    })
     const [filters, setFilters] = useState({})
     const navigate = useNavigate();
     const location = useLocation()
@@ -186,11 +191,11 @@ function VendorMasterIndex() {
                 })
                 if (data?.vendorDetails?.length > 0) {
                     rowData.push({
-                        school_name_short: "",
-                        openingBalance: data?.openingBalance,
-                        debit: data?.totalDebit,
-                        credit: data?.totalCredit,
-                        closingBalance: data?.closingBalance,
+                        school_name_short: "Total",
+                        openingBalance: formatCurrency(data?.openingBalance),
+                        debit: formatCurrency(data?.totalDebit),
+                        credit: formatCurrency(data?.totalCredit),
+                        closingBalance: formatCurrency(data?.closingBalance),
                         school_id: Date.now(),
                         isLastRow: true,
                         ledgerType: data?.vendorDetails[0]?.ledgerType
@@ -213,12 +218,12 @@ function VendorMasterIndex() {
     const formatDrCr = (value, ledgerType) => {
         const absVal = Math.abs(value);
 
-        if (value === 0) return "0";
+        if (value === 0) return "0.00";
 
         if (ledgerType === "VENDOR" || ledgerType === "INFLOW") {
-            return value < 0 ? `${absVal} Dr` : `${absVal} Cr`;
-        } else if (ledgerType === "CASHORBANK" || ledgerType === 'EARNINGS') {
-            return value > 0 ? `${absVal} Dr` : `${absVal} Cr`;
+            return value < 0 ? `${formatCurrency(absVal)} Dr` : `${formatCurrency(absVal)} Cr`;
+        } else if (ledgerType === "CASHORBANK" || ledgerType === 'EARNINGS' || ledgerType === "ASSETS" || ledgerType === "EXPENDITURE") {
+            return value > 0 ? `${formatCurrency(absVal)} Dr` : `${formatCurrency(absVal)} Cr`;
         } else {
             return value;
         }
@@ -348,7 +353,8 @@ function VendorMasterIndex() {
     };
 
     const handleRowClick = (params) => {
-        // if (params?.row?.isLastRow) return;
+         if (params?.row?.isLastRow && params?.row?.ledgerType !== "EARNINGS") return;
+         
         const query = {
             ...values,
             schoolId: params.row.school_id,
@@ -361,16 +367,19 @@ function VendorMasterIndex() {
         navigate('/Accounts-ledger-monthly-detail', { state: query })
     }
 
-    const handleFilter = () =>{
+    const handleFilter = () => {
         setShowFilters(!showFilters)
-        setSelectedVoucher("")
+        setSelectedVoucher({})
         setFilters({})
     }
 
     const handleFilterChange = (name, value, valueLabel) => {
-        // setSelectedField(value)
         if (name === 'voucherType') {
-            setSelectedVoucher(valueLabel)
+            setSelectedVoucher(prev => ({ ...prev, voucherType: valueLabel }))
+            setFilters({})
+        }
+        if (name === 'dateRange') {
+            setSelectedVoucher(prev => ({ ...prev, dateType: valueLabel }))
             setFilters({})
         }
         setFilters((prev) => ({
@@ -514,7 +523,10 @@ function VendorMasterIndex() {
                     '& .last-row': {
                         fontWeight: 700,
                         backgroundColor: "#376a7d !important",
-                        color: "#fff"
+                        color: "#fff",
+                        '&:hover': {
+                            backgroundColor: "#2a5262 !important", 
+                        }
                     },
                     '& .header-bg': {
                         fontWeight: "bold",
@@ -641,33 +653,33 @@ function VendorMasterIndex() {
     //                 >
     //                     {showFilters ? 'Hide Filters' : 'Show Filters'}
     //                 </Button>
-    //                    <BlobProvider
-    //                         document={
-    //                             <LedgerMasterIndexPdf
-    //                                 data={{ columns, rows }}
-    //                                 filters={{
-    //                                     voucherHeadName: values?.voucherHeadName,
-    //                                     fcYear: values?.fcYear
-    //                                 }}
-    //                             />
-    //                         }
-    //                     >
-    //                         {({ url, loading }) => (
-    //                             <Button
-    //                                 variant="contained"
-    //                                 color="primary"
-    //                                 disabled={rows?.length === 0}
-    //                                 onClick={() => {
-    //                                     if (url) {
-    //                                         window.open(url, '_blank');
-    //                                     }
-    //                                 }}
-    //                                 sx={{ height: '36px' }}
-    //                             >
-    //                                 Print PDF
-    //                             </Button>
-    //                         )}
-    //                     </BlobProvider>
+    //                 <BlobProvider
+    //                     document={
+    //                         <LedgerMasterIndexPdf
+    //                             data={{ columns, rows }}
+    //                             filters={{
+    //                                 voucherHeadName: values?.voucherHeadName,
+    //                                 fcYear: values?.fcYear
+    //                             }}
+    //                         />
+    //                     }
+    //                 >
+    //                     {({ url, loading }) => (
+    //                         <Button
+    //                             variant="contained"
+    //                             color="primary"
+    //                             disabled={rows?.length === 0}
+    //                             onClick={() => {
+    //                                 if (url) {
+    //                                     window.open(url, '_blank');
+    //                                 }
+    //                             }}
+    //                             sx={{ height: '36px' }}
+    //                         >
+    //                             Print PDF
+    //                         </Button>
+    //                     )}
+    //                 </BlobProvider>
     //             </Box>
     //         </Box>
 
@@ -719,17 +731,17 @@ function VendorMasterIndex() {
     //                             fontSize: '0.875rem',
     //                             padding: '8px 16px',
     //                             display: 'flex',
-    //                             alignItems: 'center', 
+    //                             alignItems: 'center',
     //                             '& .MuiDataGrid-cellContent': {
-    //                                 width: '100%' 
+    //                                 width: '100%'
     //                             }
     //                         },
     //                         '& .MuiDataGrid-cellContent': {
     //                             whiteSpace: 'normal',
     //                             lineHeight: '1.4',
     //                             display: 'flex',
-    //                             alignItems: 'center', 
-    //                             minHeight: '100%' 
+    //                             alignItems: 'center',
+    //                             minHeight: '100%'
     //                         },
     //                         '& .MuiDataGrid-row': {
     //                             '&:hover': {
@@ -898,7 +910,7 @@ function VendorMasterIndex() {
     //                     />
 
     //                     <Box sx={{ mt: 2, mb: 2 }}>
-    //                         {selectedVoucher === "Ledger" && (
+    //                         {selectedVoucher?.voucherType === "Ledger" && (
     //                             <CustomTextField
     //                                 label="Ledger name"
     //                                 name="ledgerName"
@@ -907,7 +919,7 @@ function VendorMasterIndex() {
     //                             />
     //                         )}
 
-    //                         {selectedVoucher === "Ledger Amount" && (
+    //                         {selectedVoucher?.voucherType === "Ledger Amount" && (
     //                             <Box sx={{ display: 'flex', flexDirection: "column", gap: 1 }}>
     //                                 <CustomAutocomplete
     //                                     name="amountType"
@@ -934,7 +946,7 @@ function VendorMasterIndex() {
     //                             </Box>
     //                         )}
 
-    //                         {selectedVoucher === "Narration" && (
+    //                         {selectedVoucher?.voucherType === "Narration" && (
     //                             <Box sx={{ display: 'flex', flexDirection: "column", gap: 1 }}>
     //                                 <CustomAutocomplete
     //                                     name="narrationCondition"
@@ -953,7 +965,7 @@ function VendorMasterIndex() {
     //                             </Box>
     //                         )}
 
-    //                         {selectedVoucher === "Date" && (
+    //                         {selectedVoucher?.voucherType === "Date" && (
     //                             <Box sx={{ display: 'flex', flexDirection: "column", gap: 1 }}>
     //                                 <CustomAutocomplete
     //                                     name="dateRange"
@@ -963,12 +975,29 @@ function VendorMasterIndex() {
     //                                     handleChangeAdvance={handleFilterChange}
     //                                     size="small"
     //                                 />
-    //                                 <CustomTextField
+    //                                 {/* <CustomTextField
     //                                     label={filters.dateRange === "Month" ? "MM-YYYY" : filters.dateRange === "Year" ? "YYYY" : "DD-MM-YYYY"}
     //                                     name="date"
     //                                     value={filters?.date}
     //                                     handleChange={handleChange}
-    //                                 />
+    //                                 /> */}
+    //                                 {selectedVoucher?.dateType === 'Date' ? (
+    //                                     <CustomDatePicker
+    //                                         name="date"
+    //                                         label="Date"
+    //                                         value={filters?.date}
+    //                                         handleChangeAdvance={handleFilterChange}
+    //                                     />
+    //                                 ) : <></>}
+    //                                 {selectedVoucher?.dateType === 'Month' ? (
+    //                                     <CustomMonthYearPicker
+    //                                         name="date"
+    //                                         label="Month"
+    //                                         //   minDate={new Date()}
+    //                                         value={filters?.date}
+    //                                         handleChangeAdvance={handleFilterChange}
+    //                                     />
+    //                                 ) : <></>}
     //                             </Box>
     //                         )}
     //                     </Box>
@@ -979,7 +1008,8 @@ function VendorMasterIndex() {
     //                             size="small"
     //                             onClick={() => {
     //                                 setFilters({});
-    //                                 setSelectedVoucher("");
+    //                                 // setSelectedVoucher("");
+    //                                  setSelectedVoucher({});
     //                             }}
     //                             sx={{ borderRadius: '4px', textTransform: 'none', fontSize: '0.85rem', px: 2, py: 0.5 }}
     //                         >

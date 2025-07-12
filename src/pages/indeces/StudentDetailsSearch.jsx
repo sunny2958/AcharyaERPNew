@@ -203,15 +203,15 @@ function StudentDetailsSearch() {
       field: "acharya_email",
       headerName: "Email",
       flex: 1,
-      renderCell: (params) => (params.value ? maskEmail(params.value) : ""),
-      //  hide: true,
+      valueGetter: (value, row) =>
+        row.acharya_email ? maskEmail(row.acharya_email) : "",
     },
     {
       field: "mobile",
       headerName: "Mobile",
       flex: 1,
-      renderCell: (params) => (params.value ? maskMobile(params.value) : ""),
-      //  hide: true,
+      valueGetter: (value, row) =>
+        row.mobile ? maskMobile(row.mobile) : "",
     },
     {
       field: "date_of_admission",
