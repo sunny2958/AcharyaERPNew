@@ -26,6 +26,7 @@ import CustomTextField from "./Inputs/CustomTextField";
 import CustomAutocomplete from "./Inputs/CustomAutocomplete";
 import useAlert from "../hooks/useAlert";
 import useBreadcrumbs from "../hooks/useBreadcrumbs";
+import { maskMobile } from "../utils/MaskData";
 
 const initialValues = {
   studentName: "",
@@ -171,7 +172,9 @@ const StudentDetailsViewDocuments = ({
     getCountry();
     getNationality();
     if (!applicantData?.candidate_name || !applicantData?.auid) return;
-    const nameWithAuid = `${applicantData.candidate_name || "Unknown Candidate"}-${applicantData.auid || "Unknown AUID"}`;
+    const nameWithAuid = `${
+      applicantData.candidate_name || "Unknown Candidate"
+    }-${applicantData.auid || "Unknown AUID"}`;
     if (state) {
       setCrumbs([
         {
@@ -189,7 +192,6 @@ const StudentDetailsViewDocuments = ({
       ]);
     }
   }, [applicantData, state]);
-
 
   useEffect(() => {
     getState();
@@ -809,7 +811,7 @@ const StudentDetailsViewDocuments = ({
                       </Grid>
                       <Grid item xs={12} md={4}>
                         <Typography variant="body2" color="textSecondary">
-                          {applicantData.mobile}
+                          {maskMobile(applicantData.mobile)}
                         </Typography>
                       </Grid>
 
@@ -869,7 +871,7 @@ const StudentDetailsViewDocuments = ({
                       </Grid>
                       <Grid item xs={12} md={4}>
                         <Typography variant="body2" color="textSecondary">
-                          {applicantData.father_mobile}
+                          {maskMobile(applicantData?.father_mobile)}
                         </Typography>
                       </Grid>
 
@@ -976,15 +978,15 @@ const StudentDetailsViewDocuments = ({
                             <TableCell>
                               {row.submitted_date
                                 ? moment(row.submitted_date).format(
-                                  "DD-MM-YYYY"
-                                )
+                                    "DD-MM-YYYY"
+                                  )
                                 : "-"}
                             </TableCell>
                             <TableCell>
                               {row.will_submit_by
                                 ? moment(row.will_submit_by).format(
-                                  "DD-MM-YYYY"
-                                )
+                                    "DD-MM-YYYY"
+                                  )
                                 : "-"}
                             </TableCell>
                             <TableCell>

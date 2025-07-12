@@ -41,6 +41,7 @@ import { checkAdminAccess, checkFullAccess } from "../utils/DateTimeUtils";
 import religionList from "../utils/ReligionList";
 import CandidateDetailsView from "./CandidateDetailsView";
 import { decryptEncryptedData } from "../utils/decryptData";
+import { maskMobile } from "../utils/MaskData";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -1971,7 +1972,7 @@ function EmployeeDetailsView() {
                           </Grid>
                           <Grid item xs={12} md={3}>
                             <Typography variant="body2" color="textSecondary">
-                              {data.mobile}
+                              {maskMobile(data.mobile)}
                             </Typography>
                           </Grid>
 
@@ -1982,7 +1983,7 @@ function EmployeeDetailsView() {
                           </Grid>
                           <Grid item xs={12} md={3}>
                             <Typography variant="body2" color="textSecondary">
-                              {data.alt_mobile_no}
+                              {maskMobile(data.alt_mobile_no)}
                             </Typography>
                           </Grid>
 

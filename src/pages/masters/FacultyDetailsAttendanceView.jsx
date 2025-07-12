@@ -455,8 +455,6 @@ const FacultyDetailsAttendanceView = ({
   const currentDate = "2025-03-01";
 
   const compareDates = (permittedDate) => {
-    console.log("permeit", permittedDate);
-
     const dateObj1 = new Date(permittedDate);
     const dateObj2 = new Date(currentDate);
 

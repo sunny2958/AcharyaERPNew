@@ -19,6 +19,8 @@ import useBreadcrumbs from "../hooks/useBreadcrumbs";
 function StudentDocumentCollectionPdf() {
   const [studentDetails, setStudentDetails] = useState({});
   const [transcriptData, setTranscriptData] = useState([]);
+
+  const [photo, setPhoto] = useState(null);
   const { id } = useParams();
   const setCrumbs = useBreadcrumbs();
 
@@ -31,17 +33,33 @@ function StudentDocumentCollectionPdf() {
   }, []);
 
   const getData = async () => {
-    await axios
-      .get(`/api/student/getDataForTestimonials/${id}`)
-      .then((res) => {
-        setStudentDetails(res.data.data.Student_details);
-        setTranscriptData(
-          res.data.data.Student_Transcript_Details.filter(
-            (obj) => obj.not_applicable !== "YES"
-          )
-        );
-      })
-      .catch((err) => console.error(err));
+    try {
+      const response = await axios.get(
+        `/api/student/getDataForTestimonials/${id}`
+      );
+
+      setStudentDetails(response.data.data.Student_details);
+
+      setTranscriptData(
+        response.data.data.Student_Transcript_Details.filter(
+          (obj) => obj.not_applicable !== "YES"
+        )
+      );
+
+      const studentImageResponse = await axios.get(
+        `/api/student/studentImageDownload?student_image_attachment_path=${response.data.data.Student_details.student_image_path}`,
+        { responseType: "blob" }
+      );
+
+      if (
+        studentImageResponse.status === 200 ||
+        studentImageResponse.status === 201
+      ) {
+        setPhoto(URL.createObjectURL(studentImageResponse.data));
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const styles = StyleSheet.create({
@@ -296,7 +314,7 @@ function StudentDocumentCollectionPdf() {
           }}
         >
           <Image
-            src={studentLogo}
+            src={photo ? photo : studentLogo}
             style={{ width: "50px", borderRadius: "60%" }}
           />
         </View>
@@ -375,10 +393,13 @@ function StudentDocumentCollectionPdf() {
             <Text style={styles.transcriptThStyle}>Collected</Text>
           </View>
           <View style={styles.transcriptThHeaderStyle}>
-            <Text style={styles.transcriptThStyle}>Submit By</Text>
+            <Text style={styles.transcriptThStyle}> Submit By</Text>
           </View>
           <View style={styles.transcriptThHeaderStyle}>
             <Text style={styles.transcriptThStyle}>Collected By</Text>
+          </View>
+          <View style={styles.transcriptThHeaderStyle}>
+            <Text style={styles.transcriptThStyle}>Collected Date</Text>
           </View>
           {/* <View style={styles.transcriptThHeaderStyle}>
             <Text style={styles.transcriptThStyle}>Collected By Institute</Text>
@@ -412,6 +433,11 @@ function StudentDocumentCollectionPdf() {
               <View style={styles.transcriptTdHeaderStyle}>
                 <Text style={styles.transcriptTdStyle}>
                   {obj.created_username}
+                </Text>
+              </View>
+              <View style={styles.transcriptTdHeaderStyle}>
+                <Text style={styles.transcriptTdStyle}>
+                  {obj.submitted_date}
                 </Text>
               </View>
             </View>

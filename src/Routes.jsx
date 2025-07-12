@@ -208,6 +208,10 @@ const HostelDueMaster = lazy(() => import("./pages/masters/HostelDueMaster"));
 const HostelBlockView = lazy(() =>
   import("./containers/indeces/hostelDueIndex/HostelBlockView")
 );
+
+const HostelDueReport = lazy(() =>
+  import("./containers/indeces/hostelDueIndex/HostelDueReport")
+);
 const HostelStudenDue = lazy(() =>
   import("./containers/indeces/hostelDueIndex/HostelStudentDueIndex")
 );
@@ -2621,6 +2625,15 @@ function RouteConfig() {
             element={
               <Suspense fallback={<OverlayLoader />}>
                 <HostelBlockView />
+              </Suspense>
+            }
+          />
+            <Route
+            exact
+            path="/hostel-due-report"
+            element={
+              <Suspense fallback={<OverlayLoader />}>
+                <HostelDueReport />
               </Suspense>
             }
           />
