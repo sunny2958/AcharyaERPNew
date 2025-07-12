@@ -375,7 +375,7 @@ function StudentDocumentCollectionPdf() {
             <Text style={styles.transcriptThStyle}>Collected</Text>
           </View>
           <View style={styles.transcriptThHeaderStyle}>
-            <Text style={styles.transcriptThStyle}>Will Submit By</Text>
+            <Text style={styles.transcriptThStyle}> Submit By</Text>
           </View>
           <View style={styles.transcriptThHeaderStyle}>
             <Text style={styles.transcriptThStyle}>Collected By</Text>

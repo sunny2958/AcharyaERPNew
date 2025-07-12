@@ -236,7 +236,11 @@ function StudentTranscriptApplication() {
                                   {obj.submitted_date}
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "center" }}>
-                                  {obj?.will_submit_by}
+                                  {obj?.will_submit_by
+                                    ? moment(obj?.will_submit_by).format(
+                                        "DD-MM-YYYY"
+                                      )
+                                    : null}
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "center" }}>
                                   {obj.created_username}

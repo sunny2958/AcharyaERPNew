@@ -97,12 +97,17 @@ function DocumentCollectionForm() {
     );
 
     filtered.forEach((item) => {
+      const getLastDate = studentTranscript.filter(
+        (obj) => obj.transcript_id === item.transcript_id
+      );
+
       temp.push({
         transcriptId: item.transcript_id || null,
         // stuTranscriptId: item?.stu_transcript_id || null,
         transcript: item.transcript || "",
         submittedStatus: false,
-        lastDate: item?.will_submit_by || null,
+        lastDate:
+          getLastDate.length > 0 ? getLastDate?.[0]?.will_submit_by : null,
         notRequied: false,
         submittedStatusDisabled: false,
         notRequiedDisabled: false,
@@ -124,13 +129,13 @@ function DocumentCollectionForm() {
     //   .map((item) => item.transcript_id);
 
     setTranscriptCollectedData(
-      studentTranscript
-      // .filter(
-      //   (obj) =>
-      //     obj.is_collected === "YES" ||
-      //     obj.not_applicable === "YES" ||
-      //     obj?.submitted_date
-      // )
+      studentTranscript.filter(
+        (obj) =>
+          (obj.is_collected === "YES" ||
+            obj.not_applicable === "YES" ||
+            obj?.submitted_date) &&
+          !obj.will_submit_by
+      )
     );
 
     const transcriptObj = [];
@@ -147,7 +152,7 @@ function DocumentCollectionForm() {
             : null,
         transcript: obj.transcript,
         submittedStatus: false,
-        lastDate: null,
+        lastDate: obj.lastDate,
         notRequied: false,
         submittedStatusDisabled: false,
         notRequiedDisabled: false,
@@ -160,6 +165,8 @@ function DocumentCollectionForm() {
       transcript: transcriptObj,
     }));
   };
+
+  console.log(values);
 
   const getTranscriptData = async () => {
     await axios
@@ -214,8 +221,6 @@ function DocumentCollectionForm() {
     }));
   };
 
-  console.log(values);
-
   const handleCreate = async () => {
     const putTemp = [];
     const postTemp = [];
@@ -229,7 +234,6 @@ function DocumentCollectionForm() {
         if (obj.stuTranscriptId === null) {
           postTemp.push({
             active: true,
-            // stu_transcript_id: obj.stuTranscriptId,
             transcript_id: obj.transcriptId,
             student_id: studentData.student_id,
             is_collected: obj.submittedStatus === true ? "YES" : null,
@@ -249,9 +253,7 @@ function DocumentCollectionForm() {
               ? moment(obj.lastDate).format("DD-MM-YYYY")
               : moment(new Date()).format("DD-MM-YYYY"),
             not_applicable: obj.notRequied === true ? "YES" : null,
-            will_submit_by: obj.lastDate
-              ? moment(obj.lastDate).format("DD-MM-YYYY")
-              : null,
+            will_submit_by: obj.lastDate ? obj.lastDate : null,
             created_username: userName,
           });
         }

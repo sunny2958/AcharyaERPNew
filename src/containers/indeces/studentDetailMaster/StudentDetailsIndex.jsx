@@ -77,7 +77,7 @@ const yearList = [
   { value: "3", label: "Year 3", semValue: "0" },
   { value: "4", label: "Year 4", semValue: "0" },
   { value: "5", label: "Year 5", semValue: "0" },
-  { value: "6", label: "Year 6", semValue: "0" }
+  { value: "6", label: "Year 6", semValue: "0" },
 ];
 
 const semList = [
@@ -102,7 +102,7 @@ const initialValues = {
   programSpeId: null,
   categoryId: null,
   year: null,
-  sem: null
+  sem: null,
 };
 const userID = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.userId;
 const schoolID = JSON.parse(sessionStorage.getItem("userData"))?.school_id;
@@ -179,11 +179,7 @@ function StudentDetailsIndex() {
 
   useEffect(() => {
     getData();
-  }, [
-    values.acyearId,
-    tab,
-  ])
-
+  }, [values.acyearId, tab]);
 
   useEffect(() => {
     getProgram();
@@ -425,9 +421,15 @@ function StudentDetailsIndex() {
   const getYearSemValue = (newValue, rowValues) => {
     setValues((prevState) => ({
       ...prevState,
-      year: rowValues?.program_type == "Semester" ? semList.find((li) => li.value == newValue)?.yearValue : newValue,
-      sem: rowValues?.program_type == "Semester" ? newValue : yearList.find((li) => li.value == newValue)?.semValue
-    }))
+      year:
+        rowValues?.program_type == "Semester"
+          ? semList.find((li) => li.value == newValue)?.yearValue
+          : newValue,
+      sem:
+        rowValues?.program_type == "Semester"
+          ? newValue
+          : yearList.find((li) => li.value == newValue)?.semValue,
+    }));
   };
 
   const handleOnPageChange = (newPage) => {
@@ -463,7 +465,7 @@ function StudentDetailsIndex() {
     setValues((prevState) => ({
       ...prevState,
       year: null,
-      sem: null
+      sem: null,
     }));
     setRowData(data);
     setYearSemModal(true);
@@ -559,7 +561,7 @@ function StudentDetailsIndex() {
       field: "candidate_id",
       headerName: "Candidate ID",
       flex: 1,
-      //  hide: true 
+      //  hide: true
     },
     {
       field: "student_name",
@@ -635,8 +637,7 @@ function StudentDetailsIndex() {
       field: "mobile",
       headerName: "Mobile",
       flex: 1,
-      valueGetter: (value, row) =>
-        row.mobile ? maskMobile(row.mobile) : "",
+      valueGetter: (value, row) => (row.mobile ? maskMobile(row.mobile) : ""),
     },
     {
       field: "date_of_admission",
@@ -661,16 +662,22 @@ function StudentDetailsIndex() {
       field: "currentYearSem",
       headerName: "Year/Sem",
       flex: 1,
-      renderCell: (params) => ((params.row.current_year || params.row.current_sem) ?
-        `${params.row.current_year}/${params.row.current_sem || 0}`
-        : <IconButton
-          color="primary"
-          onClick={() => handleUpdateYearSem(params.row)}
-          sx={{ padding: 0 }}
-        >
-          <AddBoxIcon />
-        </IconButton>),
-      valueGetter: (value, row) => ((row?.current_year || row?.current_sem) ? `${row?.current_year}/${row?.current_sem || 0}` : null)
+      renderCell: (params) =>
+        params.row.current_year || params.row.current_sem ? (
+          `${params.row.current_year}/${params.row.current_sem || 0}`
+        ) : (
+          <IconButton
+            color="primary"
+            onClick={() => handleUpdateYearSem(params.row)}
+            sx={{ padding: 0 }}
+          >
+            <AddBoxIcon />
+          </IconButton>
+        ),
+      valueGetter: (value, row) =>
+        row?.current_year || row?.current_sem
+          ? `${row?.current_year}/${row?.current_sem || 0}`
+          : null,
     },
     {
       field: "fee_template_name",
@@ -694,7 +701,7 @@ function StudentDetailsIndex() {
       field: "current_state",
       headerName: "State",
       flex: 1,
-      hide: true
+      hide: true,
     },
     {
       field: "current_city",
@@ -981,11 +988,11 @@ function StudentDetailsIndex() {
       );
       if (res.status == 200 || res.status == 201) {
         const payload = {
-          "student_id": rowData?.id,
-          "current_year": Number(values.year),
-          "current_sem": Number(values.sem),
-          "reporting_date": new Date(),
-          "active": true
+          student_id: rowData?.id,
+          current_year: Number(values.year),
+          current_sem: Number(values.sem),
+          reporting_date: new Date(),
+          active: true,
         };
         if (res.data.data?.reporting_id) {
           payload["reporting_id"] = res.data.data?.reporting_id;
@@ -994,7 +1001,7 @@ function StudentDetailsIndex() {
             [payload]
           );
           if (response.status == 200 || response.status == 201) {
-            actionAfterResponse()
+            actionAfterResponse();
           }
         } else {
           payload["modified_by"] = userID;
@@ -1003,14 +1010,15 @@ function StudentDetailsIndex() {
             payload
           );
           if (response.status == 200 || response.status == 201) {
-            actionAfterResponse()
+            actionAfterResponse();
           }
         }
       }
     } catch (err) {
       setAlertMessage({
         severity: "error",
-        message: err.response?.data?.message || "Unable to update the Year Sem !!",
+        message:
+          err.response?.data?.message || "Unable to update the Year Sem !!",
       });
       setAlertOpen(true);
     } finally {
@@ -1030,28 +1038,30 @@ function StudentDetailsIndex() {
 
   const YearSemComponent = ({ rowData }) => (
     <Box>
-      <Grid container sx={{ display: "flex", justifyContent: "center", marginTop: "10px" }}>
+      <Grid
+        container
+        sx={{ display: "flex", justifyContent: "center", marginTop: "10px" }}
+      >
         <Grid item xs={12}>
           <CustomAutocomplete
             name="yearSem"
             label="Year/Sem"
             options={rowData.program_type == "YEARLY" ? yearList : semList}
             value={values.yearSem}
-            handleChangeAdvance={(name, value) => handleChangeAdvance(name, value, rowData)}
+            handleChangeAdvance={(name, value) =>
+              handleChangeAdvance(name, value, rowData)
+            }
             required
           />
         </Grid>
         <Grid item xs={12} mt={2} align="right">
           <Button
             variant="contained"
-            disabled={!(values.year) || yearSemLoading}
+            disabled={!values.year || yearSemLoading}
             onClick={onSubmitYearSem}
           >
             {yearSemLoading ? (
-              <CircularProgress
-                size={25}
-                style={{ margin: "2px 13px" }}
-              />
+              <CircularProgress size={25} style={{ margin: "2px 13px" }} />
             ) : (
               <strong>Submit</strong>
             )}
@@ -1059,7 +1069,7 @@ function StudentDetailsIndex() {
         </Grid>
       </Grid>
     </Box>
-  )
+  );
   return (
     <>
       {/* Assign USN  */}
@@ -1125,10 +1135,7 @@ function StudentDetailsIndex() {
         open={yearSemModal}
         setOpen={setYearSemModal}
       >
-        <YearSemComponent
-          rowData={rowData}
-          setYearSemModal={setYearSemModal}
-        />
+        <YearSemComponent rowData={rowData} setYearSemModal={setYearSemModal} />
       </ModalWrapper>
 
       <Box sx={{ position: "relative", top: { md: -30 } }}>
@@ -1159,13 +1166,22 @@ function StudentDetailsIndex() {
         </Stack>
       </Box>
 
-      <Tabs value={tab} onChange={handleChange} sx={{ marginTop: { xs: 2, md: -3 } }}>
+      <Tabs
+        value={tab}
+        onChange={handleChange}
+        sx={{ marginTop: { xs: 2, md: -3 } }}
+      >
         <Tab value="Active Student" label="Active Student" />
         <Tab value="InActive Student" label="InActive Student" />
       </Tabs>
 
       <Box>
-        <Grid container alignItems="center" mt={2} sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Grid
+          container
+          alignItems="center"
+          mt={2}
+          sx={{ display: "flex", justifyContent: "space-between" }}
+        >
           <Grid item xs={2} md={2.4}>
             <CustomAutocomplete
               name="acyearId"
@@ -1241,7 +1257,11 @@ function StudentDetailsIndex() {
           setColumnVisibilityModel={setColumnVisibilityModel}
         />
       </Box>
-      <PdfUploadModal imageOpen={imageOpen} setImageUploadOpen={setImageUploadOpen} rowData={rowData} />
+      <PdfUploadModal
+        imageOpen={imageOpen}
+        setImageUploadOpen={setImageUploadOpen}
+        rowData={rowData}
+      />
     </>
   );
 }
