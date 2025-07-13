@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function ExpensesDayCreditTransaction() {
+function AssetsAndExpenditurePaymentVoucher() {
   const [rows, setRows] = useState([]);
   const [columnVisibilityModel, setColumnVisibilityModel] = useState({
     dept_name: false,
@@ -57,23 +57,23 @@ function ExpensesDayCreditTransaction() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setCrumbs([{ name: "" }]);
-    if (queryValues?.isBRSTrue) {
-      setBreadCrumbs([
-        { name: "Bank Balance", link: "/bank-balance" },
-        { name: "BRS", link: "/institute-bank-balance", state: { bankGroupId: queryValues?.bankGroupId } },
-        { name: "Monthly Transaction", link: "/Accounts-ledger-monthly-detail", state: queryValues },
-        { name: 'Daily Summary', link: "/Accounts-ledger-day-transaction", state: queryValues },
-        { name: `${queryValues?.voucherHeadName || ""} FY ${queryValues?.fcYear} as on ${moment().format('DD-MMMM-YYYY')}` },
-      ]);
-    } else {
-      setBreadCrumbs([
-        { name: "Ledger", link: "/Accounts-ledger", state: queryValues },
-        { name: "Monthly Transaction", link: "/Accounts-ledger-monthly-detail", state: queryValues },
-        { name: 'Daily Summary', link: "/Accounts-ledger-day-transaction", state: queryValues },
-        { name: `${queryValues?.voucherHeadName || ""} FY ${queryValues?.fcYear} as on ${moment().format('DD-MMMM-YYYY')}` },
-      ])
-    }
+    // setCrumbs([{ name: "" }]);
+    // if (queryValues?.isBRSTrue) {
+    //   setBreadCrumbs([
+    //     { name: "Bank Balance", link: "/bank-balance" },
+    //     { name: "BRS", link: "/institute-bank-balance", state: { bankGroupId: queryValues?.bankGroupId } },
+    //     { name: "Monthly Transaction", link: "/Accounts-ledger-monthly-detail", state: queryValues },
+    //     { name: 'Daily Summary', link: "/Accounts-ledger-day-transaction", state: queryValues },
+    //     { name: `${queryValues?.voucherHeadName || ""} FY ${queryValues?.fcYear} as on ${moment().format('DD-MMMM-YYYY')}` },
+    //   ]);
+    // } else {
+    //   setBreadCrumbs([
+    //     { name: "Ledger", link: "/Accounts-ledger", state: queryValues },
+    //     { name: "Monthly Transaction", link: "/Accounts-ledger-monthly-detail", state: queryValues },
+    //     { name: 'Daily Summary', link: "/Accounts-ledger-day-transaction", state: queryValues },
+    //     { name: `${queryValues?.voucherHeadName || ""} FY ${queryValues?.fcYear} as on ${moment().format('DD-MMMM-YYYY')}` },
+    //   ])
+    // }
     getData()
   }, []);
 
@@ -87,7 +87,8 @@ function ExpensesDayCreditTransaction() {
       ...(schoolId && { schoolId }),
       ...(date && { date })
     }
-    const baseUrl = '/api/finance/getAllExpenditureOrAssetsDetails'
+   // const baseUrl = '/api/finance/getAllExpenditureOrAssetsDetails'
+   const baseUrl = '/api/finance/getAllDebitDetailOfExpenditureOrAssetsDetails'
     await axios
       .get(baseUrl, { params })
       .then((response) => {
@@ -192,7 +193,7 @@ function ExpensesDayCreditTransaction() {
   );
 }
 
-export default ExpensesDayCreditTransaction;
+export default AssetsAndExpenditurePaymentVoucher;
 
 const CustomBreadCrumbs = ({ crumbs = [] }) => {
   const navigate = useNavigate()

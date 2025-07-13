@@ -24,7 +24,7 @@ const style = {
 const VendorFilterModal = ({ filters, setFilters, selectedField, setSelectedField }) => {
 
     const handleClose = () => {
-        console.log("fdnbhjvbhj")
+        console.log("handleClose")
     };
 
     const handleApplyFilter = () => {
