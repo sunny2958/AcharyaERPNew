@@ -179,7 +179,7 @@ export const GenerateSchoolCounterSummary = (
             customWidth={4}
             labelType="text"
           />
-          <DisplayCells
+          {/* <DisplayCells
             label="RPT Summary"
             style="Times-Bold"
             right={1}
@@ -188,7 +188,7 @@ export const GenerateSchoolCounterSummary = (
             align="center"
             customWidth={4}
             labelType="text"
-          />
+          /> */}
         </DispayRow>
         {listData.map((obj, i) => {
           return (
@@ -287,7 +287,7 @@ export const GenerateSchoolCounterSummary = (
                 customWidth={4}
                 labelType="text"
               />
-              <DisplayCells
+              {/* <DisplayCells
                 key={i}
                 label={Number((obj?.INRCASH + obj?.INRDD + obj?.INRONLINE + obj?.USDCASH) % 1 !== 0 ? (obj?.INRCASH + obj?.INRDD + obj?.INRONLINE + obj?.USDCASH)?.toFixed(2) : (obj?.INRCASH + obj?.INRDD + obj?.INRONLINE + obj?.USDCASH)) || 0}
                 style={(obj?.schoolName?.toLowerCase() == "total" || obj?.schoolName?.toLowerCase() == "nrc" || obj?.schoolName?.toLowerCase() == "hos") ? "Times-Bold" : "Times-Roman"}
@@ -296,7 +296,7 @@ export const GenerateSchoolCounterSummary = (
                 align="right"
                 customWidth={4}
                 labelType="text"
-              />
+              /> */}
             </DispayRow>
           );
         })}
@@ -399,7 +399,7 @@ export const GenerateSchoolCounterSummary = (
             labelType="text"
             fontSize="10"
           />
-          <DisplayCells
+          {/* <DisplayCells
             label={Number((cashTotal + ddTotal + onlineTotal + usdCashTotal) % 1 !== 0 ? (cashTotal + ddTotal + onlineTotal + usdCashTotal)?.toFixed(2) : (cashTotal + ddTotal + onlineTotal + usdCashTotal)) || 0}
             style="Times-Bold"
             right={1}
@@ -408,7 +408,7 @@ export const GenerateSchoolCounterSummary = (
             customWidth={4}
             labelType="text"
             fontSize="10"
-          />
+          /> */}
         </DispayRow>
       </View>
     </View>
