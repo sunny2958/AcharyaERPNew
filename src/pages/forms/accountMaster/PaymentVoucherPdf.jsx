@@ -78,7 +78,7 @@ const PaymentVoucherPdf = () => {
 
   useEffect(() => {
     getPaymentVoucherData();
-    if (queryValues?.ledgerType === "VENDOR") {
+    if (queryValues?.ledgerType === "VENDOR" ) {
       setCrumbs([]);
       setBreadCrumb([
         {
@@ -96,7 +96,17 @@ const PaymentVoucherPdf = () => {
           state: queryValues,
         },
       ]);
-    } else if (pathfrom) {
+    } else if (queryValues?.ledgerType === 'ASSETS/ADVANCE' || queryValues?.ledgerType === 'EXPENDITURE') {
+      setCrumbs([]);
+      setBreadCrumb([
+        {
+          name: "Payment Tracker",
+          link: "/ledger-assets-day-transaction-debit",
+          state: queryValues,
+        },
+      ]);
+    } 
+    else if (pathfrom) {
       setCrumbs([{ name: "PO Payment History", link: pathfrom }]);
     } else if (grnPdfStatus) {
       setCrumbs([{ name: "Payment Tracker", link: "/journalmaster/grn" }]);

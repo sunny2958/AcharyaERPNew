@@ -66,7 +66,7 @@ function VendorDayDebitTransaction() {
         approved_by: false,
         dept_name: false,
         // created_date: false,
-        shool_short_name:false,
+        shool_short_name: false,
         online: false,
         created_username: false,
         created_name: false
@@ -83,22 +83,26 @@ function VendorDayDebitTransaction() {
 
     useEffect(() => {
         getData();
-        setCrumbs([])
-        if (queryValues?.isBRSTrue) {
-            setBreadCrumbs([
-                { name: "Bank Balance", link: "/bank-balance" },
-                { name: "BRS", link: "/institute-bank-balance", state: { bankGroupId: queryValues?.bankGroupId } },
-                { name: "Monthly Transaction", link: "/Accounts-ledger-monthly-detail", state: queryValues },
-                { name: 'Daily Summary', link: "/Accounts-ledger-day-transaction", state: queryValues },
-                { name: `${queryValues?.voucherHeadName || ""} FY ${queryValues?.fcYear} as on ${moment().format('DD-MMMM-YYYY')}` },
-            ]);
+        if (queryValues?.ledgerType === 'ASSETS/ADVANCE' || queryValues?.ledgerType === 'EXPENDITURE') {
+            return
         } else {
-            setBreadCrumbs([
-                { name: "Ledger", link: "/Accounts-ledger", state: queryValues },
-                { name: "Monthly Transaction", link: "/Accounts-ledger-monthly-detail", state: queryValues },
-                { name: 'Daily Summary', link: "/Accounts-ledger-day-transaction", state: queryValues },
-                { name: `${queryValues?.voucherHeadName || ""} FY ${queryValues?.fcYear} as on ${moment().format('DD-MMMM-YYYY')}` },
-            ])
+            setCrumbs([])
+            if (queryValues?.isBRSTrue) {
+                setBreadCrumbs([
+                    { name: "Bank Balance", link: "/bank-balance" },
+                    { name: "BRS", link: "/institute-bank-balance", state: { bankGroupId: queryValues?.bankGroupId } },
+                    { name: "Monthly Transaction", link: "/Accounts-ledger-monthly-detail", state: queryValues },
+                    { name: 'Daily Summary', link: "/Accounts-ledger-day-transaction", state: queryValues },
+                    { name: `${queryValues?.voucherHeadName || ""} FY ${queryValues?.fcYear} as on ${moment().format('DD-MMMM-YYYY')}` },
+                ]);
+            } else {
+                setBreadCrumbs([
+                    { name: "Ledger", link: "/Accounts-ledger", state: queryValues },
+                    { name: "Monthly Transaction", link: "/Accounts-ledger-monthly-detail", state: queryValues },
+                    { name: 'Daily Summary', link: "/Accounts-ledger-day-transaction", state: queryValues },
+                    { name: `${queryValues?.voucherHeadName || ""} FY ${queryValues?.fcYear} as on ${moment().format('DD-MMMM-YYYY')}` },
+                ])
+            }
         }
     }, []);
 
@@ -127,7 +131,7 @@ function VendorDayDebitTransaction() {
             })
             .catch((err) => {
                 setLoading(false);
-                 setAlertMessage({
+                setAlertMessage({
                     severity: "error",
                     message: "Something went wrong.",
                 });
@@ -141,12 +145,12 @@ function VendorDayDebitTransaction() {
             field: "Print",
             headerName: "Print",
             renderCell: (params) =>
-                    <IconButton
-                        color="primary"
-                        onClick={() => navigate(`/payment-voucher-pdf/${params?.row?.payment_voucher_id}`, { state: { query: queryValues } })}
-                    >
-                        <PrintIcon sx={{ fontSize: 17 }} />
-                    </IconButton>
+                <IconButton
+                    color="primary"
+                    onClick={() => navigate(`/payment-voucher-pdf/${params?.row?.payment_voucher_id}`, { state: { query: queryValues } })}
+                >
+                    <PrintIcon sx={{ fontSize: 17 }} />
+                </IconButton>
         },
         { field: "shool_short_name", headerName: "School", flex: 1, align: 'center' },
         { field: "voucher_no", headerName: "Voucher No", flex: 1, align: 'center' },
@@ -158,7 +162,7 @@ function VendorDayDebitTransaction() {
             headerAlign: "right",
             align: "right",
         },
-         { field: "remarks", headerName: "Remarks", flex: 1 },
+        { field: "remarks", headerName: "Remarks", flex: 1 },
         { field: "dept_name", headerName: "Dept", flex: 1, hide: true },
         { field: "created_name", headerName: "Created By", flex: 1 },
         {
@@ -175,7 +179,7 @@ function VendorDayDebitTransaction() {
             flex: 1,
             valueGetter: (value, row) => (value == 1 ? "Online" : ""),
         },
-          {
+        {
             field: "pay_to",
             headerName: "Pay to",
             flex: 1,
@@ -186,7 +190,11 @@ function VendorDayDebitTransaction() {
     return (
         <>
             <Box sx={{ position: "relative", width: "100%" }}>
-                <CustomBreadCrumbs crumbs={breadCrumbs} />
+                {(queryValues?.ledgerType === 'ASSETS/ADVANCE' || queryValues?.ledgerType === 'EXPENDITURE') ? (
+                    <></>
+                ) : (
+                    <CustomBreadCrumbs crumbs={breadCrumbs} />
+                )}
                 <Box sx={{ position: "absolute", width: "100%", marginTop: "10px" }}>
                     <GridIndex
                         rows={rows}

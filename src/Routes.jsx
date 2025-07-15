@@ -1896,7 +1896,15 @@ const InflowDayCreditTransaction = lazy(()=>
   import("./containers/indeces/vendorMaster/LedgerInflowDayTransaction-credit.jsx")
 )
 const ExpensesDayCreditTransaction = lazy(()=>
-  import("./containers/indeces/vendorMaster/LedgerExpensesDayTransaction.jsx")
+  import("./containers/indeces/vendorMaster/AssetsAndExpenditurePaymentVoucher.jsx")
+)
+
+const AssetsAndExpenditureCreditDayTransaction = lazy(()=>
+  import("./containers/indeces/vendorMaster/AssetsAndExpenditureDayTransaction-credit.jsx")
+)
+
+const AssetsAndExpenditureDebitDayTransaction = lazy(()=>
+  import("./containers/indeces/vendorMaster/AssetsAndExpenditureDaytransaction-debit.jsx")
 )
 
 const VendorDetailMaster = lazy(() =>
@@ -10520,7 +10528,34 @@ function RouteConfig() {
             path={"/ledger-assets-day-transaction-credit"}
             element={
               <Suspense fallback={<OverlayLoader />}>
-                <ExpensesDayCreditTransaction />
+                <AssetsAndExpenditureCreditDayTransaction />
+              </Suspense>
+            }
+          />
+           <Route
+            exact
+            path={"/ledger-assets-day-transaction-debit"}
+            element={
+              <Suspense fallback={<OverlayLoader />}>
+                <AssetsAndExpenditureDebitDayTransaction />
+              </Suspense>
+            }
+          />
+           <Route
+            exact
+            path={"/ledger-expenditure-day-transaction-credit"}
+            element={
+              <Suspense fallback={<OverlayLoader />}>
+                <AssetsAndExpenditureCreditDayTransaction />
+              </Suspense>
+            }
+          />
+           <Route
+            exact
+            path={"/ledger-expenditure-day-transaction-debit"}
+            element={
+              <Suspense fallback={<OverlayLoader />}>
+                <AssetsAndExpenditureDebitDayTransaction />
               </Suspense>
             }
           />
