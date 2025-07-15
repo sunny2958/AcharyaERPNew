@@ -28,7 +28,6 @@ const MISDashboard = () => {
     }, []);
 
     const getAcademicYearData = async()=>{
-      //api/academic/academicYearGT
         await axios.get(`api/academic/academicYearGT`)
                   .then((response) => {
                       const { data } = response?.data
@@ -54,23 +53,30 @@ const MISDashboard = () => {
   <Grid item sm={12} md={6} lg={4}>
     <Card
       path="/mis-dashboard/finance-report"
-      title="Finance & Bank Reports"
+      title="Monthly Revenue Reports"
       description="Access comprehensive financial and banking reports, showcasing transactions and financial health."
     />
   </Grid>
   <Grid item sm={12} md={6} lg={4}>
     <Card
       path="/mis-dashboard/admission-report"
-      title="Admissions Reports"
-      description="Explore academic year-wise and date-wise admission analytics, trends, and categories."
+      title="Category Admissions"
+      description="Explore academic year-wise admission analytics, trends, and categories."
       currAcYear={currAcYear}
     />
   </Grid>
   <Grid item sm={12} md={6} lg={4}>
     <Card
       path="/mis-dashboard/academic-overview"
-      title="Academic Overview"
-      description="Get a complete view of academic performance, course progress, and student engagement."
+      title="School-wise Admissions"
+      description="Analyze yearly admission data by school."
+    />
+  </Grid>
+  <Grid item sm={12} md={6} lg={4}>
+    <Card
+      path="/mis-dashboard/bank-group-report"
+      title="Finance & Bank Reports"
+      description="Track current balances across bank accounts and cash credits."
     />
   </Grid>
 </Grid>

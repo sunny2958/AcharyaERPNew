@@ -22,7 +22,7 @@ const ChartOptions = [
     { value: "pie", label: "Pie" },
 ];
 
-export default function FinanceReport() {
+export default function BankGroupReport() {
     const [tableColumns, setTableColumns] = useState([]);
     const [tableRows, setTableRows] = useState([]);
     const [chartData, setChartData] = useState({});
@@ -34,15 +34,16 @@ export default function FinanceReport() {
     useEffect(() => {
         setCrumbs([
             { name: "MIS-Dashboard", link: "/mis-dashboard" },
-            { name: "Finance" },
+            { name: "Bank Balance Report" },
         ]);
-        getFinanceReportData();
+        fetchBankBalanceData();
     }, []);
 
-    const getFinanceReportData = async () => {
+    const fetchBankBalanceData = async () => {
         setLoading(true);
         try {
-            const { data } = await axios.get(`api/admissionCategoryReport/getBankReport`);
+            const response = await axios.get(`/api/admissionCategoryReport/getBankReportGroupwise`);
+            const data = response?.data?.data || [];
             updateTableAndChart(data);
         } catch (err) {
             console.error(err);
@@ -51,53 +52,38 @@ export default function FinanceReport() {
     };
 
     const updateTableAndChart = (data) => {
-        const sortedData = [...data].sort((a, b) => a.month_number - b.month_number);
-        const months = sortedData.map(item => item.month_name);
-        const monthAmounts = Object.fromEntries(
-            sortedData.map(item => [item.month_name, parseFloat(item.totalAmount.replace(" cr.", "")) || 0])
-        );
+        const rows = data.map((item, index) => ({
+            id: index,
+            bankGroup: item.bank_group_name || "Unknown",
+            balance: item.bank_balance || 0,
+            amountFormatted: item.totalAmount || "0.000 cr."
+        }));
 
-        const amountRow = { id: 1, type: "Amount" };
-        months.forEach(month => {
-            amountRow[month] = monthAmounts[month];
+        const totalBalance = data.reduce((sum, d) => sum + (d.bank_balance || 0), 0);
+
+        rows.push({
+            id: "total",
+            bankGroup: "Total",
+            balance: totalBalance,
+            amountFormatted: `${(totalBalance / 1e7).toFixed(3)} cr.`
         });
-        amountRow.Total = months.reduce((sum, month) => sum + amountRow[month], 0);
 
-        setTableRows([amountRow]);
+        setTableRows(rows);
 
         setTableColumns([
-            { field: "type", headerName: "Type", flex: 1, headerClassName: "header-bg" },
-            ...months.map(month => ({
-                field: month,
-                headerName: month,
-                type: "number",
-                flex: 1,
-                headerClassName: "header-bg",
-                align: "center"
-            })),
-            { field: "Total", headerName: "Total", type: "number", flex: 1, headerClassName: "header-bg", cellClassName: "last-column", align: "center" }
+            { field: "bankGroup", headerName: "Bank Group Name", flex: 1, headerClassName: "header-bg" },
+            { field: "balance", headerName: "Balance", type: "number", flex: 1, headerClassName: "header-bg", align: 'center' },
+            { field: "amountFormatted", headerName: "Total Amount (Rs)", flex: 1, headerClassName: "header-bg", align: 'center' },
         ]);
 
         setChartData({
-            categories: months,
-            data: months.map(month => monthAmounts[month])
+            categories: data.map(d => d.bank_group_name),
+            balances: data.map(d => d.bank_balance),
         });
     };
 
-    const getChartColors = (length) => {
-        const baseColors = ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796"];
-        const colors = [];
-        for (let i = 0; i < length; i++) {
-            colors.push(baseColors[i % baseColors.length]);
-        }
-        return colors;
-    };
-
     const buildHighChartOptions = () => {
-        const pointColors = getChartColors(chartData.data?.length || 0);
-        const defaultColor = "#4e73df";
-        const markerBorderColor = "#e74a3b";
-
+        const isPie = selectedChart === "pie";
         return {
             chart: {
                 type: selectedChart,
@@ -105,30 +91,18 @@ export default function FinanceReport() {
                 style: { fontFamily: "'Roboto', sans-serif" }
             },
             title: {
-                text: "Monthly Revenue",
+                text: "Bank Balance Report",
                 style: { color: "#333" }
             },
-            xAxis: selectedChart !== "pie" ? {
+            xAxis: !isPie ? {
                 categories: chartData.categories || [],
-                labels: { style: { color: "#333" } },
-                crosshair: true
-            } : undefined,
-            yAxis: selectedChart !== "pie" ? {
-                min: 0,
-                title: { text: "Amount (cr.)", style: { color: "#333" } },
                 labels: { style: { color: "#333" } }
             } : undefined,
-            // tooltip: {
-            //     shared: true,
-            //     useHTML: true,
-            //     backgroundColor: "#f8f9fa",
-            //     borderColor: "#dee2e6",
-            //     style: { color: "#333" },
-            //     headerFormat: "<b>{point.key}</b><table>",
-            //     pointFormat: "<tr><td style='color:{series.color}'>{series.name}: </td>" +
-            //                  "<td style='text-align:right'><b>{point.y}</b></td></tr>",
-            //     footerFormat: "</table>"
-            // },
+            yAxis: !isPie ? {
+                min: 0,
+                title: { text: "Balance (₹)", style: { color: "#333" } },
+                labels: { style: { color: "#333" } }
+            } : undefined,
             tooltip: {
                 shared: true,
                 backgroundColor: "rgba(255,255,255,0.96)",
@@ -142,24 +116,32 @@ export default function FinanceReport() {
                     padding: "12px",
                     fontWeight: "500"
                 },
-                headerFormat: '<span style="font-size: 14px; font-weight: 600; color: #2d3748; margin-bottom: 8px; display: block">{point.key}</span>',
-                pointFormat: '<div style="display: flex; align-items: center; margin: 4px 0;"><span style="background-color:{point.color}; width: 12px; height: 12px; border-radius: 2px; display: inline-block; margin-right: 8px;"></span><span style="font-weight: 500;">{series.name}:</span> <span style="font-weight: 700; margin-left: auto;">{point.y}</span></div>',
+                headerFormat: '<span style="font-size: 14px; font-weight: 600; color: #2d3748;">{point.key}</span><br/>',
+                pointFormat: '<div style="display: flex; align-items: center;"><span style="background-color:{point.color}; width: 12px; height: 12px; border-radius: 2px; display: inline-block; margin-right: 8px;"></span><span style="font-weight: 500;">{series.name}:</span> <span style="font-weight: 700; margin-left: auto;">{point.y}</span></div>',
                 useHTML: true
             },
             legend: {
-                itemStyle: { color: "#333" }
+                itemStyle: { color: '#333' }
             },
             plotOptions: {
-                column: { dataLabels: { enabled: true, style: { color: "#333" } } },
-                bar: { dataLabels: { enabled: true, style: { color: "#333" } } },
-                line: {
-                    dataLabels: { enabled: true, style: { color: "#333" } },
-                    marker: {
-                        radius: 4,
-                        lineColor: markerBorderColor,
-                        lineWidth: 2,
-                        fillColor: "#fff"
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        style: { color: "#000", textOutline: "1px contrast" }
                     }
+                },
+                bar: {
+                    dataLabels: {
+                        enabled: true,
+                        style: { color: "#000", textOutline: "1px contrast" }
+                    }
+                },
+                line: {
+                    dataLabels: {
+                        enabled: true,
+                        style: { color: "#000", textOutline: "1px contrast" }
+                    },
+                    marker: { radius: 5, lineColor: "#fff", lineWidth: 1 }
                 },
                 pie: {
                     allowPointSelect: true,
@@ -167,39 +149,28 @@ export default function FinanceReport() {
                     dataLabels: {
                         enabled: true,
                         format: "<b>{point.name}</b>: {point.y}",
-                        style: { color: "#333" }
+                        color: "#000"
                     }
                 }
             },
-            credits: { enabled: false },
-            colors: selectedChart === "pie" ? pointColors : [defaultColor],
-            series: selectedChart === "pie"
+            credits: {
+                enabled: false
+            },
+            series: isPie
                 ? [{
-                    name: "Amount",
-                    // colorByPoint: true,
-                    data: chartData.categories?.map((month, i) => ({
-                        name: month,
-                        y: chartData.data[i],
-                        color: pointColors[i]
+                    name: "Balance",
+                    data: chartData.categories.map((name, i) => ({
+                        name,
+                        y: chartData.balances[i]
                     }))
                 }]
                 : [{
-                    name: "Amount (cr.)",
-                    data: chartData.data,
-                    color: defaultColor,
-                    ...(selectedChart === "line" && {
-                        marker: {
-                            lineColor: markerBorderColor,
-                            lineWidth: 2,
-                            fillColor: "#fff"
-                        }
-                    })
+                    name: "Balance",
+                    data: chartData.balances,
+                    color: "#4e79a7"
                 }]
         };
     };
-
-
-
 
     return (
         <Grid container spacing={3}>
@@ -277,15 +248,17 @@ export default function FinanceReport() {
                             loading={loading}
                             getRowId={(row) => row.id}
                             isRowSelectable={() => false}
+                            getRowClassName={(params) =>
+                                params.row.bankGroup === "Total" ? "last-row" : ""
+                            }
                         />
                     </Grid>
                 ) : (
                     <Box p={3}>
-                        {chartData?.data && <HighchartsReact highcharts={Highcharts} options={buildHighChartOptions()} />}
+                        {chartData.balances && <HighchartsReact highcharts={Highcharts} options={buildHighChartOptions()} />}
                     </Box>
                 )}
             </Grid>
         </Grid>
     );
 }
-

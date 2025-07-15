@@ -80,7 +80,7 @@ const VendorMonthlyDetails = () => {
 
   const getData = async () => {
     const { voucherHeadId, fcYearId, schoolId, ledgerType, isTotalRow } = queryValues
-    const baseUrl = isTotalRow ? "api/finance/getMonthWiseSummary" : "/api/finance/getLedgerSummaryMonthlyWise"
+    const baseUrl = isTotalRow && ledgerType === 'EARNINGS' ? "api/finance/getMonthWiseSummary" : "/api/finance/getLedgerSummaryMonthlyWise"
     let params = {}
     if(isTotalRow){
       params={

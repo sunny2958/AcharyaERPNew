@@ -160,7 +160,8 @@ const MISDashboard = lazy(() => import("./pages/forms/misDashboard/index.js"));
 const AcademicOverviewPage = lazy(() => import("./pages/forms/misDashboard/academicOverview/index"));
 const AdmissionReportPage = lazy(()=> import("./pages/forms/misDashboard/admission/index"))
 const JoiningRelieveReportPage = lazy(()=> import("./pages/forms/misDashboard/JoiningRelieve/index.jsx"))
-const FinanceReportPage = lazy(()=> import("./pages/forms/misDashboard/finance/index.jsx"))
+const MonthlyRevenueReportPage = lazy(()=> import("./pages/forms/misDashboard/finance/index.jsx"))
+const FinanceAndBankReportPage = lazy(()=> import("./pages/forms/misDashboard/bankGroupReport/index.jsx"))
 
 const AdmissionPage = lazy(() =>
   import("./pages/forms/chartsDashboard/admission/index")
@@ -2280,7 +2281,8 @@ function RouteConfig() {
             { path: "/mis-dashboard/academic-overview", comp: <AcademicOverviewPage /> },
              { path: "/mis-dashboard/admission-report", comp: <AdmissionReportPage /> },
              { path: "/mis-dashboard/joining-relieve-report", comp: <JoiningRelieveReportPage /> },
-              { path: "/mis-dashboard/finance-report", comp: <FinanceReportPage /> },
+              { path: "/mis-dashboard/finance-report", comp: <MonthlyRevenueReportPage /> },
+              {path: "/mis-dashboard/bank-group-report",  comp: <FinanceAndBankReportPage />}
           ].map((obj) => (
             <Route
               exact

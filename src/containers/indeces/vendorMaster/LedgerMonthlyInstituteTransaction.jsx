@@ -84,13 +84,22 @@ const LedgerMonthlyInstTransaction = () => {
     }, [currMonth?.month])
 
     const getData = async () => {
-        const { voucherHeadId, fcYearId, schoolId, year } = queryValues
-        const baseUrl = "/api/finance/getMonthAndSchoolWiseSummary"
-        const params = {
+        const { voucherHeadId, fcYearId, schoolId, year, ledgerType } = queryValues;
+        let params = {}
+        const baseUrl = ledgerType === "EARNINGS" ?  "/api/finance/getMonthAndSchoolWiseSummary" : "/api/finance/getMonthlyLedger"
+        if(ledgerType === "EARNINGS" ){
+         params = {
             ...(voucherHeadId && { voucherHeadNewId: voucherHeadId }),
             ...(year && { year }),
             ...(currMonth?.month && { month: currMonth?.month }),
         }
+    }else{
+         params = {
+            ...(voucherHeadId && { voucherHeadNewId: voucherHeadId }),
+            ...(currMonth?.month && { month: currMonth?.month }),
+            ...(fcYearId && { fcYearId })
+        }
+    }
         setLoading(true)
         await axios
             .get(baseUrl, { params })
@@ -381,7 +390,7 @@ const LedgerMonthlyInstTransaction = () => {
                                                     fontWeight: 400,
                                                     color: 'rgba(0, 0, 0, 0.87)'
                                                 }}>
-                                                    {row?.school_name_short}
+                                                    {queryValues?.ledgerType === 'EARNINGS' ? row?.school_name_short : row?.school_name}
                                                 </TableCell>
                                                 <TableCell align="right">
                                                     {formatCurrency(row.openingBalance)}
