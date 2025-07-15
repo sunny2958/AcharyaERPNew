@@ -104,7 +104,6 @@ function InflowDayCreditTransaction() {
             .get(baseUrl, { params })
             .then((response) => {
                 setLoading(false);
-                console.log("response", response?.data)
                 setRows(response?.data?.data);
             })
             .catch((err) => {

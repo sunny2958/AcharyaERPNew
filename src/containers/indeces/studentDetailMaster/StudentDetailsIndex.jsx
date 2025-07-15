@@ -77,7 +77,7 @@ const yearList = [
   { value: "3", label: "Year 3", semValue: "0" },
   { value: "4", label: "Year 4", semValue: "0" },
   { value: "5", label: "Year 5", semValue: "0" },
-  { value: "6", label: "Year 6", semValue: "0" }
+  { value: "6", label: "Year 6", semValue: "0" },
 ];
 
 const semList = [
@@ -94,7 +94,13 @@ const semList = [
   { value: "11", label: "6 yr/sem 11", yearValue: "6" },
   { value: "12", label: "6 yr/sem 12", yearValue: "6" },
 ];
-
+const adjList = [
+  { label: "A1", value: "A1" },
+  { label: "N1", value: "N1" },
+  { label: "J1", value: "J1" },
+  { label: "O1", value: "O1" },
+  { label: "V1", value: "V1" },
+];
 const initialValues = {
   acyearId: null,
   schoolId: null,
@@ -102,7 +108,8 @@ const initialValues = {
   programSpeId: null,
   categoryId: null,
   year: null,
-  sem: null
+  sem: null,
+  adjStatus: null,
 };
 const userID = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.userId;
 const schoolID = JSON.parse(sessionStorage.getItem("userData"))?.school_id;
@@ -110,6 +117,7 @@ const deptID = JSON.parse(sessionStorage.getItem("userData"))?.dept_id;
 const roleShortName = JSON.parse(
   sessionStorage.getItem("AcharyaErpUser")
 )?.roleShortName;
+const roleId = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.roleId;
 
 function StudentDetailsIndex() {
   const navigate = useNavigate();
@@ -131,6 +139,7 @@ function StudentDetailsIndex() {
   const [rowData, setRowData] = useState([]);
   const [printLoading, setPrintLoading] = useState(false);
   const [courseWrapperOpen, setCourseWrapperOpen] = useState(false);
+  const [adjOpen, setAdjOpen] = useState(false);
   const [courseOptions, setCourseOptions] = useState([]);
   const [allRecords, setAllrecords] = useState([]);
   const [schoolOptions, setSchoolOptions] = useState([]);
@@ -155,7 +164,7 @@ function StudentDetailsIndex() {
     audit_status: false,
     laptop_status: false,
     feeTemplateRemaks: false,
-    // upload: false
+    adj_status: false,
   });
 
   const { setAlertMessage, setAlertOpen } = useAlert();
@@ -179,11 +188,7 @@ function StudentDetailsIndex() {
 
   useEffect(() => {
     getData();
-  }, [
-    values.acyearId,
-    tab,
-  ])
-
+  }, [values.acyearId, tab]);
 
   useEffect(() => {
     getProgram();
@@ -330,6 +335,7 @@ function StudentDetailsIndex() {
           params = {
             ...params,
             page: 0,
+            userId: userID,
           };
           break;
 
@@ -425,9 +431,15 @@ function StudentDetailsIndex() {
   const getYearSemValue = (newValue, rowValues) => {
     setValues((prevState) => ({
       ...prevState,
-      year: rowValues?.program_type == "Semester" ? semList.find((li) => li.value == newValue)?.yearValue : newValue,
-      sem: rowValues?.program_type == "Semester" ? newValue : yearList.find((li) => li.value == newValue)?.semValue
-    }))
+      year:
+        rowValues?.program_type == "Semester"
+          ? semList.find((li) => li.value == newValue)?.yearValue
+          : newValue,
+      sem:
+        rowValues?.program_type == "Semester"
+          ? newValue
+          : yearList.find((li) => li.value == newValue)?.semValue,
+    }));
   };
 
   const handleOnPageChange = (newPage) => {
@@ -458,12 +470,20 @@ function StudentDetailsIndex() {
     setRowData(data);
     setUsnModal(true);
   };
+  const handleChangeADJ = (data) => {
+    setValues((prev) => ({
+      ...prev,
+      adjStatus: data?.adj_status ? data?.adj_status : null,
+    }));
+    setRowData(data);
+    setAdjOpen(true);
+  };
 
   const handleUpdateYearSem = (data) => {
     setValues((prevState) => ({
       ...prevState,
       year: null,
-      sem: null
+      sem: null,
     }));
     setRowData(data);
     setYearSemModal(true);
@@ -559,7 +579,7 @@ function StudentDetailsIndex() {
       field: "candidate_id",
       headerName: "Candidate ID",
       flex: 1,
-      //  hide: true 
+      //  hide: true
     },
     {
       field: "student_name",
@@ -593,6 +613,7 @@ function StudentDetailsIndex() {
       field: "usn",
       headerName: "USN",
       flex: 1,
+      align: "center",
       renderCell: (params) =>
         params.value === null ? (
           <IconButton
@@ -628,15 +649,14 @@ function StudentDetailsIndex() {
       field: "acharya_email",
       headerName: "Email",
       flex: 1,
-      renderCell: (params) => (params.value ? maskEmail(params.value) : ""),
-      //  hide: true,
+      valueGetter: (value, row) =>
+        row.acharya_email ? maskEmail(row.acharya_email) : "",
     },
     {
       field: "mobile",
       headerName: "Mobile",
       flex: 1,
-      renderCell: (params) => (params.value ? maskMobile(params.value) : ""),
-      //  hide: true,
+      valueGetter: (value, row) => (row.mobile ? maskMobile(row.mobile) : ""),
     },
     {
       field: "date_of_admission",
@@ -661,16 +681,22 @@ function StudentDetailsIndex() {
       field: "currentYearSem",
       headerName: "Year/Sem",
       flex: 1,
-      renderCell: (params) => ((params.row.current_year || params.row.current_sem) ?
-        `${params.row.current_year}/${params.row.current_sem || 0}`
-        : <IconButton
-          color="primary"
-          onClick={() => handleUpdateYearSem(params.row)}
-          sx={{ padding: 0 }}
-        >
-          <AddBoxIcon />
-        </IconButton>),
-      valueGetter: (value, row) => ((row?.current_year || row?.current_sem) ? `${row?.current_year}/${row?.current_sem || 0}` : null)
+      renderCell: (params) =>
+        params.row.current_year || params.row.current_sem ? (
+          `${params.row.current_year}/${params.row.current_sem || 0}`
+        ) : (
+          <IconButton
+            color="primary"
+            onClick={() => handleUpdateYearSem(params.row)}
+            sx={{ padding: 0 }}
+          >
+            <AddBoxIcon />
+          </IconButton>
+        ),
+      valueGetter: (value, row) =>
+        row?.current_year || row?.current_sem
+          ? `${row?.current_year}/${row?.current_sem || 0}`
+          : null,
     },
     {
       field: "fee_template_name",
@@ -694,7 +720,7 @@ function StudentDetailsIndex() {
       field: "current_state",
       headerName: "State",
       flex: 1,
-      hide: true
+      hide: true,
     },
     {
       field: "current_city",
@@ -729,6 +755,7 @@ function StudentDetailsIndex() {
     {
       field: "Provisional",
       headerName: "Provisional",
+      align: "center",
       flex: 1,
       renderCell: (params) => (
         <IconButton
@@ -903,6 +930,47 @@ function StudentDetailsIndex() {
       },
     },
   ];
+  if ([9, 11, 1].includes(roleId)) {
+    columns.push({
+      field: "adj_status",
+      headerName: "ADM",
+      align: "center",
+      flex: 1,
+      renderCell: (params) => {
+        const handleClick = () => handleChangeADJ(params.row);
+
+        if (params.value == null) {
+          return (
+            <IconButton
+              color="primary"
+              onClick={handleClick}
+              sx={{ padding: 0 }}
+            >
+              <AddBoxIcon />
+            </IconButton>
+          );
+        }
+
+        return (
+          <Typography
+            variant="subtitle2"
+            onClick={handleClick}
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              color: "primary.main",
+              textTransform: "capitalize",
+              cursor: "pointer",
+            }}
+          >
+            {params.value}
+          </Typography>
+        );
+      },
+    });
+  }
+
   if (roleShortName === "SAA") {
     columns.push({
       field: "edit",
@@ -961,6 +1029,55 @@ function StudentDetailsIndex() {
       });
     setCourseWrapperOpen(false);
   };
+  const handleADJ = async () => {
+    const studentId = rowData?.id ?? null;
+    const adjStatus = values?.adjStatus ?? null;
+
+    if (studentId == null && adjStatus == null) {
+      setAlertMessage({
+        severity: "warning",
+        message: "Student ID and ADM Status are missing!",
+      });
+      setAlertOpen(true);
+      setAdjOpen(false);
+      return;
+    }
+
+    try {
+      const temp = {
+        student_id: studentId,
+        adj_status: adjStatus,
+      };
+
+      const res = await axios.put(
+        `/api/student/updateAdjStatus/${studentId}`,
+        temp
+      );
+
+      if (res.data.status === 200) {
+        getData();
+        setAlertMessage({
+          severity: "success",
+          message: "ADM assigned successfully !!",
+        });
+      } else {
+        setAlertMessage({
+          severity: "error",
+          message: "Something went wrong !!",
+        });
+      }
+    } catch (err) {
+      setAlertMessage({
+        severity: "error",
+        message:
+          err?.response?.data?.message || "An unexpected error occurred !!",
+      });
+    } finally {
+      setAlertOpen(true);
+      setAdjOpen(false);
+    }
+  };
+
   const handleChange = (e, newValue) => {
     setTab(newValue);
   };
@@ -981,11 +1098,11 @@ function StudentDetailsIndex() {
       );
       if (res.status == 200 || res.status == 201) {
         const payload = {
-          "student_id": rowData?.id,
-          "current_year": Number(values.year),
-          "current_sem": Number(values.sem),
-          "reporting_date": new Date(),
-          "active": true
+          student_id: rowData?.id,
+          current_year: Number(values.year),
+          current_sem: Number(values.sem),
+          reporting_date: new Date(),
+          active: true,
         };
         if (res.data.data?.reporting_id) {
           payload["reporting_id"] = res.data.data?.reporting_id;
@@ -994,7 +1111,7 @@ function StudentDetailsIndex() {
             [payload]
           );
           if (response.status == 200 || response.status == 201) {
-            actionAfterResponse()
+            actionAfterResponse();
           }
         } else {
           payload["modified_by"] = userID;
@@ -1003,14 +1120,15 @@ function StudentDetailsIndex() {
             payload
           );
           if (response.status == 200 || response.status == 201) {
-            actionAfterResponse()
+            actionAfterResponse();
           }
         }
       }
     } catch (err) {
       setAlertMessage({
         severity: "error",
-        message: err.response?.data?.message || "Unable to update the Year Sem !!",
+        message:
+          err.response?.data?.message || "Unable to update the Year Sem !!",
       });
       setAlertOpen(true);
     } finally {
@@ -1030,28 +1148,30 @@ function StudentDetailsIndex() {
 
   const YearSemComponent = ({ rowData }) => (
     <Box>
-      <Grid container sx={{ display: "flex", justifyContent: "center", marginTop: "10px" }}>
+      <Grid
+        container
+        sx={{ display: "flex", justifyContent: "center", marginTop: "10px" }}
+      >
         <Grid item xs={12}>
           <CustomAutocomplete
             name="yearSem"
             label="Year/Sem"
             options={rowData.program_type == "YEARLY" ? yearList : semList}
             value={values.yearSem}
-            handleChangeAdvance={(name, value) => handleChangeAdvance(name, value, rowData)}
+            handleChangeAdvance={(name, value) =>
+              handleChangeAdvance(name, value, rowData)
+            }
             required
           />
         </Grid>
         <Grid item xs={12} mt={2} align="right">
           <Button
             variant="contained"
-            disabled={!(values.year) || yearSemLoading}
+            disabled={!values.year || yearSemLoading}
             onClick={onSubmitYearSem}
           >
             {yearSemLoading ? (
-              <CircularProgress
-                size={25}
-                style={{ margin: "2px 13px" }}
-              />
+              <CircularProgress size={25} style={{ margin: "2px 13px" }} />
             ) : (
               <strong>Submit</strong>
             )}
@@ -1059,7 +1179,7 @@ function StudentDetailsIndex() {
         </Grid>
       </Grid>
     </Box>
-  )
+  );
   return (
     <>
       {/* Assign USN  */}
@@ -1074,6 +1194,36 @@ function StudentDetailsIndex() {
           setUsnModal={setUsnModal}
           getData={getData}
         />
+      </ModalWrapper>
+      <ModalWrapper
+        open={adjOpen}
+        setOpen={setAdjOpen}
+        maxWidth={600}
+        title={"ADM (" + rowData?.student_name + ")"}
+      >
+        <Box mt={2} p={3}>
+          <Grid container rowSpacing={3}>
+            <Grid item xs={12} md={4}>
+              <CustomAutocomplete
+                name="adjStatus"
+                label="ADM Status"
+                value={values.adjStatus}
+                options={adjList}
+                handleChangeAdvance={handleChangeAdvance}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} align="right">
+              <Button
+                disabled={!values.adjStatus}
+                variant="contained"
+                onClick={handleADJ}
+              >
+                Assign
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
       </ModalWrapper>
 
       {/* Assign Course  */}
@@ -1125,10 +1275,7 @@ function StudentDetailsIndex() {
         open={yearSemModal}
         setOpen={setYearSemModal}
       >
-        <YearSemComponent
-          rowData={rowData}
-          setYearSemModal={setYearSemModal}
-        />
+        <YearSemComponent rowData={rowData} setYearSemModal={setYearSemModal} />
       </ModalWrapper>
 
       <Box sx={{ position: "relative", top: { md: -30 } }}>
@@ -1159,13 +1306,22 @@ function StudentDetailsIndex() {
         </Stack>
       </Box>
 
-      <Tabs value={tab} onChange={handleChange} sx={{ marginTop: { xs: 2, md: -3 } }}>
+      <Tabs
+        value={tab}
+        onChange={handleChange}
+        sx={{ marginTop: { xs: 2, md: -3 } }}
+      >
         <Tab value="Active Student" label="Active Student" />
         <Tab value="InActive Student" label="InActive Student" />
       </Tabs>
 
       <Box>
-        <Grid container alignItems="center" mt={2} sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Grid
+          container
+          alignItems="center"
+          mt={2}
+          sx={{ display: "flex", justifyContent: "space-between" }}
+        >
           <Grid item xs={2} md={2.4}>
             <CustomAutocomplete
               name="acyearId"
@@ -1241,7 +1397,11 @@ function StudentDetailsIndex() {
           setColumnVisibilityModel={setColumnVisibilityModel}
         />
       </Box>
-      <PdfUploadModal imageOpen={imageOpen} setImageUploadOpen={setImageUploadOpen} rowData={rowData} />
+      <PdfUploadModal
+        imageOpen={imageOpen}
+        setImageUploadOpen={setImageUploadOpen}
+        rowData={rowData}
+      />
     </>
   );
 }

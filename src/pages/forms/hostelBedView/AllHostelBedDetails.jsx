@@ -147,7 +147,7 @@ const AllBedDetails = ({ bedDetails, selectedValues, getBedDetials }) => {
                                         >
                                           {bed.bedName}
                                         </Typography>
-                                        {["Blocked", "Occupied"].includes(
+                                        {["Blocked", "Occupied","Assigned"].includes(
                                           bed.bedStatus
                                         ) && (
                                           <>

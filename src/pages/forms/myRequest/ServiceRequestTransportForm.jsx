@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Grid, Button, CircularProgress } from "@mui/material";
+import { Box, Grid, Button, CircularProgress, Typography } from "@mui/material";
 import axios from "../../../services/Api";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAlert from "../../../hooks/useAlert";
@@ -9,6 +9,7 @@ import CustomTextField from "../../../components/Inputs/CustomTextField";
 import CustomDateTimePicker from "../../../components/Inputs/CustomDateTimePicker";
 import moment from "moment";
 import CustomSelect from "../../../components/Inputs/CustomSelect";
+import dayjs from 'dayjs';
 
 const initialValues = {
   typeOfVehicle: "",
@@ -39,7 +40,12 @@ function ServiceRequestTransport() {
   const setCrumbs = useBreadcrumbs();
   const navigate = useNavigate();
 
+  const startDate = dayjs(values.pickUpdateAndTime);
+  const endDate = startDate.add(7, 'day');
+
   const userId = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.userId;
+  const superAdminRole = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.roleId;
+  const transportDeptId = JSON.parse(sessionStorage.getItem("userData"))?.dept_id;
 
   const checks = {
     typeOfVehicle: [values.typeOfVehicle !== ""],
@@ -78,6 +84,12 @@ function ServiceRequestTransport() {
   };
 
   const handleChangeAdvance = async (name, newValue) => {
+    if(name == "pickUpdateAndTime"){
+          setValues((prev) => ({
+      ...prev,
+      ["droppingDateAndTime"]: null,
+    }))
+    };
     setValues((prev) => ({
       ...prev,
       [name]: newValue,
@@ -223,8 +235,10 @@ function ServiceRequestTransport() {
               seconds
               checks={checks.enterDateTime}
               errors={errorMessages.enterDateTime}
+              minDateTime={(transportDeptId==25 || superAdminRole==1)? dayjs() : dayjs().add(24, 'hour').add(1, 'minute')}
               required
             />
+            <Typography sx={{fontSize:"12px",textAlign:"justify"}}>Transport indents must be submitted at least 24 hours in advance to ensure timely arrangements <span style={{color:"red",fontSize:"12px"}}>*</span></Typography> 
           </Grid>
 
           <Grid item xs={12} md={2.4}>
@@ -235,6 +249,9 @@ function ServiceRequestTransport() {
               handleChangeAdvance={handleChangeAdvanceDropdate}
               checks={checks.droppingDateAndTime}
               errors={errorMessages.droppingDateAndTime}
+              disabled={!values.pickUpdateAndTime}
+              minDateTime={startDate}
+              maxDateTime={endDate}
               seconds
               required
             />

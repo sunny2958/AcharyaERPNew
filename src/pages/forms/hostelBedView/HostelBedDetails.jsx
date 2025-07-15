@@ -11,6 +11,11 @@ import {
   Card,
   CardHeader,
   CardContent,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import BedIcon from "@mui/icons-material/Hotel";
 import { makeStyles } from "@mui/styles";
@@ -135,8 +140,8 @@ const BedDetails = ({ bedDetails, selectedValues, getBedDetials }) => {
   const [bed, setBedDetail] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [isBedAssign, setIsBedAssign] = useState(false);
-  console.log(isBedAssign,"isBedAssign");
-  
+  const [openDialog, setOpenDialog] = useState(false);
+  const [pendingAssignmentData, setPendingAssignmentData] = useState(null);
   const [values, setValues] = useState(initialValues);
   const [studentDetails, setStudentDetails] = useState([]);
   const { setAlertMessage, setAlertOpen } = useAlert();
@@ -250,77 +255,68 @@ const BedDetails = ({ bedDetails, selectedValues, getBedDetials }) => {
     return true;
   };
 
-  const handleCreate = async () => {
+  const prepareCreate = () => {
     if (!requiredFieldsValid()) {
       setAlertMessage({
         severity: "error",
         message: "Please fill all fields",
       });
       setAlertOpen(true);
+      return;
+    }
+
+    const temp = {
+      hostelBlockId: selectedValues?.blockName,
+      hostelFloorId: bed?.hostelFloorId,
+      acYearId: selectedValues?.acYearId,
+      hostelFeeTemplateId: selectedValues?.feeTemplate,
+      hostelRoomId: bed?.hostelRoomId,
+      hostelBedId: bed?.hostelBedId,
+      studentId: studentDetails?.id,
+      expectedJoiningDate: moment(values?.doj).format("YYYY-MM-DD"),
+      remarks: values?.remarks,
+      active: true,
+      bedStatus: bed?.bedStatus === "Occupied" ? "Occupied-Blocked" : "Blocked",
+    };
+
+    if (bed?.BlockedDate && bed?.bedStatus === "Blocked") {
+      setPendingAssignmentData(temp);
+      setOpenDialog(true);
     } else {
-      const temp = {};
-      temp.hostelBlockId = selectedValues?.blockName;
-      temp.hostelFloorId = bed?.hostelFloorId;
-      temp.acYearId = selectedValues?.acYearId;
-      temp.hostelFeeTemplateId = selectedValues?.feeTemplate;
-      temp.hostelRoomId = bed?.hostelRoomId;
-      temp.hostelBedId = bed?.hostelBedId;
-      temp.studentId = studentDetails?.id;
-      // temp.fromDate = moment(values?.doj).format("YYYY-MM-DD");
-      temp.expectedJoiningDate = moment(values?.doj).format("YYYY-MM-DD");
-      temp.remarks = values?.remarks;
-      temp.active = true;
-      if (bed?.bedStatus === "Occupied") {
-        temp.bedStatus = "Occupied-Blocked";
-      } else {
-        temp.bedStatus = "Blocked";
-      }
-      if (bed?.BlockedDate && bed?.bedStatus === "Blocked") {
-        await axios
-          .put(
-            `/api/hostel/updateHostelBedAssignment/${bed?.hostelBedAssignmentId}`,
-            temp
-          )
-          .then((res) => {
-            setAlertMessage({
-              severity: "success",
-              message: "Assigned Successfully",
-            });
-            setAlertOpen(true);
-            onClosePopUp();
-            getBedDetials();
-          })
-          .catch((error) => {
-            setLoading(false);
-            setAlertMessage({
-              severity: "error",
-              message: error.response ? error.response.data.message : "Error",
-            });
-            setAlertOpen(true);
-          });
-      } else {
-        await axios
-          .post(`/api/hostel/hostelBedAssignment`, temp)
-          .then((res) => {
-            setAlertMessage({
-              severity: "success",
-              message: "Assigned Successfully",
-            });
-            setAlertOpen(true);
-            onClosePopUp();
-            getBedDetials();
-          })
-          .catch((error) => {
-            setLoading(false);
-            setAlertMessage({
-              severity: "error",
-              message: error.response ? error.response.data.message : "Error",
-            });
-            setAlertOpen(true);
-          });
-      }
+      handleCreate(temp);
     }
   };
+
+  const handleCreate = async (temp) => {
+    setLoading(true);
+
+    try {
+      if (bed?.BlockedDate && bed?.bedStatus === "Blocked") {
+        await axios.delete(
+          `/api/hostel/deactiveHostelBedAssignment/${bed?.hostelBedAssignmentId}`
+        );
+      }
+
+      await axios.post(`/api/hostel/hostelBedAssignment`, temp);
+
+      setAlertMessage({
+        severity: "success",
+        message: "Assigned Successfully",
+      });
+      setAlertOpen(true);
+      onClosePopUp();
+      getBedDetials();
+    } catch (error) {
+      setAlertMessage({
+        severity: "error",
+        message: error.response?.data?.message || "Error",
+      });
+      setAlertOpen(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderDetailRow = (label, value) => {
     return (
       <>
@@ -335,7 +331,10 @@ const BedDetails = ({ bedDetails, selectedValues, getBedDetials }) => {
       </>
     );
   };
-
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setPendingAssignmentData(null);
+  };
   return (
     <>
       <ModalWrapper
@@ -469,7 +468,7 @@ const BedDetails = ({ bedDetails, selectedValues, getBedDetials }) => {
           <Button
             sx={{ borderRadius: 2 }}
             variant="contained"
-            onClick={() => handleCreate()}
+            onClick={() => prepareCreate()}
             disabled={
               !(
                 !isBedAssign &&
@@ -491,6 +490,35 @@ const BedDetails = ({ bedDetails, selectedValues, getBedDetials }) => {
             )}
           </Button>
         </Grid>
+        <Dialog
+          open={openDialog}
+          onClose={handleCloseDialog}
+          aria-labelledby="confirm-dialog-title"
+          aria-describedby="confirm-dialog-description"
+        >
+          <DialogTitle id="confirm-dialog-title">Confirm Bed Assign</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="confirm-dialog-description">
+              This bed is already {bed?.bedStatus ? bed?.bedStatus : "blocked"}. Do you want to deactivate the previous assignment and continue?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} color="primary">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                handleCreate(pendingAssignmentData);
+                handleCloseDialog();
+              }}
+              color="primary"
+              autoFocus
+            >
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+
       </ModalWrapper>
 
       <Grid container direction="column">

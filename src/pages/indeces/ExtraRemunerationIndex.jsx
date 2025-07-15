@@ -36,6 +36,7 @@ function ExtraRemunerationIndex() {
   const columns = [
     { field: "emp_code", headerName: "Emp Code", flex: 1 },
     { field: "employee_name", headerName: "Emp Name", width: 220 },
+    { field: "school", headerName: "School", width: 150 },
     { field: "designation_name", headerName: "Designation", flex: 1 },
     { field: "month", headerName: "Month", flex: 1 },
     { field: "year", headerName: "Year", flex: 1 },

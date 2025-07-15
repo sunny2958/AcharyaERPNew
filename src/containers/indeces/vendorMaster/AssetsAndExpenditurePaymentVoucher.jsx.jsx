@@ -18,30 +18,7 @@ import moment from "moment";
 import PrintIcon from "@mui/icons-material/Print";
 import { useLocation, useNavigate } from "react-router-dom";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-// import CustomAutocomplete from "../../components/Inputs/CustomAutocomplete";
-// import CustomDatePicker from "../../components/Inputs/CustomDatePicker";
-// import VisibilityIcon from "@mui/icons-material/Visibility";
-// import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
-// import CustomTextField from "../../components/Inputs/CustomTextField";
 import { makeStyles } from "@mui/styles";
-// const ModalWrapper = lazy(() => import("../../../components/ModalWrapper"));
-
-// const userID = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.userId;
-
-const HtmlTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: "white",
-    color: "rgba(0, 0, 0, 0.6)",
-    maxWidth: 300,
-    fontSize: 12,
-    boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px;",
-    padding: "10px",
-    textAlign: "justify",
-  },
-}));
-
 
 const useStyles = makeStyles((theme) => ({
   cancelled: {
@@ -61,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function VendorDayCreditTransaction() {
+function AssetsAndExpenditurePaymentVoucher() {
   const [rows, setRows] = useState([]);
   const [columnVisibilityModel, setColumnVisibilityModel] = useState({
     dept_name: false,
@@ -75,35 +52,14 @@ function VendorDayCreditTransaction() {
   const setCrumbs = useBreadcrumbs();
   const location = useLocation()
   const queryValues = location.state;
-  const pathname = location.pathname;
   const { setAlertMessage, setAlertOpen } = useAlert();
   const classes = useStyles();
   const navigate = useNavigate();
 
   useEffect(() => {
     getData()
-    if(queryValues?.ledgerType === 'ASSETS/ADVANCE' || queryValues?.ledgerType === 'EXPENDITURE'){
-      return
-    }else{
-    setCrumbs([{ name: "" }]);
-    if (queryValues?.isBRSTrue) {
-      setBreadCrumbs([
-        { name: "Bank Balance", link: "/bank-balance" },
-        { name: "BRS", link: "/institute-bank-balance", state: { bankGroupId: queryValues?.bankGroupId } },
-        { name: "Monthly Transaction", link: "/Accounts-ledger-monthly-detail", state: queryValues },
-        { name: 'Daily Summary', link: "/Accounts-ledger-day-transaction", state: queryValues },
-        { name: `${queryValues?.voucherHeadName || ""} FY ${queryValues?.fcYear} as on ${moment().format('DD-MMMM-YYYY')}` },
-      ]);
-    } else {
-      setBreadCrumbs([
-        { name: "Ledger", link: "/Accounts-ledger", state: queryValues },
-        { name: "Monthly Transaction", link: "/Accounts-ledger-monthly-detail", state: queryValues },
-        { name: 'Daily Summary', link: "/Accounts-ledger-day-transaction", state: queryValues },
-        { name: `${queryValues?.voucherHeadName || ""} FY ${queryValues?.fcYear} as on ${moment().format('DD-MMMM-YYYY')}` },
-      ])
-    }
-  }
   }, []);
+
 
   const getData = async () => {
     setLoading(true);
@@ -114,7 +70,8 @@ function VendorDayCreditTransaction() {
       ...(schoolId && { schoolId }),
       ...(date && { date })
     }
-    const baseUrl = 'api/finance/getAllCreditDetailsOfVendor'
+
+   const baseUrl = '/api/finance/getAllDebitDetailOfExpenditureOrAssetsDetails'
     await axios
       .get(baseUrl, { params })
       .then((response) => {
@@ -140,7 +97,7 @@ function VendorDayCreditTransaction() {
 
   const columns = [
     {
-      field: "id",
+      field: "journal_voucher_id",
       headerName: "JV",
       flex: 1,
       renderCell: (params) => (
@@ -169,7 +126,7 @@ function VendorDayCreditTransaction() {
     { field: "school_name_short", headerName: "School", flex: 1, align: "center" },
     { field: "dept_name", headerName: "Dept", flex: 1 },
     {
-      field: pathname === ("/ledger-assets-day-transaction-debit" || "/ledger-expenditure-day-transaction-debit") ? "debit" : "credit",
+      field: "credit",
       headerName: "Amount",
       flex: 0.8,
       headerAlign: "right",
@@ -193,18 +150,14 @@ function VendorDayCreditTransaction() {
     fcYearId
   ) => {
     navigate(`/generate-journalvoucher-pdf/${journalVoucherNumber}`, {
-      state: { schoolId, fcYearId, isLedger: true, path:pathname, ...queryValues },
+      state: { schoolId, fcYearId, isLedger: true, ...queryValues },
     });
   };
 
   return (
     <>
       <Box sx={{ position: "relative", width: "100%" }}>
-        {(queryValues?.ledgerType === 'ASSETS/ADVANCE' || queryValues?.ledgerType === 'EXPENDITURE') ? (
-        <></>
-        ):(
-           <CustomBreadCrumbs crumbs={breadCrumbs} />
-        )}
+        <CustomBreadCrumbs crumbs={breadCrumbs} />
         <Box sx={{ position: "absolute", width: "100%", marginTop: "10px" }}>
           <GridIndex
             rows={rows}
@@ -216,12 +169,13 @@ function VendorDayCreditTransaction() {
             getRowId={(row) => row?.journal_voucher_id}
           />
         </Box>
+
       </Box>
     </>
   );
 }
 
-export default VendorDayCreditTransaction;
+export default AssetsAndExpenditurePaymentVoucher;
 
 const CustomBreadCrumbs = ({ crumbs = [] }) => {
   const navigate = useNavigate()

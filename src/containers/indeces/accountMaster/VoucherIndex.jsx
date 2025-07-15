@@ -17,6 +17,13 @@ function VoucherIndex() {
     buttons: [],
   });
   const [modalOpen, setModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false)
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({
+        cash_or_bank: false,   
+        is_common: false,
+        is_salaries: false,
+        hostel_status: false
+  })
 
   const navigate = useNavigate();
 
@@ -25,14 +32,19 @@ function VoucherIndex() {
   }, []);
 
   const getData = async () => {
+    setLoading(true)
     await axios
       .get(
         `/api/finance/fetchAllVoucherHeadNewDetails?page=${0}&page_size=${10000}&sort=created_date`
       )
       .then((res) => {
         setRows(res.data.data.Paginated_data.content);
+         setLoading(false)
       })
-      .catch((err) => console.error(err));
+      .catch((err) =>{
+        console.error(err)
+         setLoading(false)
+  });
   };
 
   const handleActive = async (params) => {
@@ -98,6 +110,13 @@ function VoucherIndex() {
       flex: 1,
       valueGetter: (value, row) => (row.is_vendor ? "Yes" : "No"),
     },
+    {
+      field: "type",
+      headerName: "Type",
+      flex: 1,
+      valueGetter: (value, row) => (row?.type === 'EXPENDITURE' ? "Expenditure" : row?.type === "ASSETS/ADVANCE" ? "Assets/Advance": ""),
+    },
+
     {
       field: "budget_head",
       headerName: "Budget Head",
@@ -216,7 +235,7 @@ function VoucherIndex() {
       >
         Create
       </Button>
-      <GridIndex rows={rows} columns={columns} />
+      <GridIndex rows={rows} columns={columns} loading={loading}  columnVisibilityModel={columnVisibilityModel} setColumnVisibilityModel={setColumnVisibilityModel}/>
     </Box>
   );
 }

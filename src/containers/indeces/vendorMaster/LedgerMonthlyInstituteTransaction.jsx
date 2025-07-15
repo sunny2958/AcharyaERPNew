@@ -91,15 +91,15 @@ const LedgerMonthlyInstTransaction = () => {
          params = {
             ...(voucherHeadId && { voucherHeadNewId: voucherHeadId }),
             ...(year && { year }),
-            ...(currMonth?.month && { month: currMonth?.month }),
+            ...(currMonth?.month && { month: currMonth?.month })
         }
-    }else{
-         params = {
+        }else{
+              params = {
             ...(voucherHeadId && { voucherHeadNewId: voucherHeadId }),
             ...(currMonth?.month && { month: currMonth?.month }),
             ...(fcYearId && { fcYearId })
         }
-    }
+        }
         setLoading(true)
         await axios
             .get(baseUrl, { params })
@@ -107,6 +107,8 @@ const LedgerMonthlyInstTransaction = () => {
                 const { data } = res?.data
                 const rowData = []
                 data?.vendorDetails?.length > 0 && data?.vendorDetails?.forEach(el => {
+                    const ClosingBalance = ledgerType === "EARNINGS" ? el?.closingBalance : el?.closing_balance
+                    const OpeningBalance = ledgerType === "EARNINGS" ? el?.openingBalance : el?.opening_balance
                     rowData.push({
                         credit: el?.credit,
                         debit: el?.debit,
@@ -115,8 +117,8 @@ const LedgerMonthlyInstTransaction = () => {
                         school_name: el?.school_name,
                         school_name_short: el?.school_name_short,
                         month: el?.month,
-                        openingBalance: formatDrCr(el?.openingBalance, queryValues?.ledgerType),
-                        closingBalance: formatDrCr(el?.closingBalance, queryValues?.ledgerType),
+                        openingBalance: formatDrCr(OpeningBalance, queryValues?.ledgerType),
+                        closingBalance: formatDrCr(ClosingBalance, queryValues?.ledgerType),
                     })
                 });
 
@@ -168,7 +170,7 @@ const LedgerMonthlyInstTransaction = () => {
     const formatDrCr = (value, ledgerType) => {
         const absVal = Math.abs(value);
 
-        if (value === 0) return "0";
+        if (value === 0) return "0.00";
 
         if (ledgerType === "VENDOR" || ledgerType === "INFLOW") {
             return value < 0 ? `${absVal} Dr` : `${absVal} Cr`;

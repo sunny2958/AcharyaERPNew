@@ -122,6 +122,21 @@ function ExternalPaymentForm() {
     }));
   };
 
+  const date = new Date(data?.to_date);
+  const currentDate = new Date();
+  const partFeeDate = new Date(date);
+
+  const date1WithoutTime = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    currentDate.getDate()
+  );
+  const date2WithoutTime = new Date(
+    partFeeDate.getFullYear(),
+    partFeeDate.getMonth(),
+    partFeeDate.getDate()
+  );
+
   const requiredFieldsValid = () => {
     for (let i = 0; i < requiredFields.length; i++) {
       const field = requiredFields[i];
@@ -195,100 +210,104 @@ function ExternalPaymentForm() {
               }}
             />
             <CardContent sx={{ padding: 3 }}>
-              {(new Date(data?.to_date) > new Date()) ? <Grid container rowSpacing={2}> 
-                <Grid item xs={12} align="center" mb={1}>
-                  <Typography variant="subtitle2" textAlign="center">
-                    {data?.voucher_head?.toUpperCase() +
-                      " - " +
-                      data?.remarks?.toUpperCase()}
-                  </Typography>
-                </Grid>
+              {date2WithoutTime >= date1WithoutTime ? (
+                <Grid container rowSpacing={2}>
+                  <Grid item xs={12} align="center" mb={1}>
+                    <Typography variant="subtitle2" textAlign="center">
+                      {data?.voucher_head?.toUpperCase() +
+                        " - " +
+                        data?.remarks?.toUpperCase()}
+                    </Typography>
+                  </Grid>
 
-               <Grid item xs={12}>
-                  <CustomTextField
-                    name="name"
-                    label="Name"
-                    value={values.name}
-                    handleChange={handleChange}
-                    checks={checks.name}
-                    errors={errorMessages.name}
-                    required
-                  />
-                </Grid>
+                  <Grid item xs={12}>
+                    <CustomTextField
+                      name="name"
+                      label="Name"
+                      value={values.name}
+                      handleChange={handleChange}
+                      checks={checks.name}
+                      errors={errorMessages.name}
+                      required
+                    />
+                  </Grid>
 
-                <Grid item xs={12}>
-                  <CustomTextField
-                    name="email"
-                    label="Email"
-                    value={values.email}
-                    handleChange={handleChange}
-                    checks={checks.email}
-                    errors={errorMessages.email}
-                    required
-                  />
-                </Grid>
+                  <Grid item xs={12}>
+                    <CustomTextField
+                      name="email"
+                      label="Email"
+                      value={values.email}
+                      handleChange={handleChange}
+                      checks={checks.email}
+                      errors={errorMessages.email}
+                      required
+                    />
+                  </Grid>
 
-                <Grid item xs={12}>
-                  <CustomTextField
-                    type="number"
-                    name="mobileNo"
-                    label="Mobile"
-                    value={values.mobileNo}
-                    handleChange={handleChange}
-                    checks={checks.mobileNo}
-                    errors={errorMessages.mobileNo}
-                    required
-                  />
-                </Grid>
+                  <Grid item xs={12}>
+                    <CustomTextField
+                      type="number"
+                      name="mobileNo"
+                      label="Mobile"
+                      value={values.mobileNo}
+                      handleChange={handleChange}
+                      checks={checks.mobileNo}
+                      errors={errorMessages.mobileNo}
+                      required
+                    />
+                  </Grid>
 
-                <Grid item xs={12}>
-                  <CustomTextField
-                    name="auid"
-                    label="AUID / Any other info"
-                    value={values.auid}
-                    handleChange={handleChange}
-                    checks={checks.auid}
-                    errors={errorMessages.auid}
-                    required
-                  />
-                </Grid>
+                  <Grid item xs={12}>
+                    <CustomTextField
+                      name="auid"
+                      label="AUID / Any other info"
+                      value={values.auid}
+                      handleChange={handleChange}
+                      checks={checks.auid}
+                      errors={errorMessages.auid}
+                      required
+                    />
+                  </Grid>
 
-                <Grid item xs={12}>
-                  <CustomTextField
-                    name="amount"
-                    label="Amount"
-                    value={values.amount}
-                    handleChange={handleChangeAmount}
-                    checks={checks.amount}
-                    errors={errorMessages.amount}
-                    required
-                  />
-                </Grid>
+                  <Grid item xs={12}>
+                    <CustomTextField
+                      name="amount"
+                      label="Amount"
+                      value={values.amount}
+                      handleChange={handleChangeAmount}
+                      checks={checks.amount}
+                      errors={errorMessages.amount}
+                      required
+                    />
+                  </Grid>
 
-                <Grid item xs={12} md={12} mb={2}>
-                  <Button
-                    onClick={handlePayment}
-                    disabled={!requiredFieldsValid() || values.amount === 0}
-                    variant="contained"
-                    sx={{ width: "100%" }}
-                  >
-                    PAY NOW
-                  </Button>
+                  <Grid item xs={12} md={12} mb={2}>
+                    <Button
+                      onClick={handlePayment}
+                      disabled={!requiredFieldsValid() || values.amount === 0}
+                      variant="contained"
+                      sx={{ width: "100%" }}
+                    >
+                      PAY NOW
+                    </Button>
+                  </Grid>
                 </Grid>
-              </Grid>:
-              <Grid container rowSpacing={2}>
-                <Grid item xs={12} align="center" mb={1}>
-                  <Typography variant="subtitle2" textAlign="center">
-                    {data?.voucher_head?.toUpperCase() +
-                      " - " +
-                      data?.remarks?.toUpperCase()}
-                  </Typography>
+              ) : (
+                <Grid container rowSpacing={2}>
+                  <Grid item xs={12} align="center" mb={1}>
+                    <Typography variant="subtitle2" textAlign="center">
+                      {data?.voucher_head?.toUpperCase() +
+                        " - " +
+                        data?.remarks?.toUpperCase()}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} align="center" mb={1}>
+                    <Typography variant="h6" sx={{ color: "red" }}>
+                      Payment window is closed !!
+                    </Typography>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} align="center" mb={1}>
-                  <Typography variant="h6" sx={{color:"red"}}>Payment window is closed !!</Typography>
-                </Grid>
-              </Grid>
-              }
+              )}
             </CardContent>
           </Card>
         </Grid>

@@ -14,6 +14,7 @@ import RobotoItalic from "../../../fonts/Roboto-Italic.ttf";
 import RobotoLight from "../../../fonts/Roboto-Light.ttf";
 import RobotoRegular from "../../../fonts/Roboto-Regular.ttf";
 import moment from "moment";
+const sign = require.context("../../../assets/principalSignature", true);
 
 Font.register({
   family: "Roboto",
@@ -433,11 +434,17 @@ export const GenerateCourseCompletion = (
             </View>
             <View style={styles.feeDetailSection}>
               <View style={styles.sectionDetailWidth}>
+                {studentDetail?.school_name_short?.toLowerCase() == "ait" &&
+                  <Image
+                    style={{ width: 100 }}
+                    src={sign(`./Facsimile_Principal.png`)}
+                    alt="Facsimile_Principal"
+                  />}
                 <Text
                   style={{
                     ...styles.feeDetailText,
                     ...styles.boldText,
-                    marginTop: "40px",
+                    marginTop: studentDetail?.school_name_short?.toLowerCase() == "ait" ? "0px" : "40px"
                   }}
                 >
                   PRINCIPAL

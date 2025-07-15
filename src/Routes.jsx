@@ -216,6 +216,10 @@ const HostelDueMaster = lazy(() => import("./pages/masters/HostelDueMaster"));
 const HostelBlockView = lazy(() =>
   import("./containers/indeces/hostelDueIndex/HostelBlockView")
 );
+
+const HostelDueReport = lazy(() =>
+  import("./containers/indeces/hostelDueIndex/HostelDueReport")
+);
 const HostelStudenDue = lazy(() =>
   import("./containers/indeces/hostelDueIndex/HostelStudentDueIndex")
 );
@@ -1899,6 +1903,17 @@ const LedgerMonthlyInstTransaction = lazy(() =>
 const InflowDayCreditTransaction = lazy(()=>
   import("./containers/indeces/vendorMaster/LedgerInflowDayTransaction-credit.jsx")
 )
+const ExpensesDayCreditTransaction = lazy(()=>
+  import("./containers/indeces/vendorMaster/AssetsAndExpenditurePaymentVoucher.jsx")
+)
+
+const AssetsAndExpenditureCreditDayTransaction = lazy(()=>
+  import("./containers/indeces/vendorMaster/AssetsAndExpenditureDayTransaction-credit.jsx")
+)
+
+const AssetsAndExpenditureDebitDayTransaction = lazy(()=>
+  import("./containers/indeces/vendorMaster/AssetsAndExpenditureDaytransaction-debit.jsx")
+)
 
 const VendorDetailMaster = lazy(() =>
   import("./pages/masters/VendorHeadMaster.jsx")
@@ -2652,6 +2667,15 @@ function RouteConfig() {
             element={
               <Suspense fallback={<OverlayLoader />}>
                 <HostelBlockView />
+              </Suspense>
+            }
+          />
+            <Route
+            exact
+            path="/hostel-due-report"
+            element={
+              <Suspense fallback={<OverlayLoader />}>
+                <HostelDueReport />
               </Suspense>
             }
           />
@@ -10521,6 +10545,51 @@ function RouteConfig() {
             element={
               <Suspense fallback={<OverlayLoader />}>
                 <InflowDayCreditTransaction />
+              </Suspense>
+            }
+          />
+           <Route
+            exact
+            path={"/ledger-expenses-day-transaction-credit"}
+            element={
+              <Suspense fallback={<OverlayLoader />}>
+                <ExpensesDayCreditTransaction />
+              </Suspense>
+            }
+          />
+          <Route
+            exact
+            path={"/ledger-assets-day-transaction-credit"}
+            element={
+              <Suspense fallback={<OverlayLoader />}>
+                <AssetsAndExpenditureCreditDayTransaction />
+              </Suspense>
+            }
+          />
+           <Route
+            exact
+            path={"/ledger-assets-day-transaction-debit"}
+            element={
+              <Suspense fallback={<OverlayLoader />}>
+                <AssetsAndExpenditureDebitDayTransaction />
+              </Suspense>
+            }
+          />
+           <Route
+            exact
+            path={"/ledger-expenditure-day-transaction-credit"}
+            element={
+              <Suspense fallback={<OverlayLoader />}>
+                <AssetsAndExpenditureCreditDayTransaction />
+              </Suspense>
+            }
+          />
+           <Route
+            exact
+            path={"/ledger-expenditure-day-transaction-debit"}
+            element={
+              <Suspense fallback={<OverlayLoader />}>
+                <AssetsAndExpenditureDebitDayTransaction />
               </Suspense>
             }
           />

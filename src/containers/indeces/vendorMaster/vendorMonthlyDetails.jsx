@@ -123,7 +123,7 @@ const VendorMonthlyDetails = () => {
           totalDebit: data?.totalDebit,
           // openingBalance: data?.openingBalance,
           schoolName: data?.schoolName,
-          closingBalance: data?.closingBalance
+          closingBalance: formatCurrency(data?.closingBalance)
         });
         setLoading(false)
       })
@@ -235,7 +235,7 @@ const VendorMonthlyDetails = () => {
 
     if (ledgerType === "VENDOR" || ledgerType === "INFLOW") {
       return value < 0 ? `${absVal} Dr` : `${absVal} Cr`;
-    } else if (ledgerType === "CASHORBANK" || ledgerType === 'EARNINGS') {
+    } else if (ledgerType === "CASHORBANK" || ledgerType === 'EARNINGS' || ledgerType === "ASSETS/ADVANCE" || ledgerType === "EXPENDITURE") {
       return value > 0 ? `${absVal} Dr` : `${absVal} Cr`;
     } else {
       return value;

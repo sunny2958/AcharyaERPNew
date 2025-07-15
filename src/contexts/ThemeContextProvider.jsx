@@ -1,4 +1,8 @@
-import { createTheme, ThemeProvider, responsiveFontSizes } from "@mui/material";
+import {
+  ThemeProvider,
+  createTheme,
+  responsiveFontSizes,
+} from "@mui/material/styles";
 
 const SIDEBAR_COLOR = "#132353";
 
@@ -78,7 +82,7 @@ const theme = responsiveFontSizes(
     },
     mixins: {
       MuiDataGrid: {
-        containerBackground: 'rgba(74, 87, 169, 0.1)'
+        containerBackground: "rgba(74, 87, 169, 0.1)",
       },
     },
   })

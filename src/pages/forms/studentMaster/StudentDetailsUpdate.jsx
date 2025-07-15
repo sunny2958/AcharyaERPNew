@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -27,6 +27,7 @@ import CustomDatePicker from "../../../components/Inputs/CustomDatePicker";
 import CustomTextField from "../../../components/Inputs/CustomTextField";
 import axios from "../../../services/Api";
 import useBreadcrumbs from "../../../hooks/useBreadcrumbs";
+import FolderCopyIcon from "@mui/icons-material/FolderCopy";
 import moment from "moment";
 
 import { checkFullAccess } from "../../../utils/DateTimeUtils";
@@ -36,6 +37,10 @@ import AddressForm from "../../../components/AddressForm";
 import AcademicForm from "../../../components/AcademicForm";
 import ProgramDetailsForm from "../candidateWalkin/ProgramDetailsForm";
 import ProgramEditForm from "../../../components/ProgramEditForm";
+
+const TranscriptDetailsForm = lazy(() =>
+  import("../candidateWalkin/TranscriptDetailsForm")
+);
 
 const initialValues = {
   followRemarks: "",
@@ -205,6 +210,8 @@ function StudentDetailsView() {
   const [applicantResponse, setApplicantResponse] = useState([]);
   const [noOfYears, setNoOfYears] = useState([]);
   const [data, setData] = useState([]);
+  const [transcriptValues, setTranscriptValues] = useState([]);
+  const [noStatuData, setNoStatusData] = useState([]);
 
   const { auid, id } = useParams();
   const { setAlertMessage, setAlertOpen } = useAlert();
@@ -308,6 +315,10 @@ function StudentDetailsView() {
     getCurrentCity();
   }, [values.currentState]);
 
+  useEffect(() => {
+    getTranscriptData();
+  }, [data]);
+
   const getCountry = async () => {
     await axios(`/api/Country`)
       .then((res) => {
@@ -410,7 +421,14 @@ function StudentDetailsView() {
   );
 
   useEffect(() => {
-    if (["/student-master-inst", "/student-master-user", "/student-master-dept", "/student-master-intl"].includes(pathFrom?.toLowerCase())) {
+    if (
+      [
+        "/student-master-inst",
+        "/student-master-user",
+        "/student-master-dept",
+        "/student-master-intl",
+      ].includes(pathFrom?.toLowerCase())
+    ) {
       setCrumbs([
         {
           name: "Student Master",
@@ -575,6 +593,47 @@ function StudentDetailsView() {
       });
   };
 
+  const getTranscriptData = async () => {
+    try {
+      const transcriptRes = await axios.get(
+        `/api/student/StudentTranscriptSubmission1/${Id}`
+      );
+
+      if (data.program_id) {
+        const allTranscript = await axios.get(
+          `/api/academic/fetchProgramTranscriptDetails/${data.program_id}`
+        );
+
+        const firstTranscriptIds = new Set(
+          transcriptRes?.data?.data?.map((item) => item.transcript_id)
+        );
+
+        const filteredTranscript = allTranscript?.data?.data?.filter(
+          (item) => !firstTranscriptIds.has(item.transcript_id)
+        );
+
+        const array = [];
+        filteredTranscript.forEach((ele) => {
+          array.push({
+            transcriptId: ele.transcript_id,
+            transcript: ele.transcript,
+            lastDate: null,
+            submittedStatus: false,
+            notRequied: false,
+            submittedStatusDisabled: false,
+            notRequiedDisabled: false,
+            lastDateDisabled: false,
+            showStatus: true,
+          });
+        });
+
+        setTranscriptValues(array);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleChangeEditStudent = (e) => {
     setEditStudentDetails((prev) => ({
       ...prev,
@@ -731,6 +790,46 @@ function StudentDetailsView() {
     }
   };
 
+  const createTranscript = async () => {
+    try {
+      const postTemp = [];
+
+      transcriptValues.forEach((ele) => {
+        if (ele.lastDate || ele.notRequied || ele.submittedStatus)
+          postTemp.push({
+            active: true,
+            transcript_id: ele.transcriptId,
+            student_id: Id,
+            is_collected: ele.submittedStatus === true ? "YES" : null,
+            submitted_date: ele.lastDate
+              ? moment(ele.lastDate).format("DD-MM-YYYY")
+              : moment(new Date()).format("DD-MM-YYYY"),
+            not_applicable: ele.notRequied === true ? "YES" : null,
+            will_submit_by: ele.lastDate ? ele.lastDate : null,
+          });
+      });
+
+      if (postTemp.length > 0) {
+        const postResponse = await axios.post(
+          `/api/student/StudentTranscriptSubmission`,
+          postTemp
+        );
+
+        if (postResponse.status === 200 || postResponse.status === 201) {
+          setAlertMessage({
+            severity: "success",
+            message: "Transcript Created Successfully",
+          });
+          setAlertOpen(true);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  console.log("tt", transcriptValues);
+
   const handleStudentEdit = async () => {
     try {
       const payload = {};
@@ -802,12 +901,25 @@ function StudentDetailsView() {
       //   programValues.admissionSubCategory;
       payload.fee_template_id = programValues.feeTemplateId;
       // payload.Is_nri = programValues.isNri === "true" ? true : false;
+      const postTemp = [];
+
+      postTemp.push({
+        // active: true,
+        // transcript_id: obj.transcriptId,
+        // student_id: studentData.student_id,
+        // is_collected: obj.submittedStatus === true ? "YES" : null,
+        // submitted_date: obj.lastDate
+        //   ? moment(obj.lastDate).format("YYYY-MM-DD")
+        //   : moment().format("YYYY-MM-DD"),
+        // not_applicable: obj.notRequied === true ? "YES" : null,
+      });
 
       const response = await axios.patch(
         `/api/student/updateStudentDetailsPartially/${applicantData.student_id}`,
         payload
       );
       if (response.status === 200 || response.status === 201) {
+        createTranscript();
         updateApplicantData();
         setAlertMessage({
           severity: "success",
@@ -1279,6 +1391,22 @@ function StudentDetailsView() {
                             setOptionalValues={setOptionalValues}
                             id={id}
                             setApplicantResponse={setApplicantResponse}
+                          />
+                        </AccordionDetails>
+                      </Accordion>
+
+                      <Accordion
+                        sx={{ borderLeft: 4, borderColor: "primary.main" }}
+                      >
+                        <CustomAccordianSummary
+                          Icon={FolderCopyIcon}
+                          title="Document Collection"
+                        />
+                        <AccordionDetails>
+                          <TranscriptDetailsForm
+                            transcriptValues={transcriptValues}
+                            setTranscriptValues={setTranscriptValues}
+                            noStatuData={noStatuData}
                           />
                         </AccordionDetails>
                       </Accordion>

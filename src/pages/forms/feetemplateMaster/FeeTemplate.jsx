@@ -300,15 +300,13 @@ function FeeTemplate() {
           (obj) => obj.program_type_id === values.programTypeId
         );
 
-        if (programTypeSelected.program_type_name.toLowerCase() === "yearly") {
+        if (programSelected.program_type_name.toLowerCase() === "yearly") {
           for (let i = 1; i <= programSelected.number_of_years; i++) {
             years.push({ label: "Year" + "-" + i, value: i });
           }
         }
 
-        if (
-          programTypeSelected.program_type_name.toLowerCase() === "semester"
-        ) {
+        if (programSelected.program_type_name.toLowerCase() === "semester") {
           for (let i = 1; i <= programSelected.number_of_semester; i++) {
             years.push({ label: "Sem" + "-" + i, value: i });
           }

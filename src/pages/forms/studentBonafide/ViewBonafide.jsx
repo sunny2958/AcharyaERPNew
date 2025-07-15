@@ -540,7 +540,6 @@ const ViewBonafide = () => {
         <Grid container mt={3}>
           <Grid item xs={12}>
             <Card>
-              {/* Provisional Bonafide */}
               {studentBonafideDetail[0]?.bonafide_type ==
                 "Provisional Bonafide" ? (
                 <CardContent>
@@ -985,7 +984,8 @@ const ViewBonafide = () => {
                           md={8}
                           sx={{
                             display: "flex",
-                            justifyContent: "space-between"
+                            justifyContent: "space-between",
+                            alignItems:"flex-end"
                           }}
                         >
                           <div>
@@ -1478,14 +1478,18 @@ const ViewBonafide = () => {
                                 sx={{
                                   display: "flex",
                                   justifyContent: "space-between",
+                                  alignItems:"flex-end"
                                 }}
                               >
-                                <Typography variant="subtitle2" fontSize="14px">
-                                  PRINCIPAL
+                                <div>
+                                  {studentDetail?.school_name_short?.toLowerCase() == "ait" && <img src={sign(`./Facsimile_Principal.png`)} width={100} alt="Facsimile_Principal" />}
                                   <Typography variant="subtitle2" fontSize="14px">
-                                    AUTHORIZED SIGNATORY
+                                    PRINCIPAL
+                                    <Typography variant="subtitle2" fontSize="14px">
+                                      AUTHORIZED SIGNATORY
+                                    </Typography>
                                   </Typography>
-                                </Typography>
+                                </div>
                                 <Typography paragraph pt={5}>
                                   Prepared By -{" "}
                                   {studentBonafideDetail[0]?.created_username ||
@@ -1688,14 +1692,18 @@ const ViewBonafide = () => {
                                     sx={{
                                       display: "flex",
                                       justifyContent: "space-between",
+                                      alignItems:"flex-end"
                                     }}
                                   >
-                                    <Typography variant="subtitle2" fontSize="14px">
-                                      PRINCIPAL
-                                      <Typography variant="subtitle2" fontSize="14px">
-                                        AUTHORIZED SIGNATORY
-                                      </Typography>
-                                    </Typography>
+                                      <div>
+                                        {studentDetail?.school_name_short?.toLowerCase() == "ait" && <img src={sign(`./Facsimile_Principal.png`)} width={100} alt="Facsimile_Principal" />}
+                                        <Typography variant="subtitle2" fontSize="14px">
+                                          PRINCIPAL
+                                          <Typography variant="subtitle2" fontSize="14px">
+                                            AUTHORIZED SIGNATORY
+                                          </Typography>
+                                        </Typography>
+                                      </div>
                                     <Typography paragraph pt={5}>
                                       Prepared By -{" "}
                                       {studentBonafideDetail[0]?.created_username ||
@@ -1903,14 +1911,18 @@ const ViewBonafide = () => {
                                         sx={{
                                           display: "flex",
                                           justifyContent: "space-between",
+                                          alignItems:"flex-end"
                                         }}
                                       >
-                                        <Typography variant="subtitle2" fontSize="14px">
-                                          PRINCIPAL
-                                          <Typography variant="subtitle2" fontSize="14px">
-                                            AUTHORIZED SIGNATORY
-                                          </Typography>
-                                        </Typography>
+                                          <div>
+                                            {studentDetail?.school_name_short?.toLowerCase() == "ait" && <img src={sign(`./Facsimile_Principal.png`)} width={100} alt="Facsimile_Principal" />}
+                                            <Typography variant="subtitle2" fontSize="14px">
+                                              PRINCIPAL
+                                              <Typography variant="subtitle2" fontSize="14px">
+                                                AUTHORIZED SIGNATORY
+                                              </Typography>
+                                            </Typography>
+                                          </div>
                                         <Typography paragraph pt={5}>
                                           Prepared By -{" "}
                                           {studentBonafideDetail[0]?.created_username ||
@@ -2122,14 +2134,18 @@ const ViewBonafide = () => {
                                             sx={{
                                               display: "flex",
                                               justifyContent: "space-between",
+                                              alignItems:"flex-end"
                                             }}
                                           >
-                                            <Typography variant="subtitle2" fontSize="14px">
-                                              PRINCIPAL
-                                              <Typography variant="subtitle2" fontSize="14px">
-                                                AUTHORIZED SIGNATORY
-                                              </Typography>
-                                            </Typography>
+                                              <div>
+                                                {studentDetail?.school_name_short?.toLowerCase() == "ait" && <img src={sign(`./Facsimile_Principal.png`)} width={100} alt="Facsimile_Principal" />}
+                                                <Typography variant="subtitle2" fontSize="14px">
+                                                  PRINCIPAL
+                                                  <Typography variant="subtitle2" fontSize="14px">
+                                                    AUTHORIZED SIGNATORY
+                                                  </Typography>
+                                                </Typography>
+                                              </div>
                                             <Typography paragraph pt={5}>
                                               Prepared By -{" "}
                                               {studentBonafideDetail[0]?.created_username ||
@@ -2350,14 +2366,18 @@ const ViewBonafide = () => {
                                                 sx={{
                                                   display: "flex",
                                                   justifyContent: "space-between",
+                                                  alignItems:"flex-end"
                                                 }}
                                               >
-                                                <Typography variant="subtitle2" fontSize="14px">
-                                                  PRINCIPAL
-                                                  <Typography variant="subtitle2" fontSize="14px">
-                                                    AUTHORIZED SIGNATORY
-                                                  </Typography>
-                                                </Typography>
+                                                  <div>
+                                                    {studentDetail?.school_name_short?.toLowerCase() == "ait" && <img src={sign(`./Facsimile_Principal.png`)} width={100} alt="Facsimile_Principal" />}
+                                                    <Typography variant="subtitle2" fontSize="14px">
+                                                      PRINCIPAL
+                                                      <Typography variant="subtitle2" fontSize="14px">
+                                                        AUTHORIZED SIGNATORY
+                                                      </Typography>
+                                                    </Typography>
+                                                  </div>
                                                 <Typography paragraph pt={5}>
                                                   Prepared By -{" "}
                                                   {studentBonafideDetail[0]?.created_username ||
@@ -2559,14 +2579,18 @@ const ViewBonafide = () => {
                                                       sx={{
                                                         display: "flex",
                                                         justifyContent: "space-between",
+                                                        alignItems:"flex-end"
                                                       }}
                                                     >
-                                                      <Typography variant="subtitle2" fontSize="14px">
-                                                        PRINCIPAL
-                                                        <Typography variant="subtitle2" fontSize="14px">
-                                                          AUTHORIZED SIGNATORY
-                                                        </Typography>
-                                                      </Typography>
+                                                        <div>
+                                                          {studentDetail?.school_name_short?.toLowerCase() == "ait" && <img src={sign(`./Facsimile_Principal.png`)} width={100} alt="Facsimile_Principal" />}
+                                                          <Typography variant="subtitle2" fontSize="14px">
+                                                            PRINCIPAL
+                                                            <Typography variant="subtitle2" fontSize="14px">
+                                                              AUTHORIZED SIGNATORY
+                                                            </Typography>
+                                                          </Typography>
+                                                        </div>
                                                       <Typography paragraph pt={5}>
                                                         Prepared By -{" "}
                                                         {studentBonafideDetail[0]?.created_username ||
@@ -2772,14 +2796,18 @@ const ViewBonafide = () => {
                                                       sx={{
                                                         display: "flex",
                                                         justifyContent: "space-between",
+                                                        alignItems:"flex-end"
                                                       }}
                                                     >
-                                                      <Typography variant="subtitle2" fontSize="14px">
-                                                        PRINCIPAL
-                                                        <Typography variant="subtitle2" fontSize="14px">
-                                                          AUTHORIZED SIGNATORY
-                                                        </Typography>
-                                                      </Typography>
+                                                        <div>
+                                                          {studentDetail?.school_name_short?.toLowerCase() == "ait" && <img src={sign(`./Facsimile_Principal.png`)} width={100} alt="Facsimile_Principal" />}
+                                                          <Typography variant="subtitle2" fontSize="14px">
+                                                            PRINCIPAL
+                                                            <Typography variant="subtitle2" fontSize="14px">
+                                                              AUTHORIZED SIGNATORY
+                                                            </Typography>
+                                                          </Typography>
+                                                        </div>
                                                       <Typography paragraph pt={5}>
                                                         Prepared By -{" "}
                                                         {studentBonafideDetail[0]?.created_username || "-"}
@@ -2980,14 +3008,18 @@ const ViewBonafide = () => {
                                                         sx={{
                                                           display: "flex",
                                                           justifyContent: "space-between",
+                                                          alignItems:"flex-end"
                                                         }}
                                                       >
-                                                        <Typography variant="subtitle2" fontSize="14px">
-                                                          PRINCIPAL
+                                                        <div>
+                                                          {studentDetail?.school_name_short?.toLowerCase() == "ait" && <img src={sign(`./Facsimile_Principal.png`)} width={100} alt="Facsimile_Principal" />}
                                                           <Typography variant="subtitle2" fontSize="14px">
-                                                            AUTHORIZED SIGNATORY
+                                                            PRINCIPAL
+                                                            <Typography variant="subtitle2" fontSize="14px">
+                                                              AUTHORIZED SIGNATORY
+                                                            </Typography>
                                                           </Typography>
-                                                        </Typography>
+                                                        </div>
                                                         <Typography paragraph pt={5}>
                                                           Prepared By -{" "}
                                                           {studentBonafideDetail[0]?.created_username || "-"}

@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy } from "react";
 import {
-  Box, Grid, Button,Typography
+  Box, Grid, Button, Typography
 } from "@mui/material";
 import useBreadcrumbs from "../../hooks/useBreadcrumbs.js";
 import Checkbox from "@mui/material/Checkbox";
@@ -13,9 +13,13 @@ import axios from "../../services/Api.js";
 import moment from "moment";
 import DOMPurify from "dompurify";
 import FormWrapper from "../../components/FormWrapper";
+const logos = require.context("../../assets", true);
 const ModalWrapper = lazy(() => import("../../components/ModalWrapper"));
 const CustomAutocomplete = lazy(() =>
   import("../../components/Inputs/CustomAutocomplete.jsx")
+);
+const CustomDatePicker = lazy(() =>
+  import("../../components/Inputs/CustomDatePicker.jsx")
 );
 const GridIndex = lazy(() => import("../../components/GridIndex.jsx"));
 const CustomFileInput = lazy(() =>
@@ -24,13 +28,20 @@ const CustomFileInput = lazy(() =>
 
 const style = makeStyles((theme) => ({
   main: {
-    padding:"20px",
-    transition: 'transform 0.3s ease-in-out',
-    '&:hover': {
-      transform: 'scale(1.1)',
-    },
+    position: "relative",
+    padding: "10px",
+    minHeight: "180px",
     backgroundColor: "#eceff1",
+    borderRadius: "5px",
     cursor: "pointer"
+  },
+  imgStyle: {
+    width: "30px",
+    position: "absolute",
+    right: "-10px",
+    top: "-12px",
+    border: "1px solid #fff",
+    borderRadius: "50%"
   }
 }));
 
@@ -63,8 +74,8 @@ const semLists = [
 ];
 
 const recipientTypeLists = [
-  {label: "Students", value: "STUDENT"},
-  {label: "Staff", value: "STAFF"},
+  { label: "Students", value: "STUDENT" },
+  { label: "Staff", value: "STAFF" },
 ];
 
 const initialState = {
@@ -82,6 +93,7 @@ const initialState = {
   yearSem: "",
   yearSemLists: [],
   whatsappTemplate: null,
+  recipientType: null,
   feeAdmissionCategory: null,
   programSpecilizationDetail: null,
   studentList: [],
@@ -93,13 +105,14 @@ const initialState = {
   commencementList: [],
   attachment: null,
   fileUrl: null,
-  recipientType: null
+  cardIndex: null,
+  date: null
 };
 
 const SendWhatsApp = () => {
   const [{ acYear, acYearList, schoolId, loading, schoolList, programId, programmList, programSpecializationId, programmeSpecializationList, yearSem, yearSemLists,
     whatsappTemplate, whatsappTemplateList, feeAdmissionCategory, feeAdmissionCategoryList, studentList, checked, dateAndTemplateDetail, isPreviewModalOpen, commencementId, commencementList, content,
-    attachment, fileUrl,recipientType
+    attachment, fileUrl, cardIndex, recipientType, date
   }, setState] = useState(initialState);
   const { setAlertMessage, setAlertOpen } = useAlert();
   const setCrumbs = useBreadcrumbs();
@@ -290,7 +303,7 @@ const SendWhatsApp = () => {
       if (res.status == 200 || res.status == 201) {
         setState((prevState) => ({
           ...prevState,
-          whatsappTemplateList: res.data.data.map((ele) => ({ value: ele.whatsappTemplateId, label: ele.templateName, content: ele.content,recipientType:ele.recipientType }))
+          whatsappTemplateList: res.data.data.map((ele) => ({ value: ele.whatsappTemplateId, label: ele.templateName, content: ele.content, recipientType: ele.recipientType, templateName: ele.templateName }))
         }))
       }
     } catch (error) {
@@ -322,55 +335,28 @@ const SendWhatsApp = () => {
   const getStudentData = async () => {
     try {
       setLoading(true);
-      if (whatsappTemplate == 1) {
-        const [year, sem] = yearSem?.split("/").map(Number)
-        const payload = {
-          "schoolId": schoolId,
-          "programSpecializationId": programSpecializationId,
-          "programId": programId,
-          "year": year,
-          "sem": sem,
-          "commencementId": commencementId,
-          "whatsappTemplateId": whatsappTemplate,
-          "acYear": acYear,
-          "feeAdmissionCategoryId": feeAdmissionCategory
-        }
-        const res = await axios.post(`/api/whatsapp/getStudentList`, payload);
-        if (res.status == 200 || res.status == 201) {
-          const list = res.data.data.students;
-          const dateAndTemplateDetails = { "lastDateToPay": res.data.data.lastDateToPay, "templateName": res.data.data.templateName, "fileName": null, };
-          setState((prevState) => ({
-            ...prevState,
-            studentList: list.map((ele, index) => ({ ...ele, id: index + 1, isSelected: false })),
-            dateAndTemplateDetail: dateAndTemplateDetails
-          }));
-          setLoading(false)
-        }
-      } else if (whatsappTemplate == 2) {
-        const formData = new FormData();
-        formData.append("schoolId", schoolId);
-        formData.append("programSpecializationId", programSpecializationId);
-        formData.append("acYear", acYear);
-        formData.append("feeAdmissionCategoryId", feeAdmissionCategory);
-        formData.append("whatsappTemplateId", whatsappTemplate);
-        formData.append("file", attachment);
-
-        const res = await axios.post(`/api/whatsapp/getStudentsForDocumentTemplate`, formData);
-        if (res.status == 200 || res.status == 201) {
-          setAlertMessage({
-            severity: "success",
-            message: "File uploaded successfully!!",
-          });
-          setAlertOpen(true);
-          const list = res.data.data.students;
-          const dateAndTemplateDetails = { "fileName": res.data.data.fileName, "templateName": res.data.data.templateName, "lastDateToPay": null };
-          setState((prevState) => ({
-            ...prevState,
-            studentList: list.map((ele, index) => ({ ...ele, id: index + 1, isSelected: false })),
-            dateAndTemplateDetail: dateAndTemplateDetails
-          }));
-          setLoading(false)
-        }
+      const [year, sem] = yearSem?.split("/").map(Number)
+      const payload = {
+        "schoolId": schoolId,
+        "programSpecializationId": programSpecializationId,
+        "programId": programId,
+        "year": year,
+        "sem": sem,
+        "commencementId": commencementId,
+        "whatsappTemplateId": whatsappTemplate.value,
+        "acYear": acYear,
+        "feeAdmissionCategoryId": feeAdmissionCategory
+      }
+      const res = await axios.post(`/api/whatsapp/getStudentList`, payload);
+      if (res.status == 200 || res.status == 201) {
+        const list = res.data.data.students;
+        const dateAndTemplateDetails = { "lastDateToPay": res.data.data.lastDateToPay, "templateName": res.data.data.templateName, "fileName": null, };
+        setState((prevState) => ({
+          ...prevState,
+          studentList: list.map((ele, index) => ({ ...ele, id: index + 1, isSelected: false })),
+          dateAndTemplateDetail: dateAndTemplateDetails
+        }));
+        setLoading(false)
       }
 
     } catch (error) {
@@ -412,33 +398,13 @@ const SendWhatsApp = () => {
   };
 
   const handlePreviewTemplate = async () => {
-    if (whatsappTemplate == 1) {
-      const htmlContent = whatsappTemplateList.find((li) => li.value == whatsappTemplate)?.content;
-      const sanitizedHtmlContent = DOMPurify.sanitize(htmlContent);
-      setState((prevState) => ({
-        ...prevState,
-        isPreviewModalOpen: !isPreviewModalOpen,
-        content: sanitizedHtmlContent
-      }))
-    } else if (whatsappTemplate == 2 && dateAndTemplateDetail?.fileName) {
-      await axios(
-        `/api/whatsapp/viewFile?fileName=${dateAndTemplateDetail?.fileName}`,
-        {
-          method: "GET",
-          responseType: "blob",
-        }
-      )
-        .then((res) => {
-          const file = new Blob([res.data], { type: "application/pdf" });
-          const url = URL.createObjectURL(file);
-          setState((prevState) => ({
-            ...prevState,
-            isPreviewModalOpen: !isPreviewModalOpen,
-            fileUrl: url,
-            content: null
-          }));
-        })
-    }
+    const htmlContent = whatsappTemplateList.find((li) => li.value == whatsappTemplate.value)?.content;
+    const sanitizedHtmlContent = DOMPurify.sanitize(htmlContent);
+    setState((prevState) => ({
+      ...prevState,
+      isPreviewModalOpen: !isPreviewModalOpen,
+      content: sanitizedHtmlContent
+    }))
   };
 
   const handleFileDrop = (name, newFile) => {
@@ -455,11 +421,12 @@ const SendWhatsApp = () => {
     }));
   };
 
-  const handleCard= (cardObj) => {
-    console.log("obj===========",cardObj);
+  const handleCard = (cardObj, index) => {
     setState((prevState) => ({
       ...prevState,
-      recipientType: cardObj.recipientType,
+      whatsappTemplate: cardObj,
+      cardIndex: index,
+      recipientType: cardObj.recipientType !== "ALL" ? cardObj.recipientType : null
     }));
   };
 
@@ -467,47 +434,50 @@ const SendWhatsApp = () => {
     <Box
       sx={{
         position: "relative",
-        marginLeft:"20px"
+        marginLeft: "20px"
       }}
     >
 
       <Box mt={2} mb={2}>
         <Grid container rowSpacing={3} columnSpacing={{ xs: 3 }}>
           {whatsappTemplateList.map((li, index) => (<Grid item xs={12} md={3} key={index}>
-            <Box className={boxStyle.main} sx={{ boxShadow: 2 }} onClick={() =>handleCard(li)}>
-              <Typography variant="subtitle2" sx={{ textAlign: "center"}}>{(li.label)?.toUpperCase()}</Typography>
-              <Box p={2} sx={{marginTop:"10px",borderRadius:"10px",backgroundColor:"#fff"}}>
-              <Typography variant="subtitle2" sx={{ textAlign: "justify" }}>{li.content ? (li.content)?.replace('{{lastdate}}',"DD-MM-YYYY") : ""}</Typography>
-              </Box>
+            <Box className={boxStyle.main} sx={{ boxShadow: 2 }} onClick={() => handleCard(li, index)}>
+              <Typography variant="subtitle2" sx={{ textAlign: "center" }}>{(li.label)?.toUpperCase()?.replaceAll("_", " ")}</Typography>
+              {cardIndex == index && <img src={`${logos(`./animated-check-icon-unscreen.gif`)}`} alt="succesTick" className={boxStyle.imgStyle} />}
+              {li.content && <Box p={2} sx={{ marginTop: "5px", borderRadius: "10px", backgroundColor: "#fff" }}>
+                <Typography variant="subtitle2" sx={{ textAlign: "justify" }}>{(li.content) ? (li.content.length > 200) ? (li.content.substring(0, 215) + " " + "....") : (li.content) : ""}</Typography>
+              </Box>}
             </Box>
           </Grid>
           ))}
         </Grid>
       </Box>
 
-            <FormWrapper>
+      {whatsappTemplateList?.length > 0 && whatsappTemplate && <FormWrapper>
         <Grid container rowSpacing={4} columnSpacing={{ xs: 2, md: 4 }}>
-                  <Grid item xs={12} md={2}>
-          <CustomAutocomplete
-            name="recipientType"
-            value={recipientType || ""}
-            label="Recipient Type"
-            handleChangeAdvance={handleChangeAdvance}
-            options={recipientTypeLists || []}
-            required
-          />
-        </Grid>
           <Grid item xs={12} md={2}>
             <CustomAutocomplete
-              name="acYear"
-              value={acYear}
-              label="Ac Year"
+              name="recipientType"
+              value={recipientType || null}
+              label="Recipient Type"
               handleChangeAdvance={handleChangeAdvance}
-              options={acYearList || []}
+              options={recipientTypeLists || []}
+              disabled={whatsappTemplate?.recipientType !== "ALL"}
               required
             />
           </Grid>
-          <Grid item xs={12} md={3}>
+          {recipientType == "STUDENT" &&
+            <Grid item xs={12} md={2}>
+              <CustomAutocomplete
+                name="acYear"
+                value={acYear}
+                label="Ac Year"
+                handleChangeAdvance={handleChangeAdvance}
+                options={acYearList || []}
+                required
+              />
+            </Grid>}
+          {recipientType == "STUDENT" && <Grid item xs={12} md={3}>
             <CustomAutocomplete
               name="schoolId"
               value={schoolId}
@@ -516,8 +486,8 @@ const SendWhatsApp = () => {
               options={schoolList || []}
               required
             />
-          </Grid>
-          <Grid item xs={12} md={3}>
+          </Grid>}
+          {recipientType == "STUDENT" && <Grid item xs={12} md={3}>
             <CustomAutocomplete
               name="programId"
               value={programId}
@@ -527,8 +497,8 @@ const SendWhatsApp = () => {
               options={programmList || []}
               required
             />
-          </Grid>
-          <Grid item xs={12} md={2}>
+          </Grid>}
+          {recipientType == "STUDENT" && <Grid item xs={12} md={2}>
             <CustomAutocomplete
               name="programSpecializationId"
               value={programSpecializationId}
@@ -537,8 +507,8 @@ const SendWhatsApp = () => {
               handleChangeAdvance={handleChangeAdvance}
               options={programmeSpecializationList || []}
             />
-          </Grid>
-          <Grid item xs={12} md={2}>
+          </Grid>}
+          {recipientType == "STUDENT" && <Grid item xs={12} md={2}>
             <CustomAutocomplete
               name="yearSem"
               value={yearSem || ""}
@@ -547,8 +517,8 @@ const SendWhatsApp = () => {
               options={yearSemLists}
               required
             />
-          </Grid>
-          <Grid item xs={12} md={2}>
+          </Grid>}
+          {recipientType == "STUDENT" && <Grid item xs={12} md={2}>
             <CustomAutocomplete
               name="commencementId"
               value={commencementId || ""}
@@ -557,18 +527,8 @@ const SendWhatsApp = () => {
               options={commencementList}
               required
             />
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <CustomAutocomplete
-              name="whatsappTemplate"
-              value={whatsappTemplate || ""}
-              label="Whatsapp Template"
-              handleChangeAdvance={handleChangeAdvance}
-              options={whatsappTemplateList}
-              required
-            />
-          </Grid>
-          <Grid item xs={12} md={3}>
+          </Grid>}
+          {recipientType == "STUDENT" && <Grid item xs={12} md={3}>
             <CustomAutocomplete
               name="feeAdmissionCategory"
               value={feeAdmissionCategory || ""}
@@ -576,8 +536,21 @@ const SendWhatsApp = () => {
               handleChangeAdvance={handleChangeAdvance}
               options={feeAdmissionCategoryList}
             />
-          </Grid>
-          {whatsappTemplate == 2 && <Grid item xs={12} md={2}>
+          </Grid>}
+
+          {recipientType == "STAFF" && whatsappTemplate.templateName == "attendance_chk" && <Grid item xs={12} md={2}>
+            <CustomDatePicker
+              name="date"
+              label="Date"
+              minDate={date}
+              value={date}
+              handleChangeAdvance={handleChangeAdvance}
+              helperText=""
+              required
+            />
+          </Grid>}
+
+          {recipientType == "STUDENT" && whatsappTemplate.templateName == "upload_doc_1" && <Grid item xs={12} md={3}>
             <CustomFileInput
               name="attachment"
               label="Pdf File Attachment"
@@ -588,12 +561,12 @@ const SendWhatsApp = () => {
               required
             />
           </Grid>}
-          <Grid item xs={12} md={1}>
+          <Grid item xs={12} md={1} align="right">
             <Button
               variant="contained"
               disableElevation
               onClick={getStudentData}
-              disabled={!(acYear && schoolId && programId && yearSem && whatsappTemplate && commencementId) || (whatsappTemplate == 2 && !attachment)}
+              disabled={!recipientType}
             >
               Submit
             </Button>
@@ -609,7 +582,7 @@ const SendWhatsApp = () => {
             </Button>
           </Grid>
         </Grid>
-      </FormWrapper>
+      </FormWrapper>}
 
       {studentList?.length > 0 && <Box sx={{ position: "absolute", width: "100%" }}>
         <GridIndex rows={studentList}
@@ -618,6 +591,7 @@ const SendWhatsApp = () => {
           setColumnVisibilityModel={setColumnVisibilityModel}
           loading={loading} />
       </Box>}
+
       <ModalWrapper
         title="WhatsApp Template"
         maxWidth={whatsappTemplate == 1 ? 500 : 700}

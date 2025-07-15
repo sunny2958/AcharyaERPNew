@@ -66,7 +66,6 @@ function HostelBedViewIndex({ tab }) {
   const [columnVisibilityModel, setColumnVisibilityModel] = useState({
     type: false,
     created_date: false,
-    totalAmount: false,
     paid: false,
     waiverAmount: false
   });
@@ -169,7 +168,7 @@ function HostelBedViewIndex({ tab }) {
     //   },
     // },
     {
-      field: "totalAmount", headerName: "Fixed", flex: 1, hide: true, align: "right",
+      field: "totalAmount", headerName: "Fixed", flex: 1, align: "right",
       headerAlign: "right"
     },
     { field: "type", headerName: "Type", flex: 1, hide: true },
@@ -386,21 +385,37 @@ function HostelBedViewIndex({ tab }) {
 
   const getData = async () => {
     try {
-      setLoading(true)
-      const url = `/api/hostel/fetchAllHostelBedAssignment?page=0&pageSize=100000&sort=createdDate&active=true${values?.schoolId ? `&schoolId=${values?.schoolId}` : ""
-        }${values?.blockName ? `&blockId=${values?.blockName}` : ""}&acYearId=${values?.acyearId}&cancelledStatus=${tab === "Active Bed" ? "NOT CANCELLED" : "CANCELLED"
-        }`;
+      setLoading(true);
+      const params = new URLSearchParams({
+        page: 0,
+        pageSize: 100000,
+        sort: "createdDate",
+        acYearId: values?.acyearId || "",
+      });
 
+      if (values?.schoolId) params.append("schoolId", values.schoolId);
+      if (values?.blockName) params.append("blockId", values.blockName);
+
+      if (tab === "InActive Bed") {
+        params.append("active", "false");
+      } else {
+        params.append("active", "true");
+        params.append(
+          "cancelledStatus",
+          tab === "Active Bed" ? "NOT CANCELLED" : "CANCELLED"
+        );
+      }
+      const url = `/api/hostel/fetchAllHostelBedAssignment?${params.toString()}`;
       const response = await axios.get(url);
-
       onClosePopUp();
       setRows(response?.data?.data?.Paginated_data?.content || []);
-      setLoading(false)
     } catch (error) {
       console.error("Error fetching data:", error);
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
+
   const onClosePopUp = () => {
     setFoodTypeOpen(false);
     setOccupiedTypeOpen(false);

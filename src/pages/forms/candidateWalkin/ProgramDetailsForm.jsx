@@ -242,15 +242,15 @@ const ProgramDetailsForm = memo(
 
     const handleChange = (e) => {
       const { name, value } = e.target;
-      // (/^[A-Za-z]*$/) --> only letters, no numbers, no spaces. 
-      if(name === "preferredName"){
-        if((/^[A-Za-z]*$/).test(value)){
+      // (/^[A-Za-z]*$/) --> only letters, no numbers, no spaces.
+      if (name === "preferredName") {
+        if (/^[A-Za-z]*$/.test(value)) {
           setProgramValues((prev) => ({
             ...prev,
             [name]: value,
           }));
         }
-      }else {
+      } else {
         setProgramValues((prev) => ({
           ...prev,
           [name]: value,
@@ -391,7 +391,6 @@ const ProgramDetailsForm = memo(
                     value={programValues.currentYearSem}
                     options={noOfYears}
                     handleChangeAdvance={handleChangeAdvance}
-                    disabled={isRegular}
                   />
                 </Grid>
 
@@ -442,7 +441,7 @@ const ProgramDetailsForm = memo(
                     value={programValues.currentYearSem}
                     options={noOfYears}
                     handleChangeAdvance={handleChangeAdvance}
-                    disabled={isRegular}
+                    disabled
                   />
                 </Grid>
 
