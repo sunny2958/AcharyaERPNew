@@ -75,11 +75,16 @@ function VendorDayCreditTransaction() {
   const setCrumbs = useBreadcrumbs();
   const location = useLocation()
   const queryValues = location.state;
+  const pathname = location.pathname;
   const { setAlertMessage, setAlertOpen } = useAlert();
   const classes = useStyles();
   const navigate = useNavigate();
 
   useEffect(() => {
+    getData()
+    if(queryValues?.ledgerType === 'ASSETS/ADVANCE' || queryValues?.ledgerType === 'EXPENDITURE'){
+      return
+    }else{
     setCrumbs([{ name: "" }]);
     if (queryValues?.isBRSTrue) {
       setBreadCrumbs([
@@ -97,9 +102,8 @@ function VendorDayCreditTransaction() {
         { name: `${queryValues?.voucherHeadName || ""} FY ${queryValues?.fcYear} as on ${moment().format('DD-MMMM-YYYY')}` },
       ])
     }
-    getData()
+  }
   }, []);
-
 
   const getData = async () => {
     setLoading(true);
@@ -165,7 +169,7 @@ function VendorDayCreditTransaction() {
     { field: "school_name_short", headerName: "School", flex: 1, align: "center" },
     { field: "dept_name", headerName: "Dept", flex: 1 },
     {
-      field: "credit",
+      field: pathname === ("/ledger-assets-day-transaction-debit" || "/ledger-expenditure-day-transaction-debit") ? "debit" : "credit",
       headerName: "Amount",
       flex: 0.8,
       headerAlign: "right",
@@ -189,14 +193,18 @@ function VendorDayCreditTransaction() {
     fcYearId
   ) => {
     navigate(`/generate-journalvoucher-pdf/${journalVoucherNumber}`, {
-      state: { schoolId, fcYearId, isLedger: true, ...queryValues },
+      state: { schoolId, fcYearId, isLedger: true, path:pathname, ...queryValues },
     });
   };
 
   return (
     <>
       <Box sx={{ position: "relative", width: "100%" }}>
-        <CustomBreadCrumbs crumbs={breadCrumbs} />
+        {(queryValues?.ledgerType === 'ASSETS/ADVANCE' || queryValues?.ledgerType === 'EXPENDITURE') ? (
+        <></>
+        ):(
+           <CustomBreadCrumbs crumbs={breadCrumbs} />
+        )}
         <Box sx={{ position: "absolute", width: "100%", marginTop: "10px" }}>
           <GridIndex
             rows={rows}
@@ -208,7 +216,6 @@ function VendorDayCreditTransaction() {
             getRowId={(row) => row?.journal_voucher_id}
           />
         </Box>
-
       </Box>
     </>
   );

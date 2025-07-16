@@ -526,10 +526,7 @@ function CandidateWalkinIndex() {
       field: "logs",
       headerName: "Logs",
       renderCell: (params) => (
-        <IconButton
-          title="Extend Pay Link"
-          onClick={() => handleLogs(params.row)}
-        >
+        <IconButton onClick={() => handleLogs(params.row)}>
           <ArticleIcon color="primary" sx={{ fontSize: 24 }} />
         </IconButton>
       ),

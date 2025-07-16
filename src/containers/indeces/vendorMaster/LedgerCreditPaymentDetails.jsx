@@ -68,11 +68,12 @@ function LedgerCreditPaymentDetail() {
         created_username: false,
         created_name: false
     });
- 
+
     const { setAlertMessage, setAlertOpen } = useAlert();
     const classes = useStyles();
     const navigate = useNavigate();
     const location = useLocation()
+    const pathname = location?.pathname
     const queryValues = location.state;
 
     useEffect(() => {
@@ -87,18 +88,30 @@ function LedgerCreditPaymentDetail() {
 
     const getData = async () => {
         setLoading(true);
-        let params = {
-            page: 0,
-            page_size: 1000000,
-            sort: 'created_date',
-            date_range: 'custom',
-            start_date: queryValues?.date,
-            end_date: queryValues?.date,
-            school_id: queryValues?.schoolId,
-            bank_id: queryValues?.bankId,
-            active:true
-        };
-        const baseUrl = '/api/finance/fetchAllPaymentVoucher'
+        const { voucherHeadId, fcYearId, schoolId, month, date, bankId } = queryValues
+        let params = {}
+        if (queryValues?.ledgerType === "ASSETS/ADVANCE" || queryValues?.ledgerType === "EXPENDITURE") {
+            params = {
+                ...(voucherHeadId && { voucherHeadNewId: voucherHeadId }),
+                ...(fcYearId && { fcYearId }),
+                ...(schoolId && { schoolId }),
+                ...(date && { date })
+            }
+        } else {
+            params = {
+                page: 0,
+                page_size: 1000000,
+                sort: 'created_date',
+                date_range: 'custom',
+                start_date: date,
+                end_date: date,
+                school_id: schoolId,
+                bank_id: bankId,
+                active: true
+            }
+        }
+        const assetAndExpensitureApi = pathname === "/ledger-assets-day-transaction-debit" ? "api/finance/getAllDebitDetailOfExpenditureOrAssetsDetails" : "/api/finance/getAllCreditDetailOfExpenditureOrAssetsDetails"
+        const baseUrl = (queryValues?.ledgerType === 'ASSETS/ADVANCE' || queryValues?.ledgerType === 'EXPENDITURE') ? assetAndExpensitureApi : '/api/finance/fetchAllPaymentVoucher'
         await axios
             .get(baseUrl, { params })
             .then((response) => {
@@ -108,7 +121,7 @@ function LedgerCreditPaymentDetail() {
             })
             .catch((err) => {
                 setLoading(false);
-                 setAlertMessage({
+                setAlertMessage({
                     severity: "error",
                     message: "Something went wrong.",
                 });
@@ -157,7 +170,7 @@ function LedgerCreditPaymentDetail() {
             valueGetter: (row, value) => value.pay_to ?? value.school_name_short,
         },
         {
-            field: "debit_total",
+            field: pathname === "/ledger-assets-day-transaction-debit" ? "debit" : pathname === "/ledger-assets-day-transaction-credit" ? 'credit' :  "debit_total",
             headerName: "Amount",
             flex: 0.8,
             headerAlign: "right",

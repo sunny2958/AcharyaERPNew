@@ -222,7 +222,7 @@ function VendorMasterIndex() {
 
         if (ledgerType === "VENDOR" || ledgerType === "INFLOW") {
             return value < 0 ? `${formatCurrency(absVal)} Dr` : `${formatCurrency(absVal)} Cr`;
-        } else if (ledgerType === "CASHORBANK" || ledgerType === 'EARNINGS' || ledgerType === "ASSETS" || ledgerType === "EXPENDITURE") {
+        } else if (ledgerType === "CASHORBANK" || ledgerType === 'EARNINGS' || ledgerType === "ASSETS/ADVANCE" || ledgerType === "EXPENDITURE") {
             return value > 0 ? `${formatCurrency(absVal)} Dr` : `${formatCurrency(absVal)} Cr`;
         } else {
             return value;

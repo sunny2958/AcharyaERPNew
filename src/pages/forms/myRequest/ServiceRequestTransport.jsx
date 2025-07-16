@@ -12,6 +12,7 @@ function ServiceRequestTransport() {
   const setCrumbs = useBreadcrumbs();
   const [deptId, setDeptId] = useState([]);
   const navigate = useNavigate();
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({});
   const userId = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.userId;
 
   useEffect(() => {
@@ -123,9 +124,11 @@ function ServiceRequestTransport() {
       </Grid>
     </Grid>
   </Box>
-    <Box sx={{ position: "relative", mt: 1 }}>
-      <GridIndex rows={rows} columns={columns} />
-    </Box>
+      <Box sx={{ position: "relative", mt: 1 }}>
+        <GridIndex rows={rows} columns={columns}
+          columnVisibilityModel={columnVisibilityModel}
+          setColumnVisibilityModel={setColumnVisibilityModel} />
+      </Box>
     </>
   );
 }

@@ -173,12 +173,16 @@ const LedgerDayTransaction = () => {
             }
         }else if (queryValues?.ledgerType === 'EXPENDITURE'){
              if (type === 'credit') {
-                navigate('/ledger-expenses-day-transaction-credit', { state: queryParams })
+                navigate('/ledger-expenditure-day-transaction-credit', { state: queryParams })
+            }else{
+                navigate('/ledger-expenditure-day-transaction-debit', { state: queryParams })
             }
         }
-        else if (queryValues?.ledgerType === 'ASSETS'){
+        else if (queryValues?.ledgerType === 'ASSETS/ADVANCE'){
              if (type === 'credit') {
                 navigate('/ledger-assets-day-transaction-credit', { state: queryParams })
+            }else{
+                 navigate('/ledger-assets-day-transaction-debit', { state: queryParams })
             }
         }
         else {
@@ -221,7 +225,7 @@ const LedgerDayTransaction = () => {
 
         if (ledgerType === "VENDOR" || ledgerType === "INFLOW") {
             return value < 0 ? `${absVal} Dr` : `${absVal} Cr`;
-        } else if (ledgerType === "CASHORBANK" || ledgerType === "ASSETS" || ledgerType === "EXPENDITURE") {
+        } else if (ledgerType === "CASHORBANK" || ledgerType === "ASSETS/ADVANCE" || ledgerType === "EXPENDITURE") {
             return value > 0 ? `${(absVal)} Dr` : `${(absVal)} Cr`;
         } else {
             return value;
@@ -236,7 +240,7 @@ const LedgerDayTransaction = () => {
             case 'VENDOR':
             case 'INFLOW':
             case 'EXPENDITURE':
-            case 'ASSETS':   
+            case 'ASSETS/ADVANCE':   
                 return (credit || 0) - (debit || 0);
                 break;
             default:

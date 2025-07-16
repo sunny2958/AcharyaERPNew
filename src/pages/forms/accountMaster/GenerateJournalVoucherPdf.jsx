@@ -59,12 +59,12 @@ const JournalVoucherPdf = () => {
 
   useEffect(() => {
     getPaymentVoucherData();
-    if (queryValues?.ledgerType === "VENDOR") {
+    if (queryValues?.ledgerType === "VENDOR" || queryValues?.ledgerType === 'ASSETS/ADVANCE' || queryValues?.ledgerType === 'EXPENDITURE') {
       setCrumbs([]);
       setBreadCrumb([
         {
           name: "Payment Tracker",
-          link: "/vendor-day-transaction-credit",
+          link: queryValues?.path,
           state: queryValues,
         },
       ]);

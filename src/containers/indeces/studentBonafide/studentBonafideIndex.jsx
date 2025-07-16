@@ -54,7 +54,7 @@ const VacationLeaveIndex = () => {
   const { setAlertMessage, setAlertOpen } = useAlert();
   const setCrumbs = useBreadcrumbs();
   const navigate = useNavigate();
-  const [columnVisibilityModel, setColumnVisibilityModel] = useState([]);
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({});
 
   useEffect(() => {
     setCrumbs([{ name: "Bonafide Index" }]);
@@ -313,7 +313,7 @@ const VacationLeaveIndex = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleHostelFeeTemplateSubmit}
-                disabled={hostelFeeTemplateLoading}
+                disabled={hostelFeeTemplateLoading || !hostelFeeTemplateId}
               >
                 {hostelFeeTemplateLoading ? (
                   <CircularProgress
