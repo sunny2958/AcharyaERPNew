@@ -471,10 +471,14 @@ function HostelDueReport() {
 
       </Box>
 
-      <ModalWrapper open={historyOpen} setOpen={setHistoryOpen} title={`Student Details${data
+      <ModalWrapper
+        open={historyOpen}
+        setOpen={setHistoryOpen}
+        title={`Student Details${data
           ? ` — ${data.block_name} (${getRoomTypeLabel(data.room_type_id)})`
           : ""
-        }`}>
+          }`}
+      >
         <GridIndex
           rows={historyData}
           columns={callHistoryColumns}
@@ -497,9 +501,9 @@ function HostelDueReport() {
               justifyContent: "center !important",
             },
           }}
-
         />
       </ModalWrapper>
+
     </>
   );
 }
