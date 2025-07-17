@@ -98,18 +98,40 @@ const StudentDocumentUpload = () => {
 
   const fetchSubCategories = async (mainId) => {
     try {
-      const res = await axios.get(`/api/getAttachCategoryDetails?attachments_category_id=${mainId}`);
-      let subcategories = res.data.data;
-      const excludedIds = [14, 15, 16, 17, 18, 19, 22, 21, 20];
-      if (mainId === 3) {
-        subcategories = subcategories.filter((item) => !excludedIds.includes(item.id));
+      const studentResponse = await axios.get(
+        `/api/student/getStudentDetailsBasedOnAuidAndStrudentId?student_id=${Id}`
+      );
+      const studentData = studentResponse.data?.data?.[0] || {};
+      console.log(studentData, "studentData");
+
+      const categoryResponse = await axios.get(
+        `/api/getAttachCategoryDetails?attachments_category_id=${mainId}`
+      );
+      let subcategories = categoryResponse.data?.data || [];
+
+      const excludedIds = [14, 15, 16, 17, 18, 19, 20, 21, 22];
+      if (studentData.fee_admission_category_short_name === "INT") {
+        excludedIds.push(3);
       }
-      setSubCategoriesMap((prev) => ({ ...prev, [mainId]: subcategories }));
-    } catch {
-      setAlertMessage({ severity: "error", message: "Failed to load subcategories" });
+      if (mainId === 3 || mainId === 1) {
+        subcategories = subcategories.filter(
+          (item) => !excludedIds.includes(item.id)
+        );
+      }
+      setSubCategoriesMap((prev) => ({
+        ...prev,
+        [mainId]: subcategories,
+      }));
+    } catch (error) {
+      console.error(error);
+      setAlertMessage({
+        severity: "error",
+        message: "Failed to load subcategories",
+      });
       setAlertOpen(true);
     }
   };
+
 
   const handleMainCategorySelect = (cat) => {
     const id = cat.attachments_category_id;

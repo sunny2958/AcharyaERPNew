@@ -44,6 +44,13 @@ import AuditingStatusForm from "../../../pages/forms/studentMaster/AuditingStatu
 import { makeStyles } from "@mui/styles";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import PdfUploadModal from "../../../components/PdfUploadModal";
+import PersonIcon from '@mui/icons-material/Person';
+import CallIcon from '@mui/icons-material/Call';
+import ManIcon from '@mui/icons-material/Man';
+import WomanIcon from '@mui/icons-material/Woman';
+import CustomModal from "../../../components/CustomModal";
+
+const userId = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.userId;
 
 const useStyle = makeStyles((theme) => ({
   applied: {
@@ -165,11 +172,20 @@ function StudentDetailsIndex() {
     laptop_status: false,
     feeTemplateRemaks: false,
     adj_status: false,
+    IVR: false
   });
 
   const { setAlertMessage, setAlertOpen } = useAlert();
   const setCrumbs = useBreadcrumbs();
   const [imageOpen, setImageUploadOpen] = useState(false);
+  const [modalIVROpen, setModalIVROpen] = useState(false);
+  const [data, setData] = useState({});
+  const [modalContent, setModalContent] = useState({
+    title: "",
+    message: "",
+    buttons: [],
+  });
+  const [confirmModal, setConfirmModal] = useState(false);
 
   const classes = useStyle();
 
@@ -753,6 +769,20 @@ function StudentDetailsIndex() {
       // hide: pathname.toLowerCase() === "/student-master-user" ? true : false,
     },
     {
+      field: "IVR",
+      type: "actions",
+      flex: 1,
+      headerName: "IVR",
+      getActions: (params) => [
+        <IconButton
+          label="IVR Call"
+          onClick={() => handleIVRCall(params?.row)}
+        >
+          <CallIcon color="primary" />
+        </IconButton>
+      ],
+    },
+    {
       field: "Provisional",
       headerName: "Provisional",
       align: "center",
@@ -1179,7 +1209,70 @@ function StudentDetailsIndex() {
         </Grid>
       </Grid>
     </Box>
-  );
+  )
+
+  const handleIVR = async (type) => {
+    // setAlertMessage({ severity: "error", message: "This service is temporarily disabled" });
+    // setAlertOpen(true);
+    let custNumber = null;
+
+    // Determine the customer number based on the type
+    if (type === 'father') {
+      custNumber = data?.father_mobile;
+      console.log('Calling Father...');
+    } else if (type === 'mother') {
+      custNumber = data?.mother_mobile;
+      console.log('Calling Mother...');
+    } else if (type === 'student') {
+      custNumber = data?.mobile;
+      console.log('Calling Student...');
+    }
+
+    if (!custNumber) {
+      console.error('Customer number is not available.');
+      alert(`Cannot make a call. ${type} number is missing.`);
+      return;
+    }
+
+    try {
+      const response = await axios.get('/api/getCallOutbound', {
+        params: {
+          // exenumber: '9535252150',
+          custnumber: custNumber,
+          userId: userId
+        },
+      });
+      if (response.status === 200 || response.status === 201) {
+        setAlertMessage({
+          severity: "success",
+          message: `${type.charAt(0)?.toUpperCase() + type.slice(1)} is being called.`,
+        });
+      } else {
+        setAlertMessage({ severity: "error", message: "Error Occured" });
+      }
+      setAlertOpen(true);
+      setModalIVROpen(false)
+    } catch (error) {
+      console.error('Error fetching IVR details:', error);
+    }
+  };
+
+  const handleIVRCall = (rowData) => {
+    setModalIVROpen(true)
+    setData(rowData)
+  };
+  const handleSubmit = (params) => {
+    setModalContent({
+      title: "",
+      message: `Are you sure you want to call to ${params}?`,
+      buttons: [
+        { name: "Yes", color: "primary", func: () => handleIVR(params) },
+        { name: "No", color: "primary", func: () => { } },
+      ],
+    });
+
+    setConfirmModal(true);
+  };
   return (
     <>
       {/* Assign USN  */}
@@ -1397,10 +1490,173 @@ function StudentDetailsIndex() {
           setColumnVisibilityModel={setColumnVisibilityModel}
         />
       </Box>
+      <PdfUploadModal imageOpen={imageOpen} setImageUploadOpen={setImageUploadOpen} rowData={rowData} />
+      <ModalWrapper
+        title={`IVR - ${data?.student_name || "Unknown Student"}`}
+        maxWidth={800}
+        open={modalIVROpen}
+        setOpen={setModalIVROpen}
+      >
+        <Grid
+          container
+          justifyContent="center"
+          alignItems="center"
+          rowSpacing={3}
+          columnSpacing={4}
+          sx={{
+            padding: 3,
+            background: "#f9f9f9",
+            borderRadius: 4,
+            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          {/* Header for Instructions */}
+          <Grid item xs={12}>
+            <Typography
+              variant="h6"
+              sx={{
+                textAlign: "center",
+                color: "#444",
+                fontWeight: 600,
+                marginBottom: 2,
+                fontSize: "1.1rem",
+                fontFamily: "Arial, sans-serif",
+              }}
+            >
+              "Please select the person you wish to speak with by pressing the corresponding number."
+            </Typography>
+          </Grid>
+
+          {/* Call Options */}
+          <Grid item xs={12}>
+            <Grid
+              container
+              justifyContent="space-between"
+              alignItems="center"
+              spacing={3}
+            >
+              {/* Student Section */}
+              <Grid item xs={12} sm={4}>
+                <Box
+                  sx={{
+                    textAlign: "center",
+                    background: "#F3E5F5",
+                    borderRadius: 4,
+                    padding: 2,
+                    boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  <PersonIcon sx={{ fontSize: 36, color: "#6A1B9A" }} />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, marginY: 1 }}>
+                    {data?.student_name}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#666" }}>
+                    Mobile:{" "}
+                    {data?.mobile?.replace(/(\d{2})\d{6}(\d{2})/, "$1******$2")}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleSubmit("student")}
+                    sx={{
+                      background: "#6A1B9A",
+                      color: "#fff",
+                      marginTop: 1,
+                      "&:hover": {
+                        background: "#4A148C",
+                      },
+                    }}
+                  >
+                    Call Student
+                  </Button>
+                </Box>
+              </Grid>
+
+              {/* Father Section */}
+              <Grid item xs={12} sm={4}>
+                <Box
+                  sx={{
+                    textAlign: "center",
+                    background: "#E3F2FD",
+                    borderRadius: 4,
+                    padding: 2,
+                    boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  <ManIcon sx={{ fontSize: 36, color: "#1976D2" }} />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, marginY: 1 }}>
+                    {data?.father_name}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#666" }}>
+                    Mobile:{" "}
+                    {data?.father_mobile?.replace(/(\d{2})\d{6}(\d{2})/, "$1******$2")}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleSubmit("father")}
+                    sx={{
+                      background: "#1976D2",
+                      color: "#fff",
+                      marginTop: 1,
+                      "&:hover": {
+                        background: "#0D47A1",
+                      },
+                    }}
+                  >
+                    Call Father
+                  </Button>
+                </Box>
+              </Grid>
+
+              {/* Mother Section */}
+              <Grid item xs={12} sm={4}>
+                <Box
+                  sx={{
+                    textAlign: "center",
+                    background: "#FFEBEE",
+                    borderRadius: 4,
+                    padding: 2,
+                    boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  <WomanIcon sx={{ fontSize: 36, color: "#D32F2F" }} />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, marginY: 1 }}>
+                    {data?.mother_name}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#666" }}>
+                    Mobile:{" "}
+                    {data?.mother_mobile?.replace(/(\d{2})\d{6}(\d{2})/, "$1******$2")}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleSubmit("mother")}
+                    sx={{
+                      background: "#D32F2F",
+                      color: "#fff",
+                      marginTop: 1,
+                      "&:hover": {
+                        background: "#B71C1C",
+                      },
+                    }}
+                  >
+                    Call Mother
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </ModalWrapper>
       <PdfUploadModal
         imageOpen={imageOpen}
         setImageUploadOpen={setImageUploadOpen}
         rowData={rowData}
+      />
+      <CustomModal
+        open={confirmModal}
+        setOpen={setConfirmModal}
+        title={modalContent.title}
+        message={modalContent.message}
+        buttons={modalContent.buttons}
       />
     </>
   );

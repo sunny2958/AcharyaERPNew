@@ -27,6 +27,7 @@ function CustomSelect({
   handleChange,
   required = false,
   disabled = false,
+  displayEmpty = false
 }) {
   const [showError, setShowError] = useState(false);
 
@@ -51,7 +52,7 @@ function CustomSelect({
           }}
           onBlur={() => (value ? setShowError(false) : setShowError(true))}
         >
-          <MenuItem value="">None</MenuItem>
+          <MenuItem value="" disabled={displayEmpty}>None</MenuItem>
           {items.map((obj, index) => (
             <MenuItem key={index} value={obj.value}>
               {obj.label}

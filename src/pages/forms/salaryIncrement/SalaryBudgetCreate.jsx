@@ -658,6 +658,11 @@ function SalaryBudgetCreate() {
     currentDate.getMonth() - 1,
     1
   );
+  
+  const isObjectFullyFilled = (obj) =>
+    Object.values(obj).every(
+      (val) => val !== null && val !== undefined && val !== ""
+    );
 
   return (
     <Box sx={{ position: "relative", mt: 3 }}>
@@ -1074,7 +1079,9 @@ function SalaryBudgetCreate() {
             loading ||
             values.month === null ||
             values.month === "Invalid Date" ||
-            values.month === ""
+            values.month === "" ||
+            values.lumpsum === "" ||
+            !isObjectFullyFilled(values.lumpsum)
           }
           onClick={handleSubmit}
         >
