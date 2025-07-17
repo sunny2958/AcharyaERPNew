@@ -84,11 +84,11 @@ const LedgerMonthlyInstTransaction = () => {
     }, [currMonth?.month])
 
     const getData = async () => {
-        const { voucherHeadId, fcYearId, schoolId, year, ledgerType } = queryValues
-        const baseUrl = ledgerType === 'EARNINGS' ? "/api/finance/getMonthAndSchoolWiseSummary" : "/api/finance/getMonthlyLedger"
+        const { voucherHeadId, fcYearId, schoolId, year, ledgerType } = queryValues;
         let params = {}
-        if(ledgerType === 'EARNINGS'){
-             params = {
+        const baseUrl = ledgerType === "EARNINGS" ?  "/api/finance/getMonthAndSchoolWiseSummary" : "/api/finance/getMonthlyLedger"
+        if(ledgerType === "EARNINGS" ){
+         params = {
             ...(voucherHeadId && { voucherHeadNewId: voucherHeadId }),
             ...(year && { year }),
             ...(currMonth?.month && { month: currMonth?.month })
@@ -107,6 +107,8 @@ const LedgerMonthlyInstTransaction = () => {
                 const { data } = res?.data
                 const rowData = []
                 data?.vendorDetails?.length > 0 && data?.vendorDetails?.forEach(el => {
+                    const ClosingBalance = ledgerType === "EARNINGS" ? el?.closingBalance : el?.closing_balance
+                    const OpeningBalance = ledgerType === "EARNINGS" ? el?.openingBalance : el?.opening_balance
                     rowData.push({
                         credit: el?.credit,
                         debit: el?.debit,
@@ -115,8 +117,8 @@ const LedgerMonthlyInstTransaction = () => {
                         school_name: el?.school_name,
                         school_name_short: el?.school_name_short,
                         month: el?.month,
-                        openingBalance: formatDrCr(el?.openingBalance, queryValues?.ledgerType),
-                        closingBalance: formatDrCr(el?.closingBalance, queryValues?.ledgerType),
+                        openingBalance: formatDrCr(OpeningBalance, queryValues?.ledgerType),
+                        closingBalance: formatDrCr(ClosingBalance, queryValues?.ledgerType),
                     })
                 });
 
@@ -390,7 +392,7 @@ const LedgerMonthlyInstTransaction = () => {
                                                     fontWeight: 400,
                                                     color: 'rgba(0, 0, 0, 0.87)'
                                                 }}>
-                                                    {row?.school_name_short}
+                                                    {queryValues?.ledgerType === 'EARNINGS' ? row?.school_name_short : row?.school_name}
                                                 </TableCell>
                                                 <TableCell align="right">
                                                     {formatCurrency(row.openingBalance)}

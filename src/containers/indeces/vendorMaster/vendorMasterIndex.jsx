@@ -353,7 +353,7 @@ function VendorMasterIndex() {
     };
 
     const handleRowClick = (params) => {
-         if (params?.row?.isLastRow && params?.row?.ledgerType !== "EARNINGS") return;
+        //  if (params?.row?.isLastRow && params?.row?.ledgerType !== "EARNINGS") return;
          
         const query = {
             ...values,

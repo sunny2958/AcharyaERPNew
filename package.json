@@ -27,6 +27,8 @@
     "dayjs": "^1.11.5",
     "dompurify": "^3.1.5",
     "fflate": "^0.8.2",
+    "highcharts": "^12.3.0",
+    "highcharts-react-official": "^3.2.2",
     "html2canvas": "^1.4.1",
     "jsbarcode": "^3.11.6",
     "jspdf": "^2.5.1",

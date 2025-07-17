@@ -91,8 +91,8 @@ function AssetsAndExpenditureReceiptDetail() {
       hideable: false,
       renderCell: (params) => "BULK"},
     {
-      field: "from_name",
-      headerName: "Name",
+      field: "student_name",
+      headerName: "Student",
       flex: 1,
       hideable: false
     },
@@ -118,14 +118,6 @@ function AssetsAndExpenditureReceiptDetail() {
       valueGetter: (row, value) => moment(row).format("DD-MM-YYYY"),
     },
     {
-      field: "auid",
-      headerName: "AUID",
-      flex: 1,
-      hideable: false,
-      align: "center",
-      valueGetter: (value, row) => (row.auid ? row.auid : ""),
-    },
-    {
       field: "fee_template_name",
       headerName: "Template",
       flex: 1,
@@ -145,16 +137,9 @@ function AssetsAndExpenditureReceiptDetail() {
       },
     },
     {
-      field: "bank_short_name",
+      field: "bank_name",
       headerName: "Bank",
-      flex: 1,
-
-      valueGetter: (value, row) =>
-        row.transaction_type?.toLowerCase() == "cash"
-          ? `Cash-${row.inter_school_short_name}`
-          : row.bank_short_name
-          ? `${row.bank_short_name}-${row.inter_school_short_name}`
-          : null,
+      flex: 1
     },
      { field: "remarks", headerName: "Remarks", flex: 1 },
 
@@ -162,22 +147,11 @@ function AssetsAndExpenditureReceiptDetail() {
       field: "cheque_dd_no",
       headerName: "Transaction Ref",
       flex: 1,
-      // hideable: false,
-      valueGetter: (value, row) =>
-        row?.cheque_dd_no || row?.dd_number || row?.dd_bank_name
-          ? row?.cheque_dd_no || row?.dd_number + "_" + row?.dd_bank_name
-          : "",
     },
     {
       field: "transaction_no",
       headerName: "Trn No",
-      flex: 1,
-      valueGetter: (value, row) =>
-        row?.transaction_no
-          ? row.transaction_no
-          : row?.dd_number
-          ? row.dd_number
-          : "",
+      flex: 1
     },
     {
       field: "transaction_date",
@@ -186,9 +160,7 @@ function AssetsAndExpenditureReceiptDetail() {
       align: "center",
       valueGetter: (value, row) =>
         row?.transaction_date
-          ? row.transaction_date
-          : row?.dd_date
-          ? moment(row.dd_date).format("DD-MM-YYYY")
+          ? moment(row?.transaction_date).format("DD-MM-YYYY")
           : null,
     },
     { field: "created_username", headerName: "Created By", flex: 1 },

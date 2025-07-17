@@ -57,23 +57,6 @@ function AssetsAndExpenditurePaymentVoucher() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // setCrumbs([{ name: "" }]);
-    // if (queryValues?.isBRSTrue) {
-    //   setBreadCrumbs([
-    //     { name: "Bank Balance", link: "/bank-balance" },
-    //     { name: "BRS", link: "/institute-bank-balance", state: { bankGroupId: queryValues?.bankGroupId } },
-    //     { name: "Monthly Transaction", link: "/Accounts-ledger-monthly-detail", state: queryValues },
-    //     { name: 'Daily Summary', link: "/Accounts-ledger-day-transaction", state: queryValues },
-    //     { name: `${queryValues?.voucherHeadName || ""} FY ${queryValues?.fcYear} as on ${moment().format('DD-MMMM-YYYY')}` },
-    //   ]);
-    // } else {
-    //   setBreadCrumbs([
-    //     { name: "Ledger", link: "/Accounts-ledger", state: queryValues },
-    //     { name: "Monthly Transaction", link: "/Accounts-ledger-monthly-detail", state: queryValues },
-    //     { name: 'Daily Summary', link: "/Accounts-ledger-day-transaction", state: queryValues },
-    //     { name: `${queryValues?.voucherHeadName || ""} FY ${queryValues?.fcYear} as on ${moment().format('DD-MMMM-YYYY')}` },
-    //   ])
-    // }
     getData()
   }, []);
 
@@ -87,7 +70,7 @@ function AssetsAndExpenditurePaymentVoucher() {
       ...(schoolId && { schoolId }),
       ...(date && { date })
     }
-   // const baseUrl = '/api/finance/getAllExpenditureOrAssetsDetails'
+
    const baseUrl = '/api/finance/getAllDebitDetailOfExpenditureOrAssetsDetails'
     await axios
       .get(baseUrl, { params })
@@ -114,7 +97,6 @@ function AssetsAndExpenditurePaymentVoucher() {
 
   const columns = [
     {
-      // field: "id",
       field: "journal_voucher_id",
       headerName: "JV",
       flex: 1,
