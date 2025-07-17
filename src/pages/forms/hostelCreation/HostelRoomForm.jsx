@@ -281,8 +281,8 @@ function HostelRoomForm() {
 
         // Handle error response
         const errorMessage =
-          err?.response?.status === 500 && err?.response?.data
-            ? err?.response?.data
+          err?.response?.status === 500 && err?.response?.data?.data
+            ? err?.response?.data?.data
             : "An error occurred";
 
         setAlertMessage({

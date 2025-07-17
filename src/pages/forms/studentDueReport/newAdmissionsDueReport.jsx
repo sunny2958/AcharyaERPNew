@@ -337,7 +337,7 @@ const NewAdmissionsDueReport = () => {
                         }
                      },
                     //   {
-                    //     field: "semDue", headerName: "Collage Due", flex: 1, type: "number", align: 'right', sortable: false,
+                    //     field: "semDue", headerName: "College Due", flex: 1, type: "number", align: 'right', sortable: false,
                     //     headerAlign: 'right', headerClassName: "header-bg", disableColumnMenu: true, pinned: true,
                     //     renderCell: (params) => {
                     //         const total = Number(params?.row?.semDue) || 0;
@@ -346,7 +346,7 @@ const NewAdmissionsDueReport = () => {
                     //     }
                     // },
                     {
-                        field: "inrValue", headerName: "Collage Due (₹)", type: "number", minWidth: 150, align: 'right', sortable: false,
+                        field: "inrValue", headerName: "College Due (₹)", type: "number", minWidth: 150, align: 'right', sortable: false,
                         headerAlign: 'right', headerClassName: "header-bg", disableColumnMenu: true, pinned: true,
                         renderCell: (params) => {
                             const total = Number(params?.row?.inrValue) || 0;
