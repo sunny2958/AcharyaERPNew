@@ -1045,7 +1045,7 @@ function StudentDetailsIndex() {
     },
       {
         field: "cancelRemarks",
-        headerName: "Remarks",
+        headerName: "Cancel Remarks",
         flex: 1,
       },);
   }
