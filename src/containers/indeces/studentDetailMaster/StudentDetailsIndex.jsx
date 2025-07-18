@@ -167,13 +167,18 @@ function StudentDetailsIndex() {
     current_country: false,
     fee_admission_sub_category_short_name: false,
     mentor: pathname.toLowerCase() === "/student-master-user" ? false : true,
+    Provisional: true,
+    upload: true,
+    active: true,
     notes: false,
     audit_status: false,
     laptop_status: false,
     feeTemplateRemaks: false,
     adj_status: false,
-    IVR: false
+    IVR: false,
+    cancelRemarks: false
   });
+
 
   const { setAlertMessage, setAlertOpen } = useAlert();
   const setCrumbs = useBreadcrumbs();
@@ -192,6 +197,13 @@ function StudentDetailsIndex() {
   useEffect(() => {
     getAcademicYears();
     getSchoolDetails();
+    setColumnVisibilityModel((prev) => ({
+      ...prev,
+      mentor: tab === "Active Student" ? true : false,
+      Provisional: tab === "Active Student" ? true : false,
+      upload: tab === "Active Student" ? true : false,
+      active: tab === "Active Student" ? true : false,
+    }));
     if (
       pathname.toLowerCase() === "/student-master-user" ||
       pathname.toLowerCase() === "/student-master-inst" ||
@@ -786,6 +798,7 @@ function StudentDetailsIndex() {
       field: "Provisional",
       headerName: "Provisional",
       align: "center",
+      type: "actions",
       flex: 1,
       renderCell: (params) => (
         <IconButton
@@ -1021,6 +1034,20 @@ function StudentDetailsIndex() {
         </IconButton>,
       ],
     });
+  }
+  if (tab !== "Active Student") {
+    columns.push({
+      field: "cancelDate",
+      headerName: "DOC",
+      flex: 1,
+      valueGetter: (value, row) =>
+        row.cancelDate ? moment(row.cancelDate).format("DD-MM-YYYY") : "",
+    },
+      {
+        field: "cancelRemarks",
+        headerName: "Cancel Remarks",
+        flex: 1,
+      },);
   }
   const handleCourseCreate = async () => {
     const temp = {};

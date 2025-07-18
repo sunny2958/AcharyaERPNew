@@ -30,6 +30,7 @@ const initialValues = {
   studentId: "",
   programId: "",
   empId: "",
+  acYearId: ""
 };
 
 const triggerOption = [
@@ -44,6 +45,7 @@ const triggerOption = [
   { value: "LeavePattern", label: "Employee Leave Pattern" },
   { value: "BioTransaction", label: "Employee Bio Transaction" },
   { value: "Student", label: "Single Student Due Report" },
+  { value: "Hostel", label: "Hostel Due By Student" },
   { value: "School", label: "School Due Report" },
   { value: "EmployeeLeaveKitty", label: "Leave Kitty" },
   { value: "leaveKitty", label: "Employee Leave Kitty" },
@@ -57,6 +59,7 @@ function EmpAttendanceTrigger() {
   const [schoolOptions, setSchoolOptions] = useState([]);
   const [studentDetails, setStudentDetails] = useState([]);
   const [employeeOptions, setEmployeeOptions] = useState([]);
+  const [academicYearOptions, setAcademicYearOptions] = useState([]);
 
   const [studentOptions, setStudentOptions] = useState([]);
   const [programOptions, setProgramOptions] = useState([]);
@@ -80,6 +83,8 @@ function EmpAttendanceTrigger() {
       data?.trigger === "leaveKitty"
     ) {
       getEmployeeData();
+    } if (data?.trigger === "Hostel") {
+      getAcademicYearData();
     }
   }, [data?.trigger]);
 
@@ -94,6 +99,27 @@ function EmpAttendanceTrigger() {
       ...prev,
       [name]: newValue,
     }));
+  };
+
+  const getAcademicYearData = async () => {
+    try {
+      const res = await axios.get("/api/academic/academic_year");
+      const data = res.data.data.map((obj) => ({
+        value: obj.ac_year_id,
+        label: obj.ac_year,
+      }));
+
+      setAcademicYearOptions(data);
+
+      if (data.length > 0) {
+        setValues((prev) => ({
+          ...prev,
+          acYearId: data[0]?.value,
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleChangeTrigger = async (name, newValue) => {
@@ -464,6 +490,34 @@ function EmpAttendanceTrigger() {
           setAlertOpen(true);
           setLoading(false);
         });
+    } else if (data?.trigger === "Hostel" && values.studentId &&
+      values?.acYearId) {
+      const payload = [
+        {
+          auid: values.studentId,
+          acYearId: values.acYearId,
+        },
+      ];
+      await axios
+        .put(`/api/finance/hostelProcedure`, payload)
+        .then((res) => {
+          if (res.status === 200) {
+            setAlertMessage({
+              severity: "success",
+              message: "Hostel procedure executed successfully! !!",
+            });
+            setAlertOpen(true);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          setAlertMessage({
+            severity: "error",
+            message: "Execution Failed !!",
+          });
+          setAlertOpen(true);
+          setLoading(false);
+        });
     } else if (data?.trigger === "leaveKitty") {
       await axios
         .post(`/api/createEmployeeLeaveKitty?empId=${values.empId}`)
@@ -527,9 +581,8 @@ function EmpAttendanceTrigger() {
       setLoading(true);
       const containsAlphabetic = /[a-zA-Z]/.test(debouncedAuid);
       const baseUrl = "/api/student/getStudentDetailsBasedOnAuidAndStrudentId";
-      const url = `${baseUrl}?${
-        containsAlphabetic ? "auid" : "student_id"
-      }=${debouncedAuid}`;
+      const url = `${baseUrl}?${containsAlphabetic ? "auid" : "student_id"
+        }=${debouncedAuid}`;
       const response = await axios.get(url);
       setStudentDetails(response?.data?.data[0]);
     } catch (err) {
@@ -583,8 +636,8 @@ function EmpAttendanceTrigger() {
             xs={12}
             md={
               data.trigger === "School" ||
-              data.trigger === "AttendanceSchool" ||
-              data?.trigger === "AttendanceEmployee"
+                data.trigger === "AttendanceSchool" ||
+                data?.trigger === "AttendanceEmployee" || data?.trigger === "Hostel"
                 ? 3
                 : 4
             }
@@ -610,39 +663,66 @@ function EmpAttendanceTrigger() {
               />
             </Grid>
           )}
+          {(data.trigger === "Hostel") && (
+            <>
+              <Grid item xs={6} md={3} sm={4}>
+                <CustomTextField
+                  name="studentId"
+                  label="AUID"
+                  value={values.studentId}
+                  handleChange={handleChange}
+                  helperText=" "
+                  errors={["This field is required"]}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={3} md={2}>
+                <CustomAutocomplete
+                  name="acYearId"
+                  label="Academic Year"
+                  value={values.acYearId}
+                  options={academicYearOptions}
+                  handleChangeAdvance={handleChangeAdvance}
+                  required
+                />
+              </Grid>
+            </>
+
+          )}
+
           {(data?.trigger === "Attendance" ||
             data?.trigger === "Salary" ||
             data?.trigger === "BiometricAttendance" ||
             data.trigger === "AttendanceSchool" ||
             data?.trigger === "AttendanceEmployee" ||
             data?.trigger === "SalaryEmployee") && (
-            <Grid item xs={12} md={3}>
-              <CustomDatePicker
-                name="month"
-                label="Month"
-                value={values.month}
-                handleChangeAdvance={handleChangeAdvance}
-                views={["month", "year"]}
-                openTo="month"
-                inputFormat="MM/YYYY"
-                helperText="mm/yyyy"
-                disabled={data?.trigger === "StudentDueReport"}
-              />
-            </Grid>
-          )}
+              <Grid item xs={12} md={3}>
+                <CustomDatePicker
+                  name="month"
+                  label="Month"
+                  value={values.month}
+                  handleChangeAdvance={handleChangeAdvance}
+                  views={["month", "year"]}
+                  openTo="month"
+                  inputFormat="MM/YYYY"
+                  helperText="mm/yyyy"
+                  disabled={data?.trigger === "StudentDueReport"}
+                />
+              </Grid>
+            )}
           {(data.trigger === "School" ||
             data.trigger === "AttendanceSchool") && (
-            <Grid item xs={6} md={3}>
-              <CustomAutocomplete
-                name="schoolId"
-                label="School"
-                value={values.schoolId}
-                options={schoolOptions}
-                handleChangeAdvance={handleChangeAdvance}
-                required
-              />
-            </Grid>
-          )}
+              <Grid item xs={6} md={3}>
+                <CustomAutocomplete
+                  name="schoolId"
+                  label="School"
+                  value={values.schoolId}
+                  options={schoolOptions}
+                  handleChangeAdvance={handleChangeAdvance}
+                  required
+                />
+              </Grid>
+            )}
           {data.trigger === "School" && (
             <Grid item xs={6} md={3}>
               <CustomAutocomplete
@@ -651,23 +731,23 @@ function EmpAttendanceTrigger() {
                 value={values.programId}
                 options={programOptions}
                 handleChangeAdvance={handleChangeAdvance}
-                // required
+              // required
               />
             </Grid>
           )}
           {(data?.trigger === "AttendanceEmployee" ||
             data?.trigger === "SalaryEmployee" ||
             data?.trigger === "leaveKitty") && (
-            <Grid item xs={12} md={3}>
-              <CustomAutocomplete
-                name="empId"
-                value={values.empId}
-                label="Employee"
-                handleChangeAdvance={handleChangeAdvance}
-                options={employeeOptions}
-              />
-            </Grid>
-          )}
+              <Grid item xs={12} md={3}>
+                <CustomAutocomplete
+                  name="empId"
+                  value={values.empId}
+                  label="Employee"
+                  handleChangeAdvance={handleChangeAdvance}
+                  options={employeeOptions}
+                />
+              </Grid>
+            )}
           {data?.trigger === "BioTransaction" && (
             <Grid item xs={12} md={4}>
               <CustomDatePicker
@@ -683,12 +763,12 @@ function EmpAttendanceTrigger() {
             xs={12}
             md={
               data.trigger === "School" ||
-              data.trigger === "AttendanceSchool" ||
-              data?.trigger === "AttendanceEmployee"
+                data.trigger === "AttendanceSchool" ||
+                data?.trigger === "AttendanceEmployee"
                 ? 3
                 : data?.trigger !== "StudentDueReport"
-                ? 4
-                : 8
+                  ? 4
+                  : 8
             }
             align="right"
           >
