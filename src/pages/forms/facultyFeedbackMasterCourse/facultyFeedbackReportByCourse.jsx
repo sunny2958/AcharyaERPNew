@@ -89,7 +89,7 @@ function FacultyFeedbackReportByCourse() {
 
     const getAllFacultySubject = () => {
         // setLoading(true)
-        const { year, sem, employee_id, acYear, ...query } = queryParams
+        const { year, sem, employee_id, acYear, school_id, ...query } = queryParams
         const yearAndSem = query?.yearSem && query?.yearSem?.split("/")
         const selectedYear = yearAndSem?.length > 0 ? yearAndSem[0] : ""
         const selectedSem = yearAndSem?.length > 0 ? yearAndSem[1] : ""
@@ -243,10 +243,10 @@ function FacultyFeedbackReportByCourse() {
     };
 
     function getOrdinal(n) {
-    const s = ["th", "st", "nd", "rd"];
-    const v = n % 100;
-    return n + (s[(v - 20) % 10] || s[v] || s[0]);
-}
+        const s = ["th", "st", "nd", "rd"];
+        const v = n % 100;
+        return n + (s[(v - 20) % 10] || s[v] || s[0]);
+    }
 
     const tableData = useMemo(
         () => (
@@ -257,15 +257,15 @@ function FacultyFeedbackReportByCourse() {
                             <TableCell
                                 colSpan={2 + (column?.length || 0)}
                                 sx={{
-                                    backgroundColor: "primary.main",
+                                    backgroundColor: "#376a7d",
                                     color: "headerWhite.main",
                                     textAlign: "center",
                                 }}
                             >
 
                                 {`Faculty Feedback Report for the Academic Year - ${queryParams?.acYear}, ${queryParams?.sem
-                                        ? `${getOrdinal(queryParams.sem)} Sem`
-                                        : `${getOrdinal(queryParams?.year)} Year`
+                                    ? `${getOrdinal(queryParams.sem)} Sem`
+                                    : `${getOrdinal(queryParams?.year)} Year`
                                     }`}
                             </TableCell>
                         </TableRow>
@@ -355,14 +355,14 @@ function FacultyFeedbackReportByCourse() {
                             <TableCell
                                 colSpan={4 + sectionKeys?.length}
                                 sx={{
-                                    backgroundColor: "primary.main",
+                                    backgroundColor: "#376a7d",
                                     color: "headerWhite.main",
                                     textAlign: "center",
                                 }}
                             >
-                                 {`Faculty Feedback Report for the Academic Year - ${queryParams?.acYear}, ${queryParams?.sem
-                                        ? `${getOrdinal(queryParams.sem)} Sem`
-                                        : `${getOrdinal(queryParams?.year)} Year`
+                                {`Faculty Feedback Report for the Academic Year - ${queryParams?.acYear}, ${queryParams?.sem
+                                    ? `${getOrdinal(queryParams.sem)} Sem`
+                                    : `${getOrdinal(queryParams?.year)} Year`
                                     }`}
                             </TableCell>
                         </TableRow>
@@ -413,8 +413,17 @@ function FacultyFeedbackReportByCourse() {
                                 ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={sectionKeys.length + 2} align="center">
+                                {/* <TableCell colSpan={sectionKeys.length + 2} align="center">
                                     <Typography variant="subtitle2">No Records Found</Typography>
+                                </TableCell> */}
+                                <TableCell
+                                    colSpan={4 + (sectionKeys?.length || 0)}
+                                    align="center"
+                                    sx={{ py: 3 }}
+                                >
+                                    <Typography variant="subtitle2" color="textSecondary">
+                                        No Records Found
+                                    </Typography>
                                 </TableCell>
                             </TableRow>
                         )}
@@ -435,7 +444,7 @@ function FacultyFeedbackReportByCourse() {
             />
         </Paper>
     ), [rows, sectionKeys, allCourses, page, rowsPerPage]);
-  
+
     return (
         <>
             <Box>
