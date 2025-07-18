@@ -181,7 +181,7 @@ const FRROBonafied = () => {
         const obj = res.data.data;
         setValues({
           fsisNo: obj.fsis,
-          studentName: obj.nameAsPerPassport,
+          studentName: obj.studentName,
           dob: moment(obj.dateOfBirth).format("DD-MM-YYYY"),
           sex: obj.sex,
           fatherOrHusbandName: obj.fatherName,
