@@ -1416,7 +1416,8 @@ const ViewBonafide = () => {
                                     <div style={{ paddingLeft: "10px" }}>
                                       If bank prefers to make RTGS Transfer, bank can
                                       contact Institution via e-mail{" "}
-                                      <b>{studentDetail?.school_name == "SMT NAGARATHNAMMA SCHOOL OF NURSING" ? "principalanr@acharya.ac.in" : `principal${(studentDetail?.school_name_short).toLowerCase()}@acharya.ac.in`}</b>{" "}
+                                      {/* <b>{studentDetail?.school_name == "SMT NAGARATHNAMMA SCHOOL OF NURSING" ? "principalanr@acharya.ac.in" : `principal${(studentDetail?.school_name_short).toLowerCase()}@acharya.ac.in`}</b>{" "} */}
+                                      <b>{studentDetail?.principalEmail}</b>{" "}
                                       for bank details.
                                     </div>
                                   </div>
