@@ -221,7 +221,7 @@ const ViewBonafide = () => {
         }
 
         let amountLists = [];
-        for (let j = 0; j < bonafideDetail.length; j++) {
+        for (let j = 0; j < bonafideDetail?.length; j++) {
           let list = {};
           for (let i = 1; i <= bonafideDetail[0]?.number_of_semester; i++) {
             list[`sem${i}`] = bonafideDetail[j][`year${i}_amt`] || 0;
@@ -230,7 +230,7 @@ const ViewBonafide = () => {
           amountLists.push(list);
         }
         let addOnAmountLists = [];
-        for (let j = 0; j < lists.length; j++) {
+        for (let j = 0; j < lists?.length; j++) {
           let list = {};
           for (let i = 1; i <= lists[0]?.number_of_semester; i++) {
             list[`sem${i}`] = lists[j][`sem${i}`] || 0;
@@ -520,7 +520,7 @@ const ViewBonafide = () => {
           marginTop: { xs: -2, md: -5 },
         }}
       >
-        {studentBonafideDetail.length > 0 && (
+        {studentBonafideDetail?.length > 0 && (
           <Grid container>
             <Grid xs={12} sx={{ display: "flex", justifyContent: "flex-end" }}>
               <Button
@@ -536,7 +536,7 @@ const ViewBonafide = () => {
         )}
       </Box>
 
-      {studentBonafideDetail.length > 0 && (
+      {studentBonafideDetail?.length > 0 && (
         <Grid container mt={3}>
           <Grid item xs={12}>
             <Card>
@@ -662,7 +662,7 @@ const ViewBonafide = () => {
                             <thead>
                               <tr>
                                 <th className={classes.th}>Particulars</th>
-                                {semesterHeaderList.length > 0 &&
+                                {semesterHeaderList?.length > 0 &&
                                   semesterHeaderList.map((ele, index) => (
                                     <th className={classes.th} key={index}>
                                       {ele.label}
@@ -671,14 +671,14 @@ const ViewBonafide = () => {
                               </tr>
                             </thead>
                             <tbody>
-                              {studentBonafideDetail.length > 0 &&
+                              {studentBonafideDetail?.length > 0 &&
                                 studentBonafideDetail[0]?.acerpAmount.map(
                                   (obj, index) => (
                                     <tr key={index}>
                                       <td className={classes.td}>
                                         {obj.particular}
                                       </td>
-                                      {semesterHeaderList.length > 0 &&
+                                      {semesterHeaderList?.length > 0 &&
                                         semesterHeaderList.map((el, i) => (
                                           <td
                                             className={classes.yearTd}
@@ -697,7 +697,7 @@ const ViewBonafide = () => {
                                 >
                                   <b>Total</b>
                                 </td>
-                                {semesterHeaderList.length > 0 &&
+                                {semesterHeaderList?.length > 0 &&
                                   semesterHeaderList.map((li, i) => (
                                     <td className={classes.yearTd}>
                                       <b>
@@ -728,7 +728,7 @@ const ViewBonafide = () => {
                               <thead>
                                 <tr>
                                   <th className={classes.th}>Particulars</th>
-                                  {addOnSemesterHeaderList.length > 0 &&
+                                  {addOnSemesterHeaderList?.length > 0 &&
                                     addOnSemesterHeaderList.map(
                                       (ele, index) => (
                                         <th className={classes.th} key={index}>
@@ -739,14 +739,14 @@ const ViewBonafide = () => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {bonafideAddOnDetail.length > 0 &&
+                                {bonafideAddOnDetail?.length > 0 &&
                                   bonafideAddOnDetail[0]?.addOnAmountList?.map(
                                     (obj, index) => (
                                       <tr key={index}>
                                         <td className={classes.td}>
                                           {obj.particular}
                                         </td>
-                                        {addOnSemesterHeaderList.length > 0 &&
+                                        {addOnSemesterHeaderList?.length > 0 &&
                                           addOnSemesterHeaderList?.map(
                                             (el, i) => (
                                               <td
@@ -767,7 +767,7 @@ const ViewBonafide = () => {
                                   >
                                     <b>Total</b>
                                   </td>
-                                  {addOnSemesterHeaderList.length > 0 &&
+                                  {addOnSemesterHeaderList?.length > 0 &&
                                     addOnSemesterHeaderList.map((li, i) => (
                                       <td className={classes.yearTd}>
                                         <b>
@@ -788,7 +788,7 @@ const ViewBonafide = () => {
                             </table>
                           </Grid>
                         )}
-                        {hostelFeeTemplateData.length > 0 &&  (
+                        {hostelFeeTemplateData?.length > 0 &&  (
                           <Grid item xs={12} md={8} mt={2}>
                             <Typography
                               paragraph
@@ -797,7 +797,7 @@ const ViewBonafide = () => {
                             </Typography>
                             <table className={classes.table}>
                               <tbody>
-                                {hostelFeeTemplateData.length > 0 &&
+                                {hostelFeeTemplateData?.length > 0 &&
                                   hostelFeeTemplateData?.map(
                                     (obj, index) => (
                                       <tr key={index}>
@@ -819,7 +819,7 @@ const ViewBonafide = () => {
                         )}
                       </Grid>
                     </Grid>
-                      {hostelFeeTemplateData.length > 0 && <Grid item xs={12} md={12} mt={1}>
+                      {hostelFeeTemplateData?.length > 0 && <Grid item xs={12} md={12} mt={1}>
                         <Grid
                           container
                           sx={{
@@ -1131,7 +1131,7 @@ const ViewBonafide = () => {
                                   <thead>
                                     <tr>
                                       <th className={classes.th}>Particulars</th>
-                                      {bonafideLetterSemesterHeaderList.length >
+                                      {bonafideLetterSemesterHeaderList?.length >
                                         0 &&
                                         bonafideLetterSemesterHeaderList.map(
                                           (ele, index) => (
@@ -1144,14 +1144,14 @@ const ViewBonafide = () => {
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {studentBonafideDetail.length > 0 &&
+                                    {studentBonafideDetail?.length > 0 &&
                                       studentBonafideDetail[0]?.acerpAmount.map(
                                         (obj, index) => (
                                           <tr key={index}>
                                             <td className={classes.td}>
                                               {obj.particular}
                                             </td>
-                                            {bonafideLetterSemesterHeaderList.length >
+                                            {bonafideLetterSemesterHeaderList?.length >
                                               0 &&
                                               bonafideLetterSemesterHeaderList.map(
                                                 (el, i) => (
@@ -1173,7 +1173,7 @@ const ViewBonafide = () => {
                                       >
                                         <b>Total</b>
                                       </td>
-                                      {bonafideLetterSemesterHeaderList.length >
+                                      {bonafideLetterSemesterHeaderList?.length >
                                         0 &&
                                         bonafideLetterSemesterHeaderList.map(
                                           (li, i) => (
@@ -1208,7 +1208,7 @@ const ViewBonafide = () => {
                                     <thead>
                                       <tr>
                                         <th className={classes.th}>Particulars</th>
-                                        {BonafideLetterAddOnSemesterHeaderList.length >
+                                        {BonafideLetterAddOnSemesterHeaderList?.length >
                                           0 &&
                                           BonafideLetterAddOnSemesterHeaderList.map(
                                             (ele, index) => (
@@ -1224,14 +1224,14 @@ const ViewBonafide = () => {
                                       </tr>
                                     </thead>
                                     <tbody>
-                                      {bonafideAddOnDetail.length > 0 &&
+                                      {bonafideAddOnDetail?.length > 0 &&
                                         bonafideAddOnDetail[0]?.addOnAmountList?.map(
                                           (obj, index) => (
                                             <tr key={index}>
                                               <td className={classes.td}>
                                                 {obj.particular}
                                               </td>
-                                              {BonafideLetterAddOnSemesterHeaderList.length >
+                                              {BonafideLetterAddOnSemesterHeaderList?.length >
                                                 0 &&
                                                 BonafideLetterAddOnSemesterHeaderList?.map(
                                                   (el, i) => (
@@ -1253,7 +1253,7 @@ const ViewBonafide = () => {
                                         >
                                           <b>Total</b>
                                         </td>
-                                        {BonafideLetterAddOnSemesterHeaderList.length >
+                                        {BonafideLetterAddOnSemesterHeaderList?.length >
                                           0 &&
                                           BonafideLetterAddOnSemesterHeaderList.map(
                                             (li, i) => (
@@ -1277,7 +1277,7 @@ const ViewBonafide = () => {
                                   </table>
                                 </Grid>
                               )}
-                              {hostelFeeTemplateData.length > 0 && (
+                              {hostelFeeTemplateData?.length > 0 && (
                                 <Grid item xs={12} md={8} mt={2}>
                                   <Typography
                                     paragraph
@@ -1286,7 +1286,7 @@ const ViewBonafide = () => {
                                   </Typography>
                                   <table className={classes.table}>
                                     <tbody>
-                                      {hostelFeeTemplateData.length > 0 &&
+                                      {hostelFeeTemplateData?.length > 0 &&
                                         hostelFeeTemplateData?.map(
                                           (obj, index) => (
                                             <tr key={index}>
@@ -1308,7 +1308,7 @@ const ViewBonafide = () => {
                               )}
                             </Grid>
                           </Grid>
-                          {hostelFeeTemplateData.length > 0 && <Grid item xs={12} md={12} mt={1}>
+                          {hostelFeeTemplateData?.length > 0 && <Grid item xs={12} md={12} mt={1}>
                             <Grid
                               container
                               sx={{

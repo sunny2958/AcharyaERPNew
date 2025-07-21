@@ -196,7 +196,7 @@ const FRROBonafied = () => {
           studentVisaIssued: obj.visaIssued ? obj.visaIssued : "",
           nameAndReferenceNoOfInst: obj.recognition ? obj.recognition : "",
           nameAndReferenceNoOfCourse: obj.affiliataion ? obj.affiliataion : "",
-          nameOfCourse: obj.programShortName,
+          nameOfCourse: obj.programName,
           coursePeriodFrom: "",
           coursePeriodTo: "",
           attendingClass: "",

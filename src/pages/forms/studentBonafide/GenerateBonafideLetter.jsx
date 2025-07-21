@@ -335,7 +335,7 @@ export const GenerateBonafideLetter = (
                         Particulars
                       </Text>
                     </View>
-                    {semesterHeaderList.length > 0 &&
+                    {semesterHeaderList?.length > 0 &&
                       semesterHeaderList.map((obj, index) => (
                         <View style={styles.tableHeaderCol} key={index}>
                           <Text
@@ -351,13 +351,13 @@ export const GenerateBonafideLetter = (
                         </View>
                       ))}
                   </View>
-                  {studentBonafideDetail.length > 0 &&
+                  {studentBonafideDetail?.length > 0 &&
                     studentBonafideDetail[0]?.acerpAmount.map((obj, index) => (
                       <View style={styles.tableRow} key={index}>
                         <View style={styles.particularTableCol}>
                           <Text style={styles.tableCell}>{obj.particular}</Text>
                         </View>
-                        {semesterHeaderList.length > 0 &&
+                        {semesterHeaderList?.length > 0 &&
                           semesterHeaderList.map((list, i) => (
                             <View style={styles.tableCol} key={index}>
                               <Text style={styles.tableAmountCell}>
@@ -380,7 +380,7 @@ export const GenerateBonafideLetter = (
                       </Text>
                     </View>
 
-                    {semesterHeaderList.length > 0 &&
+                    {semesterHeaderList?.length > 0 &&
                       semesterHeaderList.map((li, i) => (
                         <View key={i} style={styles.tableCol}>
                           <Text
@@ -437,7 +437,7 @@ export const GenerateBonafideLetter = (
                           Particulars
                         </Text>
                       </View>
-                      {addOnSemesterHeaderList.length > 0 &&
+                      {addOnSemesterHeaderList?.length > 0 &&
                         addOnSemesterHeaderList.map((obj, index) => (
                           <View key={index} style={styles.tableHeaderCol}>
                             <Text
@@ -453,7 +453,7 @@ export const GenerateBonafideLetter = (
                           </View>
                         ))}
                     </View>
-                    {bonafideAddOnDetail.length > 0 &&
+                    {bonafideAddOnDetail?.length > 0 &&
                       bonafideAddOnDetail[0]?.addOnAmountList?.map(
                         (obj, index) => (
                           <View key={index} style={styles.tableRow}>
@@ -462,7 +462,7 @@ export const GenerateBonafideLetter = (
                                 {obj.particular}
                               </Text>
                             </View>
-                            {addOnSemesterHeaderList.length > 0 &&
+                            {addOnSemesterHeaderList?.length > 0 &&
                               addOnSemesterHeaderList.map((list, i) => (
                                 <View key={i} style={styles.tableCol}>
                                   <Text style={styles.tableAmountCell}>
@@ -486,7 +486,7 @@ export const GenerateBonafideLetter = (
                         </Text>
                       </View>
 
-                      {addOnSemesterHeaderList.length > 0 &&
+                      {addOnSemesterHeaderList?.length > 0 &&
                         addOnSemesterHeaderList.map((li, i) => (
                           <View key={i} style={styles.tableCol}>
                             <Text
@@ -509,7 +509,7 @@ export const GenerateBonafideLetter = (
                   </View>
                 </View>
               )}
-              {hostelFeeTemplateData.length > 0 && (
+              {hostelFeeTemplateData?.length > 0 && (
                 <View style={{
                   width: "100%",
                   position: "relative",
@@ -554,16 +554,16 @@ export const GenerateBonafideLetter = (
                   </View>
                 </View>
               )}
-              {hostelFeeTemplateData.length > 0 && <View style={{ ...styles.feeDetailSection, marginTop: studentBonafideDetail?.length > 8 && bonafideAddOnDetail?.length > 0 ? "2px" : "5px" }}>
+              {hostelFeeTemplateData?.length > 0 && <View style={{ ...styles.feeDetailSection, marginTop: studentBonafideDetail?.length > 8 && bonafideAddOnDetail?.length > 0 ? "2px" : "5px" }}>
                 <View style={styles.sectionDetailWidth}>
                   <Text style={{ ...styles.feeDetailText }}>
                     *Hostel fee mentioned is only for current year.
                   </Text>
                 </View>
               </View>}
-              <View style={{...styles.feeDetailSection, marginTop: studentBonafideDetail?.length > 8 && bonafideAddOnDetail?.length > 0 && hostelFeeTemplateData.length > 0 ? "2px" :
-                  studentBonafideDetail?.length < 8 && bonafideAddOnDetail?.length > 0 && hostelFeeTemplateData.length ==0 ?  "10px" :
-                  studentBonafideDetail?.length > 1 && bonafideAddOnDetail?.length == 0 && hostelFeeTemplateData.length ==0 ? "10": "2px" }}>
+              <View style={{...styles.feeDetailSection, marginTop: studentBonafideDetail?.length > 8 && bonafideAddOnDetail?.length > 0 && hostelFeeTemplateData?.length > 0 ? "2px" :
+                  studentBonafideDetail?.length < 8 && bonafideAddOnDetail?.length > 0 && hostelFeeTemplateData?.length ==0 ?  "10px" :
+                  studentBonafideDetail?.length > 1 && bonafideAddOnDetail?.length == 0 && hostelFeeTemplateData?.length ==0 ? "10": "2px" }}>
                 <View style={styles.sectionDetailWidth}>
                   <Text style={{ ...styles.feeDetailText }}>
                     *please note that the given fee is applicable only for the
