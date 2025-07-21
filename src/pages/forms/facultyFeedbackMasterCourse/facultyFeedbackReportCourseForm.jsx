@@ -30,7 +30,7 @@ const FacultyFeedbackReportCourseForm = () => {
     const { pathname } = useLocation();
     const userID = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.userId;
     const schoolID = JSON.parse(sessionStorage?.getItem("userData"))?.school_id;
-     const departmentID = JSON.parse(sessionStorage?.getItem("userData"))?.dept_id;
+    const departmentID = JSON.parse(sessionStorage?.getItem("userData"))?.dept_id;
     const navigate = useNavigate()
 
     const checks = {
@@ -52,32 +52,43 @@ const FacultyFeedbackReportCourseForm = () => {
     }, [])
 
     useEffect(() => {
-        getYearSemData()
+        if (values?.acYearId && pathname === "/FacultyFeedbackMaster-course")
+            getYearSemDataByAcademicYear()
+    }, [values?.acYearId])
+
+    useEffect(() => {
+        if (userID && pathname !== "/FacultyFeedbackMaster-course")
+            getYearSemDataByEmployee()
     }, [userID])
 
     useEffect(() => {
-            getAllDepartment();
+        getAllDepartment();
     }, [schoolID, values?.schoolId]);
 
-    const getAllDepartment = async() => {
+    useEffect(() => {
+        if (values?.schoolId && values.departmentId && pathname === "/FacultyFeedbackMaster-course")
+            getProgramYearSemData()
+    }, [values.schoolId, values.departmentId])
+
+    const getAllDepartment = async () => {
         if (values.schoolId || schoolID) {
-        const id = values.schoolId ? values.schoolId : schoolID;
-       await axios.get(`/api/fetchdept1/${id}`)
-            .then((res) => {
-                const departmentData = res.data.data.map((obj) => ({
-                    value: obj?.dept_id,
-                    label: obj?.dept_name
-                }))
-                setDepartmentOptions(departmentData || []);
-            })
-            .catch((err) => {
-                console.error(err)
-                setAlertMessage({
-                    severity: "error",
-                    message: "Something went wrong, Please try again!!",
+            const id = values.schoolId ? values.schoolId : schoolID;
+            await axios.get(`/api/fetchdept1/${id}`)
+                .then((res) => {
+                    const departmentData = res.data.data.map((obj) => ({
+                        value: obj?.dept_id,
+                        label: obj?.dept_name
+                    }))
+                    setDepartmentOptions(departmentData || []);
+                })
+                .catch((err) => {
+                    console.error(err)
+                    setAlertMessage({
+                        severity: "error",
+                        message: "Something went wrong, Please try again!!",
+                    });
+                    setAlertOpen(true);
                 });
-                setAlertOpen(true);
-            });
         }
     }
 
@@ -127,31 +138,31 @@ const FacultyFeedbackReportCourseForm = () => {
             });
     };
 
-    const getAllEmployee = async(departmentId="") =>{
-    try {
-    if (pathname === '/FacultyFeedbackMaster-course-dept') {
-      const res = await axios.get(`api/employee/getEmployeeIdBasedOnHod?employee_id=${userID}`);
-      const { data } = res?.data;
-      const empData = data?.length > 0 ? data.map((emp) => emp.emp_id) : [];
-      return empData;
-    } else {
-      if (departmentId) {
-        const school_id = values.schoolId ? values.schoolId : schoolID;
-        const res = await axios.get(`api/employee/getEmployeeIdBasedOnSclAndDept?dept_id=${departmentId}&school_id=${school_id}`);
-        const { data } = res?.data;
-        const empData = data?.length > 0 ? data?.map((emp) => emp.emp_id) : [];
-        return empData;
-      }
-    }
-  }catch (error) {
-    console.error(error);
-    setAlertMessage({
-      severity: "error",
-      message: "Something went wrong, Please try again!!",
-    });
-    setAlertOpen(true);
-    return []; 
-  }
+    const getAllEmployee = async (departmentId = "") => {
+        try {
+            if (pathname === '/FacultyFeedbackMaster-course-dept') {
+                const res = await axios.get(`api/employee/getEmployeeIdBasedOnHod?employee_id=${userID}`);
+                const { data } = res?.data;
+                const empData = data?.length > 0 ? data.map((emp) => emp.emp_id) : [];
+                return empData;
+            } else {
+                if (departmentId) {
+                    const school_id = values.schoolId ? values.schoolId : schoolID;
+                    const res = await axios.get(`api/employee/getEmployeeIdBasedOnSclAndDept?dept_id=${departmentId}&school_id=${school_id}`);
+                    const { data } = res?.data;
+                    const empData = data?.length > 0 ? data?.map((emp) => emp.emp_id) : [];
+                    return empData;
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            setAlertMessage({
+                severity: "error",
+                message: "Something went wrong, Please try again!!",
+            });
+            setAlertOpen(true);
+            return [];
+        }
     }
 
     const handleChangeAdvance = (name, newValue) => {
@@ -162,11 +173,11 @@ const FacultyFeedbackReportCourseForm = () => {
                 [name]: newValue,
                 ['acYear']: academicYearData?.label
             }));
-        } else if(name === 'schoolId'){
+        } else if (name === 'schoolId') {
             setValues((prev) => ({
                 ...prev,
                 [name]: newValue,
-                ['departmentId'] : ""
+                ['departmentId']: ""
             }));
             setDepartmentOptions([])
         }
@@ -189,16 +200,13 @@ const FacultyFeedbackReportCourseForm = () => {
         return true;
     };
 
-    const getYearSemData = async () => {
-        const dept_id = values?.departmentId ? values?.departmentId : departmentID
-        const employeeIDs = await getAllEmployee(dept_id)
-         setEmployeeIds(employeeIDs)
-         const empIds = employeeIDs ?.length > 0  ? employeeIDs.join(',') : ""
+    const getYearSemDataByAcademicYear = async () => {
         await axios
-            .get(`/api/student/getFeedbackYearSemDetailsData?employee_id=${empIds}`)
+            .get(`/api/student/getFeedbackAnswersYearSemDetails?ac_year_id=${values?.acYearId}`)
             .then((res) => {
+                const sortedData = res?.data?.data?.sort((a, b) => a.year - b.year);
                 setYearSemOptions(
-                    res?.data?.data?.map((obj) => ({
+                    sortedData?.length > 0 && sortedData?.map((obj) => ({
                         value: `${obj?.year}/${obj?.sem}`,
                         label: `${obj?.year}/${obj?.sem}`,
                     }))
@@ -214,7 +222,66 @@ const FacultyFeedbackReportCourseForm = () => {
             })
     };
 
-    const handleSubmit = async() => {
+    const getYearSemDataByEmployee = async () => {
+        const dept_id = values?.departmentId ? values?.departmentId : departmentID
+        const employeeIDs = await getAllEmployee(dept_id)
+        setEmployeeIds(employeeIDs)
+        const empIds = employeeIDs?.length > 0 ? employeeIDs.join(',') : ""
+        if (empIds) {
+            await axios
+                .get(`/api/student/getFeedbackYearSemDetailsData?employee_id=${empIds}`)
+                .then((res) => {
+                    const sortedData = res?.data?.data?.sort((a, b) => a.year - b.year);
+                    setYearSemOptions(
+                        sortedData?.length > 0 && sortedData?.map((obj) => ({
+                            value: `${obj?.year}/${obj?.sem}`,
+                            label: `${obj?.year}/${obj?.sem}`,
+                        }))
+                    )
+                })
+                .catch((err) => {
+                    console.error(err)
+                    setAlertMessage({
+                        severity: "error",
+                        message: "Something went wrong, Please try again!!",
+                    });
+                    setAlertOpen(true);
+                })
+        }
+    };
+
+    const getProgramYearSemData = async () => {
+        await axios
+            .get(`/api/academic/getProgramAssigmentYearAndSem/${values?.schoolId}/${values?.departmentId}`)
+            .then((res) => {
+                const { data } = res?.data
+                if(yearSemOptions?.length > 0){
+                const { number_of_years, number_of_semester } = data[0];
+                const validYearSemSet = new Set();
+                let semCount = 1;
+                for (let year = 1; year <= number_of_years; year++) {
+                    for (let s = 0; s < number_of_semester / number_of_years; s++) {
+                        validYearSemSet.add(`${year}/${semCount}`);
+                        semCount++;
+                    }
+                }
+                const filteredYearSemOptions = yearSemOptions?.filter(opt =>
+                    validYearSemSet.has(opt.value)
+                );
+                setYearSemOptions(filteredYearSemOptions)
+            }
+            })
+            .catch((err) => {
+                console.error(err)
+                setAlertMessage({
+                    severity: "error",
+                    message: "Something went wrong, Please try again!!",
+                });
+                setAlertOpen(true);
+            })
+    }
+
+    const handleSubmit = async () => {
         if (!requiredFieldsValid()) {
             setAlertMessage({
                 severity: "error",
@@ -222,7 +289,7 @@ const FacultyFeedbackReportCourseForm = () => {
             });
             setAlertOpen(true);
         } else {
-            const empIds = employeeIds ?.length > 0  ? employeeIds.join(',') : ""
+            const empIds = employeeIds?.length > 0 ? employeeIds.join(',') : ""
             const yearAndSem = values?.yearSem && values?.yearSem?.split("/")
             const year = yearAndSem?.length > 0 ? yearAndSem[0] : ""
             const sem = yearAndSem?.length > 0 ? yearAndSem[1] : ""
@@ -235,20 +302,21 @@ const FacultyFeedbackReportCourseForm = () => {
                 year,
                 year_sem,
                 acYear: values?.acYear,
-                employee_id: empIds
+                employee_id: empIds,
+                school_id: ((pathname === "/FacultyFeedbackMaster-course-inst") || (pathname === "/FacultyFeedbackMaster-course-dept")) ? schoolID : values?.schoolId 
             }
-            if(pathname === "/FacultyFeedbackMaster-course-inst"){
-               navigate(`/facultyFeedbackMasterCourseIndex-inst`, { state: params });
+            if (pathname === "/FacultyFeedbackMaster-course-inst") {
+                navigate(`/facultyFeedbackMasterCourseIndex-inst`, { state: params });
             }
-            else if(pathname === "/FacultyFeedbackMaster-course-dept"){
-                 navigate(`/facultyFeedbackMasterCourseIndex-dept`, { state: params });
+            else if (pathname === "/FacultyFeedbackMaster-course-dept") {
+                navigate(`/facultyFeedbackMasterCourseIndex-dept`, { state: params });
             }
-            else{
-               navigate(`/facultyFeedbackMasterCourseIndex`, { state: params });
+            else {
+                navigate(`/facultyFeedbackMasterCourseIndex`, { state: params });
             }
         }
     }
-               
+
     return (
         <>
             <Box component="form" overflow="hidden" p={1}>
@@ -319,7 +387,7 @@ const FacultyFeedbackReportCourseForm = () => {
                                 color="primary"
                                 onClick={handleSubmit}
                             >
-                               Submit
+                                Submit
                             </Button>
                         </Grid>
                     </Grid>
