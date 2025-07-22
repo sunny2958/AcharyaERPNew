@@ -8,12 +8,21 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import axios from "../../../../services/Api.js";
 import GridIndex from "../../../../components/GridIndex.jsx";
 import useBreadcrumbs from "../../../../hooks/useBreadcrumbs.js";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { IOSSwitch } from "../../chartsDashboard/IOSSwitch.js";
+import axiosNoToken from "../../../../services/ApiWithoutToken.js";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper
+} from "@mui/material";
 
 const ChartOptions = [
     { value: "column", label: "Column" },
@@ -21,6 +30,8 @@ const ChartOptions = [
     { value: "line", label: "Line" },
     { value: "pie", label: "Pie" },
 ];
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export default function BankGroupReport() {
     const [tableColumns, setTableColumns] = useState([]);
@@ -34,7 +45,7 @@ export default function BankGroupReport() {
     useEffect(() => {
         setCrumbs([
             { name: "MIS-Dashboard", link: "/mis-dashboard" },
-            { name: "Bank Balance Report" },
+            { name: "Bank Balance" },
         ]);
         fetchBankBalanceData();
     }, []);
@@ -42,7 +53,7 @@ export default function BankGroupReport() {
     const fetchBankBalanceData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`/api/admissionCategoryReport/getBankReportGroupwise`);
+            const response = await axiosNoToken.get(`/api/admissionCategoryReport/getBankReportGroupwise`);
             const data = response?.data?.data || [];
             updateTableAndChart(data);
         } catch (err) {
@@ -52,123 +63,105 @@ export default function BankGroupReport() {
     };
 
     const updateTableAndChart = (data) => {
-        const rows = data.map((item, index) => ({
-            id: index,
-            bankGroup: item.bank_group_name || "Unknown",
-            balance: item.bank_balance || 0,
-            amountFormatted: item.totalAmount || "0.000 cr."
-        }));
+        const grouped = {};
+        const bankGroups = new Set();
 
-        const totalBalance = data.reduce((sum, d) => sum + (d.bank_balance || 0), 0);
+        data.forEach(item => {
+            const group = item.bank_group_name;
+            const month = item.month_name;
+            const balance = item.bank_balance || 0;
 
-        rows.push({
-            id: "total",
-            bankGroup: "Total",
-            balance: totalBalance,
-            amountFormatted: `${(totalBalance / 1e7).toFixed(3)} cr.`
+            if (!grouped[group]) {
+                grouped[group] = { bankGroup: group };
+                MONTHS.forEach(m => grouped[group][m] = 0); // Default to 0
+            }
+
+            grouped[group][month] = balance;
+            bankGroups.add(group);
         });
 
+        const rows = Object.values(grouped);
+        const totalRow = { bankGroup: "Total" };
+        MONTHS.forEach(month => {
+            const total = rows.reduce((sum, row) => sum + (row[month] || 0), 0);
+            totalRow[month] = total;
+        });
+        rows.push(totalRow);
+
+        const columns = [
+            {
+                field: "bankGroup",
+                headerName: "Bank Group Name",
+                flex: 1,
+                headerClassName: "header-bg",
+                align: "center"
+            },
+            ...MONTHS.map(month => ({
+                field: month,
+                headerName: month,
+                flex: 1,
+                type: "number",
+                align: "center",
+                headerAlign: "center",
+                headerClassName: "header-bg"
+            }))
+        ];
+
+        setTableColumns(columns);
         setTableRows(rows);
 
-        setTableColumns([
-            { field: "bankGroup", headerName: "Bank Group Name", flex: 1, headerClassName: "header-bg" },
-            { field: "balance", headerName: "Balance", type: "number", flex: 1, headerClassName: "header-bg", align: 'center' },
-            { field: "amountFormatted", headerName: "Total Amount (Rs)", flex: 1, headerClassName: "header-bg", align: 'center' },
-        ]);
+        const series = [...bankGroups].map(group => ({
+            name: group,
+            data: MONTHS.map(month => grouped[group][month] || 0)
+        }));
 
         setChartData({
-            categories: data.map(d => d.bank_group_name),
-            balances: data.map(d => d.bank_balance),
+            categories: MONTHS,
+            series
         });
     };
 
     const buildHighChartOptions = () => {
+        if (!chartData || !chartData.categories || !chartData.series) return {};
+
         const isPie = selectedChart === "pie";
+
+        if (isPie) {
+            const pieData = chartData.series.map(group => ({
+                name: group.name,
+                y: group.data.reduce((a, b) => a + b, 0)
+            }));
+
+            return {
+                chart: { type: "pie" },
+                title: { text: "Total Balance by Bank Group" },
+                series: [{
+                    name: "Total",
+                    data: pieData
+                }],
+                credits: { enabled: false }
+            };
+        }
+
         return {
             chart: {
-                type: selectedChart,
-                backgroundColor: "#f9f9f9",
-                style: { fontFamily: "'Roboto', sans-serif" }
+                type: selectedChart
             },
             title: {
-                text: "Bank Balance Report",
-                style: { color: "#333" }
+                text: "Monthly Bank Group Balance"
             },
-            xAxis: !isPie ? {
-                categories: chartData.categories || [],
-                labels: { style: { color: "#333" } }
-            } : undefined,
-            yAxis: !isPie ? {
-                min: 0,
-                title: { text: "Balance (₹)", style: { color: "#333" } },
-                labels: { style: { color: "#333" } }
-            } : undefined,
+            xAxis: {
+                categories: chartData.categories,
+                title: { text: "Months" }
+            },
+            yAxis: {
+                title: { text: "Balance (₹)" }
+            },
             tooltip: {
-                shared: true,
-                backgroundColor: "rgba(255,255,255,0.96)",
-                borderWidth: 1,
-                borderColor: "#e2e8f0",
-                borderRadius: "6px",
-                shadow: true,
-                style: {
-                    color: "#2d3748",
-                    fontSize: "13px",
-                    padding: "12px",
-                    fontWeight: "500"
-                },
-                headerFormat: '<span style="font-size: 14px; font-weight: 600; color: #2d3748;">{point.key}</span><br/>',
-                pointFormat: '<div style="display: flex; align-items: center;"><span style="background-color:{point.color}; width: 12px; height: 12px; border-radius: 2px; display: inline-block; margin-right: 8px;"></span><span style="font-weight: 500;">{series.name}:</span> <span style="font-weight: 700; margin-left: auto;">{point.y}</span></div>',
-                useHTML: true
+                shared: true
             },
-            legend: {
-                itemStyle: { color: '#333' }
-            },
-            plotOptions: {
-                column: {
-                    dataLabels: {
-                        enabled: true,
-                        style: { color: "#000", textOutline: "1px contrast" }
-                    }
-                },
-                bar: {
-                    dataLabels: {
-                        enabled: true,
-                        style: { color: "#000", textOutline: "1px contrast" }
-                    }
-                },
-                line: {
-                    dataLabels: {
-                        enabled: true,
-                        style: { color: "#000", textOutline: "1px contrast" }
-                    },
-                    marker: { radius: 5, lineColor: "#fff", lineWidth: 1 }
-                },
-                pie: {
-                    allowPointSelect: true,
-                    cursor: "pointer",
-                    dataLabels: {
-                        enabled: true,
-                        format: "<b>{point.name}</b>: {point.y}",
-                        color: "#000"
-                    }
-                }
-            },
-            credits: {
-                enabled: false
-            },
-            series: isPie
-                ? [{
-                    name: "Balance",
-                    data: chartData.categories.map((name, i) => ({
-                        name,
-                        y: chartData.balances[i]
-                    }))
-                }]
-                : [{
-                    name: "Balance",
-                    data: chartData.balances,
-                    color: "#4e79a7"
-                }]
+            series: chartData.series,
+            credits: { enabled: false }
         };
     };
 
@@ -211,51 +204,64 @@ export default function BankGroupReport() {
 
             <Grid item xs={12}>
                 {isTableView ? (
-                    <Grid
-                        item
-                        xs={12}
-                        md={12}
-                        lg={12}
-                        pt={1}
-                        sx={{
-                            '& .MuiDataGrid-columnHeaders': {
-                                backgroundColor: '#376a7d',
-                                color: '#fff',
-                                fontWeight: 'bold',
-                            },
-                            '& .last-row': {
-                                fontWeight: 'bold',
-                                backgroundColor: '#376a7d !important',
-                                color: '#fff'
-                            },
-                            '& .last-row:hover': {
-                                backgroundColor: '#376a7d !important',
-                                color: '#fff'
-                            },
-                            '& .last-column': {
-                                fontWeight: 'bold'
-                            },
-                            '& .header-bg': {
-                                fontWeight: 'bold',
-                                backgroundColor: '#376a7d',
-                                color: '#fff'
-                            }
-                        }}
-                    >
-                        <GridIndex
-                            rows={tableRows}
-                            columns={tableColumns}
-                            loading={loading}
-                            getRowId={(row) => row.id}
-                            isRowSelectable={() => false}
-                            getRowClassName={(params) =>
-                                params.row.bankGroup === "Total" ? "last-row" : ""
-                            }
-                        />
-                    </Grid>
+                    <Box component={Paper} sx={{ width: '100%', overflowX: 'auto' }}>
+                        <TableContainer>
+                            <Table size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        {tableColumns.map((col, idx) => (
+                                            <TableCell
+                                                key={idx}
+                                                align="center"
+                                                sx={{
+                                                    backgroundColor: "#376a7d",
+                                                    color: "#fff",
+                                                    fontWeight: "bold",
+                                                    border: "1px solid #ccc"
+                                                }}
+                                            >
+                                                {col.headerName}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {tableRows.map((row, rowIdx) => {
+                                        const isTotalRow = row.bankGroup === "Total";
+                                        return (
+                                            <TableRow
+                                                key={rowIdx}
+                                                sx={{
+                                                    backgroundColor: isTotalRow ? "#376a7d" : "#fff",
+                                                    color: isTotalRow ? "#fff" : "#000",
+                                                    fontWeight: isTotalRow ? "bold" : "normal"
+                                                }}
+                                            >
+                                                {tableColumns.map((col, colIdx) => (
+                                                    <TableCell
+                                                        key={colIdx}
+                                                        align="center"
+                                                        sx={{
+                                                            border: "1px solid #ccc",
+                                                            color: isTotalRow ? "#fff" : "#000",
+                                                            fontWeight: isTotalRow ? "bold" : "normal"
+                                                        }}
+                                                    >
+                                                        {row[col.field] !== null && row[col.field] !== undefined
+                                                            ? row[col.field]
+                                                            : "-"}
+                                                    </TableCell>
+                                                ))}
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Box>
                 ) : (
                     <Box p={3}>
-                        {chartData.balances && <HighchartsReact highcharts={Highcharts} options={buildHighChartOptions()} />}
+                        {chartData?.categories?.length > 0 && <HighchartsReact highcharts={Highcharts} options={buildHighChartOptions()} />}
                     </Box>
                 )}
             </Grid>
