@@ -1,59 +1,54 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../../../services/Api";
-import { DataGrid } from "@mui/x-data-grid";
 import {
   Box,
-  styled,
-  Tooltip,
-  tooltipClasses,
 } from "@mui/material";
-import CustomModal from "../../../components/CustomModal";
 import useAlert from "../../../hooks/useAlert";
 import GridIndex from "../../../components/GridIndex";
 
-const HtmlTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: "white",
-    color: "rgba(0, 0, 0, 0.6)",
-    maxWidth: 270,
-    fontSize: 12,
-    boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px;",
-    padding: "10px",
-    textAlign: "justify",
-  },
-}));
 
 
 function HostelStudentDueIndex() {
   const [rows, setRows] = useState([]);
   const [isLoading, setLoading] = useState(false);
   const { setAlertMessage, setAlertOpen } = useAlert();
-  const [modalContent, setModalContent] = useState({
-    title: "",
-    message: "",
-    buttons: [],
-  });
-  const [modalOpen, setModalOpen] = useState(false);
   const { id } = useParams();
 
   useEffect(() => {
     getData();
   }, []);
 
-
-
   const getData = async () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `api/hostel/hostelBedAssignmentByAcYearAndhostelBlock/${id}`
+        `/api/hostel/hostelBedAssignmentByAcYearAndhostelBlock/${id}`
       );
       const data = response.data.data;
 
-      setRows(data);
+      // Add total row if data exists
+      if (data.length > 0) {
+        const totalRow = {
+          id: "total",
+          auid: "",
+          studentName: "Total",
+          usn: "",
+          acYear: "",
+          occipiedDate: "",
+          year: "",
+          sem: "",
+          bedName: "",
+          fixed: data.reduce((acc, row) => acc + (row.fixed || 0), 0),
+          paid: data.reduce((acc, row) => acc + (row.paid || 0), 0),
+          waiver: data.reduce((acc, row) => acc + (row.waiver || 0), 0),
+          due: data.reduce((acc, row) => acc + (row.due || 0), 0),
+          isTotal: true,
+        };
+        setRows([...data, totalRow]);
+      } else {
+        setRows(data);
+      }
     } catch (error) {
       setAlertMessage("Error fetching data");
       setAlertOpen(true);
@@ -62,52 +57,94 @@ function HostelStudentDueIndex() {
     }
   };
 
-
   const detailedColumns = [
     { field: "auid", headerName: "AUID", flex: 1 },
     { field: "studentName", headerName: "Student", flex: 1 },
     { field: "usn", headerName: "USN", flex: 1 },
-    { field: "acYear", headerName: "AcYear", flex: 1 },
+    { field: "acYear", headerName: "Ac Year", flex: 1 },
     { field: "occipiedDate", headerName: "Occupied Date", flex: 1 },
     {
       field: "Year/sem",
-      headerName: "Year/sem",
+      headerName: "Year/Sem",
       flex: 1,
-      renderCell: (params) => (
-        <>{`${params?.row?.year} / ${params?.row?.sem}`}</>
-      ),
+      align: "center",
+      headerAlign: "center",
+      renderCell: (params) => {
+        if (params.row?.isTotal) {
+          return "-";
+        }
+        return `${params?.row?.year || "-"} / ${params?.row?.sem || "-"}`;
+      },
     },
-    // { field: "blockName", headerName: "Block", flex: 1 },
+
     { field: "bedName", headerName: "Bed", flex: 1 },
     {
-      field: "fixed", headerName: "Fixed", flex: 1, align: "right",
-      headerAlign: "right"
+      field: "fixed",
+      headerName: "Fixed",
+      flex: 1,
+      align: "right",
+      headerAlign: "center",
     },
     {
-      field: "paid", headerName: "Paid", flex: 1, align: "right",
-      headerAlign: "right"
+      field: "paid",
+      headerName: "Paid",
+      flex: 1,
+      align: "right",
+      headerAlign: "center",
     },
     {
-      field: "waiver", headerName: "Waiver", flex: 1, align: "right",
-      headerAlign: "right"
+      field: "waiver",
+      headerName: "Waiver",
+      flex: 1,
+      align: "right",
+      headerAlign: "center",
     },
     {
-      field: "due", headerName: "Due", flex: 1, align: "right",
-      headerAlign: "right"
+      field: "due",
+      headerName: "Due",
+      flex: 1,
+      align: "right",
+      headerAlign: "center",
     },
   ];
 
   return (
     <>
-      <CustomModal
-        open={modalOpen}
-        setOpen={setModalOpen}
-        title={modalContent.title}
-        message={modalContent.message}
-        buttons={modalContent.buttons}
-      />
       <Box mt={4}>
-        <GridIndex rows={rows} columns={detailedColumns} getRowId={row => row.studentId} />
+        <GridIndex
+          rows={rows}
+          columns={detailedColumns}
+          loading={isLoading}
+          getRowId={(row) => row.studentId || row.id}
+          getRowClassName={(params) =>
+            params.row?.isTotal ? "custom-total-row" : ""
+          }
+          sx={{
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: "#376a7d",
+              color: "#fff",
+              fontWeight: "bold",
+              textAlign: "center",
+            },
+            "& .MuiDataGrid-cell": {
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+            },
+            "& .custom-total-row": {
+              backgroundColor: "#376a7d",
+              pointerEvents: "none",
+            },
+            "& .custom-total-row .MuiDataGrid-cell": {
+              color: "#fff !important",
+              fontWeight: "bold",
+              "& *": {
+                color: "#fff !important",
+              },
+            },
+          }}
+        />
       </Box>
     </>
   );
