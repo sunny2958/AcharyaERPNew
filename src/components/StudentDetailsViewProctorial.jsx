@@ -181,7 +181,9 @@ const StudentDetailsViewDocuments = ({ state, id }) => {
         return [
           params?.row?.summarize ? (
             <span>{params?.row?.summarize}</span>
-          ) : null
+          ) : (
+            <></>
+          ),
         ];
       },
     },
