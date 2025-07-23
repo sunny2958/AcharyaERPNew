@@ -14,6 +14,7 @@ import {
   tooltipClasses,
   Typography,
   CircularProgress,
+  Divider,
 } from "@mui/material";
 import CustomAutocomplete from "../../../components/Inputs/CustomAutocomplete";
 import useAlert from "../../../hooks/useAlert";
@@ -49,6 +50,12 @@ import CallIcon from '@mui/icons-material/Call';
 import ManIcon from '@mui/icons-material/Man';
 import WomanIcon from '@mui/icons-material/Woman';
 import CustomModal from "../../../components/CustomModal";
+import CustomSelect from "../../../components/Inputs/CustomSelect";
+import CustomTextField from "../../../components/Inputs/CustomTextField";
+import CustomDatePicker from "../../../components/Inputs/CustomDatePicker";
+import EmailIcon from "@mui/icons-material/Email";
+import MailIcon from "@mui/icons-material/Mail";
+import CustomFileInput from "../../../components/Inputs/CustomFileInput";
 
 const userId = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.userId;
 
@@ -117,7 +124,14 @@ const initialValues = {
   year: null,
   sem: null,
   adjStatus: null,
+  meetingAgenda: "",
+  description: "",
+  meetingDate: null,
+  document: null
 };
+
+const requiredFields = ["meetingAgenda", "description", "meetingDate"];
+
 const userID = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.userId;
 const schoolID = JSON.parse(sessionStorage.getItem("userData"))?.school_id;
 const deptID = JSON.parse(sessionStorage.getItem("userData"))?.dept_id;
@@ -176,9 +190,14 @@ function StudentDetailsIndex() {
     feeTemplateRemaks: false,
     adj_status: false,
     IVR: false,
-    cancelRemarks: false
+    Email: false,
+    cancelRemarks: false,
+    reporting_date: false,
   });
-
+  const [modalMailOpen, setModalMailOpen] = useState(false);
+  const [modalReportOpen, setModalReportOpen] = useState(false);
+  const [mailData, setMailData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const { setAlertMessage, setAlertOpen } = useAlert();
   const setCrumbs = useBreadcrumbs();
@@ -193,6 +212,27 @@ function StudentDetailsIndex() {
   const [confirmModal, setConfirmModal] = useState(false);
 
   const classes = useStyle();
+
+  const errorMessages = {
+    meetingAgenda: ["This field is required"],
+    description: ["This field is required"],
+    document: [
+      "This field is required",
+      "Please upload a PDF",
+      "Maximum size 2 MB",
+    ],
+  };
+  const checks = {
+    meetingAgenda: [values.meetingAgenda !== ""],
+    description: [values.description !== ""],
+    document: [
+      values.document !== "",
+      values.document && values.document.name.endsWith(".pdf"),
+      values.document && values.document.size < 2000000,
+    ],
+
+  };
+
 
   useEffect(() => {
     getAcademicYears();
@@ -455,7 +495,9 @@ function StudentDetailsIndex() {
       ...(name === "programId" && { categoryId: "" }),
     }));
   };
-
+  const handleChangeOne = (e) => {
+    setValues((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
   const getYearSemValue = (newValue, rowValues) => {
     setValues((prevState) => ({
       ...prevState,
@@ -497,6 +539,10 @@ function StudentDetailsIndex() {
   const handleUpdateUsn = (data) => {
     setRowData(data);
     setUsnModal(true);
+  };
+  const handleReportData = (data) => {
+    setRowData(data);
+    setModalReportOpen((prv) => !prv);
   };
   const handleChangeADJ = (data) => {
     setValues((prev) => ({
@@ -694,6 +740,31 @@ function StudentDetailsIndex() {
         moment(row.date_of_admission).format("DD-MM-YYYY"),
     },
     {
+      field: "reporting_date",
+      headerName: "Reporting Date",
+      flex: 1,
+      renderCell: (params) => {
+        const date = params.row.reporting_date;
+        const formattedDate = date ? moment(date).format("DD-MM-YYYY") : "";
+
+        return (
+          <Typography
+            variant="subtitle2"
+            onClick={() => handleReportData(params.row)}
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              color: "primary.main",
+              textTransform: "capitalize",
+              cursor: "pointer",
+            }}
+          >
+            {formattedDate}
+          </Typography>
+        );
+      }
+    },
+    {
       field: "school_name_short",
       headerName: "INST",
       flex: 1,
@@ -779,6 +850,20 @@ function StudentDetailsIndex() {
       headerName: "Mentor",
       flex: 1,
       // hide: pathname.toLowerCase() === "/student-master-user" ? true : false,
+    },
+    {
+      field: "Email",
+      type: "actions",
+      flex: 1,
+      headerName: "Email",
+      getActions: (params) => [
+        <IconButton
+          label="Send Email"
+          onClick={() => handleMailCall(params)}
+        >
+          <MailIcon sx={{ color: "#5d6d7e" }} />
+        </IconButton>
+      ],
     },
     {
       field: "IVR",
@@ -1300,6 +1385,130 @@ function StudentDetailsIndex() {
 
     setConfirmModal(true);
   };
+  const handleMailCall = (params) => {
+    setValues((prevState) => ({
+      ...prevState,
+      meetingAgenda: "",
+      description: "",
+      meetingDate: null,
+      document: null
+    }));
+    setModalMailOpen(true)
+    setMailData(params?.row)
+  };
+
+  const handleCreate = async (obj) => {
+    console.log(obj, "obj");
+    console.log(values, "values");
+    console.log(mailData, "mailData");
+
+    if (!requiredFieldsValid()) {
+      setAlertMessage({
+        severity: "error",
+        message: "Please fill all required fields",
+      });
+      setAlertOpen(true);
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+      formData.append("student_ids", mailData.id);
+      formData.append("user_id", userId);
+      formData.append("agenda_of_meeting", values.meetingAgenda); // corrected
+      formData.append("date_of_meeting", moment(values.meetingDate).format("YYYY-MM-DD")); // corrected and formatted
+      formData.append("description", values.description);
+      formData.append("attachment", values.document);
+
+      const emailRes = await axios.post(
+        `/api/proctor/newSendEmailMessageForMeeting`,
+        formData
+      );
+
+      if (emailRes.status === 200 || emailRes.status === 201) {
+        const meetingData = {
+          active: true,
+          school_id: mailData?.school_id,
+          user_id: userId,
+          date_of_meeting: values.meetingDate
+            ? values.meetingDate.substr(0, 19) + "Z"
+            : "",
+          meeting_agenda: values.meetingAgenda,
+          student_ids: [mailData.id],
+          description: values.description,
+          meeting_type: "Mentor To Student",
+          mode_of_contact: obj,
+        };
+
+        try {
+          await axios.post(`/api/proctor/saveProctorStudentMeeting`, meetingData);
+        } catch (err) {
+          setAlertMessage({
+            severity: "error",
+            message: err?.response?.data?.message || "Failed to save meeting",
+          });
+          setAlertOpen(true);
+          return;
+        }
+
+        setAlertMessage({
+          severity: "success",
+          message: "Mail sent successfully",
+        });
+        getData();
+        setModalMailOpen(false);
+      } else {
+        setAlertMessage({
+          severity: "error",
+          message: emailRes?.data?.message || "An error occurred while sending mail",
+        });
+      }
+    } catch (err) {
+      setAlertMessage({
+        severity: "error",
+        message: err?.response?.data?.message || "An unexpected error occurred",
+      });
+    } finally {
+      setLoading(false);
+      setAlertOpen(true);
+    }
+  };
+
+
+  const requiredFieldsValid = () => {
+    for (let i = 0; i < requiredFields.length; i++) {
+      const field = requiredFields[i];
+      if (Object.keys(checks).includes(field)) {
+        const ch = checks[field];
+        for (let j = 0; j < ch.length; j++) if (!ch[j]) return false;
+      } else if (!values[field]) return false;
+    }
+    return true;
+  };
+  const handleFileDrop = (name, newFile) => {
+    if (newFile)
+      setValues((prev) => ({
+        ...prev,
+        [name]: newFile,
+      }));
+  };
+
+  const handleFileRemove = (name) => {
+    setValues((prev) => ({
+      ...prev,
+      [name]: null,
+    }));
+  };
+
+  const SimpleRow = ({ label, value }) => (
+    <Stack direction="row" justifyContent="space-between" py={0.5}>
+      <Typography variant="body2" color="text.secondary">{label}:</Typography>
+      <Typography variant="body2" fontWeight={500}>{value || "-"}</Typography>
+    </Stack>
+  );
+
   return (
     <>
       {/* Assign USN  */}
@@ -1396,6 +1605,51 @@ function StudentDetailsIndex() {
         setOpen={setYearSemModal}
       >
         <YearSemComponent rowData={rowData} setYearSemModal={setYearSemModal} />
+      </ModalWrapper>
+      
+      <ModalWrapper
+        title="Reporting Details"
+        maxWidth={600}
+        open={modalReportOpen}
+        setOpen={setModalReportOpen}
+      >
+        <Box p={2}>
+          <Stack spacing={3}>
+            <Box>
+              <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                Student Info
+              </Typography>
+              <SimpleRow label="Student Name" value={rowData?.student_name} />
+              <SimpleRow label="AUID" value={rowData?.auid} />
+            </Box>
+            <Box>
+              <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                Program Details
+              </Typography>
+              <SimpleRow label="Program" value={rowData?.program_name} />
+              <SimpleRow label="Specialization" value={rowData?.program_specialization_name} />
+              <SimpleRow label="Admission Category" value={rowData?.fee_admission_category_type} />
+            </Box>
+            <Box>
+              <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                Reporting Info
+              </Typography>
+              <SimpleRow
+                label="Reporting Date"
+                value={rowData?.reporting_date ? moment(rowData.reporting_date).format("DD-MM-YYYY") : "-"}
+              />
+              <SimpleRow label="Reported By" value={rowData?.reportedByUserName} />
+            </Box>
+            <Box>
+              <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                Contact Details
+              </Typography>
+              <SimpleRow label="Mobile" value={rowData?.mobile} />
+              <SimpleRow label="Email" value={rowData?.acharya_email} />
+              <SimpleRow label="Address" value={rowData?.permanent_address} />
+            </Box>
+          </Stack>
+        </Box>
       </ModalWrapper>
 
       <Box sx={{ position: "relative", top: { md: -30 } }}>
@@ -1685,6 +1939,123 @@ function StudentDetailsIndex() {
         message={modalContent.message}
         buttons={modalContent.buttons}
       />
+      <ModalWrapper
+        title={`Mail`}
+        maxWidth={800}
+        open={modalMailOpen}
+        setOpen={setModalMailOpen}
+      >
+        <Grid
+          container
+          justifyContent="flex-start"
+          alignItems="center"
+          rowSpacing={2}
+          columnSpacing={2}
+        >
+          <Grid item xs={12} md={5}>
+            <CustomSelect
+              multiline
+              name="meetingAgenda"
+              label="Agenda of meeting"
+              value={values.meetingAgenda}
+              handleChange={handleChangeOne}
+              items={[
+                {
+                  label: "IA marks review",
+                  value: "IA marks review",
+                },
+                {
+                  label: "Attendence review",
+                  value: "Attendence review",
+                },
+                {
+                  label: "Discipline matter",
+                  value: "Discipline matter",
+                },
+                {
+                  label: "Academic Issues",
+                  value: "Academic Issues",
+                },
+                {
+                  label: "Leave Issues",
+                  value: "Leave Issues",
+                },
+                {
+                  label: "Fee due",
+                  value: "Fee due",
+                },
+                {
+                  label: "Monthly meeting",
+                  value: "Monthly meeting",
+                },
+                {
+                  label: "Others",
+                  value: "Others",
+                },
+              ]}
+              checks={checks.meetingAgenda}
+              errors={errorMessages.meetingAgenda}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12} md={5} mt={2.4}>
+            <CustomDatePicker
+              name="meetingDate"
+              label="Date of Meeting"
+              value={values.meetingDate}
+              handleChangeAdvance={handleChangeAdvance}
+              disablePast
+              required
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <CustomTextField
+              multiline
+              rows={2}
+              name="description"
+              label="Description"
+              value={values.description}
+              handleChange={handleChangeOne}
+              checks={checks.description}
+              errors={errorMessages.description}
+              required
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <CustomFileInput
+              name="document"
+              label="Document"
+              file={values.document}
+              helperText="PDF - smaller than 2 MB"
+              handleFileDrop={handleFileDrop}
+              handleFileRemove={handleFileRemove}
+              checks={checks.document}
+              errors={errorMessages.document}
+            />
+          </Grid>
+
+          <Grid item xs={12} align="right">
+            <Button
+              variant="contained"
+              onClick={() => handleCreate("Mail")}
+              sx={{ borderRadius: 2 }}
+              disabled={loading}
+              endIcon={<EmailIcon />}
+            >
+              {loading ? (
+                <CircularProgress
+                  size={25}
+                  color="blue"
+                  style={{ margin: "2px 13px" }}
+                />
+              ) : (
+                <strong>{"Send"}</strong>
+              )}
+            </Button>
+          </Grid>
+        </Grid>
+      </ModalWrapper>
     </>
   );
 }
