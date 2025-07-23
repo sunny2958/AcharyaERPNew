@@ -64,6 +64,7 @@ function CancelReceiptIndex() {
     cheque_dd_no: false,
     date: pathname === '/Accounts-ledger-day-credit-transaction' ? false : true,
     created_username: pathname === '/Accounts-ledger-day-credit-transaction' ? false : true,
+    school_name_short:false
   });
   const navigate = useNavigate();
 
@@ -191,6 +192,11 @@ function CancelReceiptIndex() {
           </HtmlTooltip>
         )
       },
+    },
+    {
+      field: "school_name_short",
+      headerName: "Institute",
+      flex: 1
     },
     {
       field: "fee_template_name",
