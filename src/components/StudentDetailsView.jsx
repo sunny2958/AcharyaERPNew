@@ -979,7 +979,7 @@ function StudentDetailsView() {
             <CustomTabHorizontal value="Registration" label="Registration" />
             <CustomTabHorizontal value="Admissions" label="Admissions" />
             <CustomTabHorizontal value="Academics" label="Academics" />
-            <CustomTabHorizontal value="Proctorial" label="Proctorial" />
+            <CustomTabHorizontal value="Proctorial" label="Communication" />
             <CustomTabHorizontal value="Accounts" label="Accounts" />
             <CustomTabHorizontal value="Documents" label="Documents" />
             <CustomTabHorizontal value="Library" label="Library" />
