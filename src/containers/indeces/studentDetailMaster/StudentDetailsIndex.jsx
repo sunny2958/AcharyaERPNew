@@ -126,11 +126,11 @@ const initialValues = {
   adjStatus: null,
   meetingAgenda: "",
   description: "",
-  meetingDate: null,
+  meetingDate: new Date(),
   document: null
 };
 
-const requiredFields = ["meetingAgenda", "description", "meetingDate"];
+const requiredFields = ["meetingAgenda", "description",];
 
 const userID = JSON.parse(sessionStorage.getItem("AcharyaErpUser"))?.userId;
 const schoolID = JSON.parse(sessionStorage.getItem("userData"))?.school_id;
@@ -1418,7 +1418,7 @@ function StudentDetailsIndex() {
       formData.append("student_ids", mailData.id);
       formData.append("user_id", userId);
       formData.append("agenda_of_meeting", values.meetingAgenda); // corrected
-      formData.append("date_of_meeting", moment(values.meetingDate).format("YYYY-MM-DD")); // corrected and formatted
+      formData.append("date_of_meeting", moment(new Date()).format("YYYY-MM-DD")); // corrected and formatted
       formData.append("description", values.description);
       formData.append("attachment", values.document);
 
@@ -1432,9 +1432,7 @@ function StudentDetailsIndex() {
           active: true,
           school_id: mailData?.school_id,
           user_id: userId,
-          date_of_meeting: values.meetingDate
-            ? values.meetingDate.substr(0, 19) + "Z"
-            : "",
+         date_of_meeting: new Date().toISOString().substr(0, 19) + "Z",
           meeting_agenda: values.meetingAgenda,
           student_ids: [mailData.id],
           description: values.description,
@@ -1606,7 +1604,7 @@ function StudentDetailsIndex() {
       >
         <YearSemComponent rowData={rowData} setYearSemModal={setYearSemModal} />
       </ModalWrapper>
-      
+
       <ModalWrapper
         title="Reporting Details"
         maxWidth={600}
@@ -1956,7 +1954,7 @@ function StudentDetailsIndex() {
             <CustomSelect
               multiline
               name="meetingAgenda"
-              label="Agenda of meeting"
+              label="Subject"
               value={values.meetingAgenda}
               handleChange={handleChangeOne}
               items={[
@@ -2002,10 +2000,11 @@ function StudentDetailsIndex() {
           <Grid item xs={12} md={5} mt={2.4}>
             <CustomDatePicker
               name="meetingDate"
-              label="Date of Meeting"
-              value={values.meetingDate}
+              label="Mail Send"
+              value={values.meetingDate || new Date()} // Always select current date
               handleChangeAdvance={handleChangeAdvance}
               disablePast
+              disabled
               required
             />
           </Grid>
@@ -2014,7 +2013,7 @@ function StudentDetailsIndex() {
               multiline
               rows={2}
               name="description"
-              label="Description"
+              label="Content"
               value={values.description}
               handleChange={handleChangeOne}
               checks={checks.description}
