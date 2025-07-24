@@ -143,6 +143,7 @@ const SalaryMisIndex = () => {
   const { setAlertMessage, setAlertOpen } = useAlert();
   const setCrumbs = useBreadcrumbs();
   const [reportPath, setReportPath] = useState(null);
+  const [bankExportData, setBankExportData] = useState([]);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [columnVisibilityModel, setColumnVisibilityModel] = useState({
     contract_empcode: false,
@@ -221,6 +222,15 @@ const SalaryMisIndex = () => {
             refundOfAdvances: 0
           }));
 
+          const bankExportList = res.data.data?.map((ep, index) => ({
+            id: index + 1,
+            Bank: ep.bank_id,
+            IFSCNo: ep.bank_ifsccode,
+            BankAccountNo: `\t${ep.bank_account_no}`,
+            EmployeeName: ep.employee_name,
+            NetAmount: ep.netpay
+          }));
+          setBankExportData(bankExportList);
           setState((prevState) => ({
             ...prevState,
             rows: type == "bank" ? res.data.data?.filter((ele) => ele.netpay !== 0) :
@@ -382,7 +392,8 @@ const SalaryMisIndex = () => {
       field: "bank_account_no",
       headerName: "Bank Account No.",
       flex: 1,
-      hide: false
+      hide: false,
+      renderCell: (params) => <div sx={{ textAlign: 'right', width: '100%' }}>{(params.row?.bank_account_no)}</div>,
     },
     { field: "empcode", headerName: "Emp Code", flex: 1, hide: false },
     { field: "contract_empcode", headerName: "Contract EmpCode", flex: 1, hide: true },
@@ -747,7 +758,7 @@ const SalaryMisIndex = () => {
             required
           />
         </Grid>
-        {salaryReportType !=="epf"  ? <Grid item xs={12} md={1}>
+        {salaryReportType !=="epf" && salaryReportType !== "bank"  ? <Grid item xs={12} md={1}>
           <Button
             variant="contained"
             disableElevation
@@ -765,15 +776,25 @@ const SalaryMisIndex = () => {
             startIcon={<FileDownloadIcon />}
             disabled={loading || (rows?.length == 0 && salaryReportType !== "summary" && salaryReportType !== "school")}
           >            
-            <CSVLink
+            {salaryReportType =="epf" ? <CSVLink
               data={epfRows.map((row) => ({
                 ...row
               }))}
               filename={`EPF Report For the month of ${moment(date).format("MM-YYYY")}`}
               style={{ textDecoration: "none", color: "inherit" }}
             >
-               Csv Export
+              Export
+            </CSVLink>:
+            <CSVLink
+              data={bankExportData.map((row) => ({
+                ...row
+              }))}
+              filename={`Bank Report For the month of ${moment(date).format("MM-YYYY")}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              Export
             </CSVLink>
+            }
           </Button>
         </Grid>
         }

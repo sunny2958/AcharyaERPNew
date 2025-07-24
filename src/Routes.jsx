@@ -2137,6 +2137,8 @@ const SalarySheetMaster = lazy(() =>
 // LMS
 const LMS = lazy(() => import("./pages/indeces/LMS.jsx"));
 
+const TaxDeductionIndex = lazy(() => import("./pages/indeces/TaxDeduction.jsx"));
+
 const RazorPaySettlementMaster = lazy(() =>
   import("./pages/masters/RozarpaySettlementMaster.jsx")
 );
@@ -10704,6 +10706,16 @@ function RouteConfig() {
             element={
               <Suspense fallback={<OverlayLoader />}>
                 <LMS />
+              </Suspense>
+            }
+          />
+
+          <Route
+            exact
+            path="/tax-deduction"
+            element={
+              <Suspense fallback={<OverlayLoader />}>
+                <TaxDeductionIndex />
               </Suspense>
             }
           />

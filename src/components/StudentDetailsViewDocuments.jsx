@@ -738,7 +738,7 @@ const StudentDetailsViewDocuments = ({
                     }}
                   />
                   <Grid container justifyContent="flex-end">
-                    <Grid item xs={12} sm={6} md={3} mt={2}>
+                    <Grid item xs={12} sm={6} md={3} mt={2} padding={1}>
                       <CustomSelect
                         displayEmpty={true}
                         name="attachmentCategory"
@@ -837,7 +837,7 @@ const StudentDetailsViewDocuments = ({
                     </CardContent>
                   ) : (
                     <CardContent>
-                      <Typography variant="body2" color="textSecondary">
+                      <Typography variant="body2" color="textSecondary" textAlign="center" alignItems="center">
                         No Documents Available
                       </Typography>
                     </CardContent>
@@ -964,7 +964,7 @@ const StudentDetailsViewDocuments = ({
                     </CardContent>
                   ) : (
                     <CardContent>
-                      <Typography variant="body2" color="textSecondary">
+                      <Typography variant="body2" color="textSecondary" textAlign="center" alignItems="center">
                         No Documents Available
                       </Typography>
                     </CardContent>

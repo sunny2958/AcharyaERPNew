@@ -181,7 +181,7 @@ const FRROBonafied = () => {
         const obj = res.data.data;
         setValues({
           fsisNo: obj.fsis,
-          studentName: obj.nameAsPerPassport,
+          studentName: obj.studentName,
           dob: moment(obj.dateOfBirth).format("DD-MM-YYYY"),
           sex: obj.sex,
           fatherOrHusbandName: obj.fatherName,
@@ -196,7 +196,7 @@ const FRROBonafied = () => {
           studentVisaIssued: obj.visaIssued ? obj.visaIssued : "",
           nameAndReferenceNoOfInst: obj.recognition ? obj.recognition : "",
           nameAndReferenceNoOfCourse: obj.affiliataion ? obj.affiliataion : "",
-          nameOfCourse: obj.programShortName,
+          nameOfCourse: obj.programName,
           coursePeriodFrom: "",
           coursePeriodTo: "",
           attendingClass: "",

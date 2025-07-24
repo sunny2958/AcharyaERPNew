@@ -44,6 +44,8 @@ const filterLists = [
 const initialValues = {
   filterList: filterLists,
   filter:filterLists[0].value,
+  schoolId:null,
+  schoolList:[],
   startDate: "",
   endDate: ""
 };
@@ -54,7 +56,7 @@ function CancelReceiptIndex() {
   const [loading, setLoading] = useState(false);
    const [anchorEl, setAnchorEl] = useState(null);
 
-   const {pathname, state: queryValues} = useLocation()
+  const {pathname, state: queryValues} = useLocation();
   const [columnVisibilityModel, setColumnVisibilityModel] = useState({
     transaction_type: false,
     bank_name: false,
@@ -62,43 +64,77 @@ function CancelReceiptIndex() {
     cheque_dd_no: false,
     date: pathname === '/Accounts-ledger-day-credit-transaction' ? false : true,
     created_username: pathname === '/Accounts-ledger-day-credit-transaction' ? false : true,
+    school_name_short:false
   });
   const navigate = useNavigate();
 
   useEffect(() => {
-    getData(values.filterList[0].value);
+     getSchoolDetails();
   }, []);
 
-  const getData = async (filterKey, endDate) => {
-    setLoading(true);
-        let params = null;
-        if(pathname === '/Accounts-ledger-day-credit-transaction'){
-           params = `page=${0}&page_size=${1000000}&sort=created_date&date_range=custom&school_id=${queryValues?.schoolId}&bank_id=${ queryValues?.bankId}&start_date=${moment(
-            queryValues?.date
-          ).format("YYYY-MM-DD")}&end_date=${moment(queryValues?.date).format("YYYY-MM-DD")}`;
-        }else{
-        if (filterKey == "custom" && !!endDate && !!values.startDate) {
-          params = `page=${0}&page_size=${1000000}&sort=created_date&date_range=custom&start_date=${moment(
-            values.startDate
-          ).format("YYYY-MM-DD")}&end_date=${moment(endDate).format("YYYY-MM-DD")}`;
-        } else if(filterKey !== "custom") {
-          params = `page=${0}&page_size=${1000000}&sort=created_date&date_range=${filterKey}`;
-        }
+  useEffect(() => {
+    getData();
+  }, [values.schoolId, values.filter, values.startDate, values.endDate]);
+
+  const getSchoolDetails = async () => {
+    try {
+      const res = await axios.get(`/api/institute/school`);
+      if (res.status == 200 || res.status == 201) {
+        const list = res.data.data.map((obj) => ({
+          value: obj.school_id,
+          label: obj.school_name,
+        }));
+        setSchoolList(list);
       }
-        if(params){
-          await axios
-            .get(
-              `/api/finance/fetchAllCancelledReceipts?${params}`
-            )
-            .then((res) => {
-              setLoading(false);
-              setRows(res.data.data.Paginated_data.content);
-            })
-            .catch((err) => {
-              setLoading(false);
-              console.error(err)
-            });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const setSchoolList = (lists) => {
+    setValues((prevState) => ({
+      ...prevState,
+      schoolList: lists,
+    }));
+  };
+
+  const getData = async () => {
+    setLoading(true);
+    let apiParams = null;
+    let params = null;
+    if (pathname === '/Accounts-ledger-day-credit-transaction') {
+      apiParams = `page=${0}&page_size=${1000000}&sort=created_date&date_range=custom&school_id=${queryValues?.schoolId}&bank_id=${queryValues?.bankId}&start_date=${moment(
+        queryValues?.date
+      ).format("YYYY-MM-DD")}&end_date=${moment(queryValues?.date).format("YYYY-MM-DD")}`;
+    } else {
+      params = new URLSearchParams();
+      const keys = {
+        "page": 0,
+        "page_size": 1000000,
+        "sort": "created_date",
+        "school_id": values.schoolId,
+        "date_range": values.filter,
+        "start_date": values.startDate ? moment(values.startDate).format("YYYY-MM-DD") : null,
+        "end_date": values.endDate ? moment(values.endDate).format("YYYY-MM-DD") : null,
+      };
+      Object.entries(keys).forEach(([key, value]) => {
+        if (value != null) {
+          params.append(key, value);
         }
+      });
+    }
+      await axios
+        .get(
+          `/api/finance/fetchAllCancelledReceipts?${pathname === '/Accounts-ledger-day-credit-transaction' ? apiParams : params}`
+        )
+        .then((res) => {
+          setLoading(false);
+          setRows(res.data.data.Paginated_data.content);
+        })
+        .catch((err) => {
+          setLoading(false);
+          console.error(err)
+        });
   };
 
   const columns = [
@@ -156,6 +192,11 @@ function CancelReceiptIndex() {
           </HtmlTooltip>
         )
       },
+    },
+    {
+      field: "school_name_short",
+      headerName: "Institute",
+      flex: 1
     },
     {
       field: "fee_template_name",
@@ -249,8 +290,8 @@ function CancelReceiptIndex() {
   const setNullField = () => {
     setValues((prevState)=>({
       ...prevState,
-      startDate:"",
-      endDate:""
+      startDate:null,
+      endDate:null
     }))
   };
 
@@ -259,11 +300,7 @@ function CancelReceiptIndex() {
       ...prev,
       [name]: newValue,
     }));
-    if(name == "endDate"){
-      getData("custom", newValue);
-    }else if(name == "startDate" || newValue=="custom") {
-    }else {
-      getData(newValue, "");
+    if(name == "filter"){
       setNullField()
     }
   };
@@ -285,11 +322,21 @@ function CancelReceiptIndex() {
         >
           <Grid xs={12} md={2}>
             <CustomAutocomplete
+              name="schoolId"
+              label="School"
+              value={values.schoolId}
+              options={values.schoolList || []}
+              handleChangeAdvance={handleChangeAdvance}
+            />
+          </Grid>
+          <Grid xs={12} md={2}>
+            <CustomAutocomplete
               name="filter"
               label="filter"
               value={values.filter}
               options={values.filterList || []}
               handleChangeAdvance={handleChangeAdvance}
+              required
             />
           </Grid>
           {values.filter == "custom" && (
