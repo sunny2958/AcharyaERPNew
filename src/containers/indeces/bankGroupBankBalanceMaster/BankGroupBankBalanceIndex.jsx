@@ -1,25 +1,34 @@
 import { useState, useEffect } from "react";
 import { Box, Button, ButtonGroup, Card, CardContent, CircularProgress, InboxIcon, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "../../../services/Api";
 import useBreadcrumbs from "../../../hooks/useBreadcrumbs";
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import moment from "moment";
 
 const BankGroupBankBalanceIndex = () => {
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
-    const location = useLocation()
     const setCrumbs = useBreadcrumbs();
     useEffect(() => {
-        setCrumbs([{ name: "" }])
-        getData();
+        setCrumbs([{ name: "" }]);
+        getCashInHandData()
     }, []);
 
-    const getData = async () => {
-        setLoading(true);
+    const getCashInHandData = async() => {
+        try {
+            setLoading(true);
+            const res = await axios.get(`api/finance/getTotalCashInHand`);
+            if(res.status == 200 || res.status == 201){
+                getData(res.data.data);
+            }
+        } catch (error) {
+            setLoading(false);
+            console.log(error)
+        }
+    };
 
+    const getData = async (cashInHandDetails) => {
         try {
             const res = await axios.get(
                 '/api/finance/fetchAllBanknDetails?page=0&page_size=10000&sort=created_date'
@@ -69,22 +78,15 @@ const BankGroupBankBalanceIndex = () => {
                 total_balance: parseFloat(totalBalance.toFixed(2)),
                 isTotal: true,
             };
-            // const finalData = [...regularGroups, totalRow];
-            // if (cashCredit) {
-            //     finalData.push(cashCredit);
-            // }
-            // if (cashInHand) {
-            //     finalData.push(cashInHand);
-            // }
 
-            const finalData = [
+            const data = [
                 ...regularGroups,
                 totalRow,
                 ...termLoanGroups,
                 ...(cashCredit ? [cashCredit] : []),
                 ...(cashInHand ? [cashInHand] : [])
             ];
-
+            const finalData = data?.map((ele)=>(ele.id == cashInHandDetails?.bankGroupId ? ({...ele,"total_balance": cashInHandDetails?.CashInHandAmount}): {...ele}));
             setRows(finalData);
             setLoading(false)
         } catch (err) {

@@ -103,7 +103,7 @@ function CancelReceiptIndex() {
     let apiParams = null;
     let params = null;
     if (pathname === '/Accounts-ledger-day-credit-transaction') {
-      apiParams = `page=${0}&page_size=${1000000}&sort=created_date&date_range=custom&school_id=${queryValues?.schoolId}&bank_id=${queryValues?.bankId}&start_date=${moment(
+      apiParams = `page=${0}&page_size=${1000000}&sort=created_date&date_range=custom&inter_school_id=${queryValues?.schoolId}&bank_id=${queryValues?.bankId}&start_date=${moment(
         queryValues?.date
       ).format("YYYY-MM-DD")}&end_date=${moment(queryValues?.date).format("YYYY-MM-DD")}`;
     } else {
@@ -250,7 +250,8 @@ function CancelReceiptIndex() {
     { field: "transaction_date", headerName: "Transaction Date", flex: 1,
       valueGetter: (value, row) =>
         row.transaction_date
-          ? moment(row.transaction_date).format("DD-MM-YYYY")
+          ? pathname != '/Accounts-ledger-day-credit-transaction' ?  moment(row.transaction_date).format("DD-MM-YYYY") : 
+          row.transaction_date
           : "",
       align: pathname === '/Accounts-ledger-day-credit-transaction' ? 'center' : 'left'
     },
