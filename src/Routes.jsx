@@ -157,11 +157,21 @@ const FinancePage = lazy(() =>
 const HRMPage = lazy(() => import("./pages/forms/chartsDashboard/hrm/index"));
 
 const MISDashboard = lazy(() => import("./pages/forms/misDashboard/index.js"));
-const AcademicOverviewPage = lazy(() => import("./pages/forms/misDashboard/academicOverview/index"));
-const AdmissionReportPage = lazy(()=> import("./pages/forms/misDashboard/admission/index"))
-const JoiningRelieveReportPage = lazy(()=> import("./pages/forms/misDashboard/JoiningRelieve/index.jsx"))
-const MonthlyRevenueReportPage = lazy(()=> import("./pages/forms/misDashboard/finance/index.jsx"))
-const FinanceAndBankReportPage = lazy(()=> import("./pages/forms/misDashboard/bankGroupReport/index.jsx"))
+const AcademicOverviewPage = lazy(() =>
+  import("./pages/forms/misDashboard/academicOverview/index")
+);
+const AdmissionReportPage = lazy(() =>
+  import("./pages/forms/misDashboard/admission/index")
+);
+const JoiningRelieveReportPage = lazy(() =>
+  import("./pages/forms/misDashboard/JoiningRelieve/index.jsx")
+);
+const MonthlyRevenueReportPage = lazy(() =>
+  import("./pages/forms/misDashboard/finance/index.jsx")
+);
+const FinanceAndBankReportPage = lazy(() =>
+  import("./pages/forms/misDashboard/bankGroupReport/index.jsx")
+);
 
 const AdmissionPage = lazy(() =>
   import("./pages/forms/chartsDashboard/admission/index")
@@ -793,6 +803,10 @@ const ContraVoucherPdf = lazy(() =>
 
 const ContraVoucherPdfAuto = lazy(() =>
   import("./pages/forms/accountMaster/ContraPdfAuto.jsx")
+);
+
+const ClosingcashReport = lazy(() =>
+  import("./pages/forms/accountMaster/ClosingcashReport.jsx")
 );
 
 const AdvancePaymentVoucherIndex = lazy(() =>
@@ -1896,24 +1910,34 @@ const LedgerDayTransaction = lazy(() =>
 
 const VendorMonthlyDetails = lazy(() =>
   import("./containers/indeces/vendorMaster/vendorMonthlyDetails.jsx")
-)
+);
 const LedgerMonthlyInstTransaction = lazy(() =>
-  import("./containers/indeces/vendorMaster/LedgerMonthlyInstituteTransaction.jsx")
-)
-const InflowDayCreditTransaction = lazy(()=>
-  import("./containers/indeces/vendorMaster/LedgerInflowDayTransaction-credit.jsx")
-)
-const ExpensesDayCreditTransaction = lazy(()=>
-  import("./containers/indeces/vendorMaster/AssetsAndExpenditurePaymentVoucher.jsx")
-)
+  import(
+    "./containers/indeces/vendorMaster/LedgerMonthlyInstituteTransaction.jsx"
+  )
+);
+const InflowDayCreditTransaction = lazy(() =>
+  import(
+    "./containers/indeces/vendorMaster/LedgerInflowDayTransaction-credit.jsx"
+  )
+);
+const ExpensesDayCreditTransaction = lazy(() =>
+  import(
+    "./containers/indeces/vendorMaster/AssetsAndExpenditurePaymentVoucher.jsx"
+  )
+);
 
-const AssetsAndExpenditureCreditDayTransaction = lazy(()=>
-  import("./containers/indeces/vendorMaster/AssetsAndExpenditureDayTransaction-credit.jsx")
-)
+const AssetsAndExpenditureCreditDayTransaction = lazy(() =>
+  import(
+    "./containers/indeces/vendorMaster/AssetsAndExpenditureDayTransaction-credit.jsx"
+  )
+);
 
-const AssetsAndExpenditureDebitDayTransaction = lazy(()=>
-  import("./containers/indeces/vendorMaster/AssetsAndExpenditureDaytransaction-debit.jsx")
-)
+const AssetsAndExpenditureDebitDayTransaction = lazy(() =>
+  import(
+    "./containers/indeces/vendorMaster/AssetsAndExpenditureDaytransaction-debit.jsx"
+  )
+);
 
 const VendorDetailMaster = lazy(() =>
   import("./pages/masters/VendorHeadMaster.jsx")
@@ -2113,6 +2137,8 @@ const SalarySheetMaster = lazy(() =>
 // LMS
 const LMS = lazy(() => import("./pages/indeces/LMS.jsx"));
 
+const TaxDeductionIndex = lazy(() => import("./pages/indeces/TaxDeduction.jsx"));
+
 const RazorPaySettlementMaster = lazy(() =>
   import("./pages/masters/RozarpaySettlementMaster.jsx")
 );
@@ -2293,11 +2319,26 @@ function RouteConfig() {
             }
           />
           {[
-            { path: "/mis-dashboard/academic-overview", comp: <AcademicOverviewPage /> },
-             { path: "/mis-dashboard/admission-report", comp: <AdmissionReportPage /> },
-             { path: "/mis-dashboard/joining-relieve-report", comp: <JoiningRelieveReportPage /> },
-              { path: "/mis-dashboard/finance-report", comp: <MonthlyRevenueReportPage /> },
-              {path: "/mis-dashboard/bank-group-report",  comp: <FinanceAndBankReportPage />}
+            {
+              path: "/mis-dashboard/academic-overview",
+              comp: <AcademicOverviewPage />,
+            },
+            {
+              path: "/mis-dashboard/admission-report",
+              comp: <AdmissionReportPage />,
+            },
+            {
+              path: "/mis-dashboard/joining-relieve-report",
+              comp: <JoiningRelieveReportPage />,
+            },
+            {
+              path: "/mis-dashboard/finance-report",
+              comp: <MonthlyRevenueReportPage />,
+            },
+            {
+              path: "/mis-dashboard/bank-group-report",
+              comp: <FinanceAndBankReportPage />,
+            },
           ].map((obj) => (
             <Route
               exact
@@ -2670,7 +2711,7 @@ function RouteConfig() {
               </Suspense>
             }
           />
-            <Route
+          <Route
             exact
             path="/hostel-due-report"
             element={
@@ -4274,6 +4315,17 @@ function RouteConfig() {
               </Suspense>
             }
           />
+
+          <Route
+            exact
+            path="/closing-cash-report"
+            element={
+              <Suspense fallback={<OverlayLoader />}>
+                <ClosingcashReport />
+              </Suspense>
+            }
+          />
+
           <Route
             exact
             path="/po-payment-history"
@@ -10485,7 +10537,7 @@ function RouteConfig() {
               </Suspense>
             }
           />
-           <Route
+          <Route
             exact
             path={"/Accounts-ledger-monthly-institute-transaction"}
             element={
@@ -10548,7 +10600,7 @@ function RouteConfig() {
               </Suspense>
             }
           />
-           <Route
+          <Route
             exact
             path={"/ledger-expenses-day-transaction-credit"}
             element={
@@ -10566,7 +10618,7 @@ function RouteConfig() {
               </Suspense>
             }
           />
-           <Route
+          <Route
             exact
             path={"/ledger-assets-day-transaction-debit"}
             element={
@@ -10575,7 +10627,7 @@ function RouteConfig() {
               </Suspense>
             }
           />
-           <Route
+          <Route
             exact
             path={"/ledger-expenditure-day-transaction-credit"}
             element={
@@ -10584,7 +10636,7 @@ function RouteConfig() {
               </Suspense>
             }
           />
-           <Route
+          <Route
             exact
             path={"/ledger-expenditure-day-transaction-debit"}
             element={
@@ -10654,6 +10706,16 @@ function RouteConfig() {
             element={
               <Suspense fallback={<OverlayLoader />}>
                 <LMS />
+              </Suspense>
+            }
+          />
+
+          <Route
+            exact
+            path="/tax-deduction"
+            element={
+              <Suspense fallback={<OverlayLoader />}>
+                <TaxDeductionIndex />
               </Suspense>
             }
           />

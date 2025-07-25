@@ -32,7 +32,7 @@ function ApproveCancelAdmissionIndex() {
     try {
       setLoading(true);
       const response = await axios.get(
-        "/api/fetchAllCancelAdmissionsDetail?page=0&page_size=100&sort=created_date"
+        "/api/fetchAllCancelAdmissionsDetail?page=0&page_size=1000000&sort=created_date"
       );
       setRows(response.data.data.Paginated_data.content);
     } catch (err) {
