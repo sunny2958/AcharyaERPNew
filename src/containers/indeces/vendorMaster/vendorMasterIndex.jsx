@@ -147,13 +147,20 @@ function VendorMasterIndex() {
     ];
 
     useEffect(() => {
-        if (location?.state) {
+        if (location?.state?.bank_group_name === "Cash in Hand") {
+            setValues((prevState) => ({
+                ...prevState,
+                voucherHeadId: 542
+            }));
+            setCrumbs([{ name: "Bank-Balance", link: "/bank-balance" }, { name: "Ledger" }])
+        } else if (location?.state) {
             setValues(location.state);
             navigate(location.pathname, { replace: true, state: null });
+            setCrumbs([{ name: "Ledger" }])
         } else {
             setValues(initialValues)
+            setCrumbs([{ name: "Ledger" }])
         }
-        setCrumbs([{ name: "Ledger" }])
         getVendorDetails();
         getFinancialYearDetails();
     }, []);
@@ -265,7 +272,13 @@ function VendorMasterIndex() {
                 }));
 
                 setFCYearOptions(optionData || []);
-                if (!location?.state) {
+                if (location?.state?.bank_group_name === "Cash in Hand") {
+                    setValues((prev) => ({
+                        ...prev,
+                        'fcYearId': optionData[0]?.value || "",
+                        'fcYear': optionData[0]?.label
+                    }));
+                } else if (!location?.state) {
                     setValues((prev) => ({
                         ...prev,
                         ['fcYearId']: optionData[0]?.value || "",
@@ -354,7 +367,7 @@ function VendorMasterIndex() {
 
     const handleRowClick = (params) => {
         //  if (params?.row?.isLastRow && params?.row?.ledgerType !== "EARNINGS") return;
-         
+
         const query = {
             ...values,
             schoolId: params.row.school_id,
@@ -418,6 +431,7 @@ function VendorMasterIndex() {
                             options={vendorOptions}
                             handleChangeAdvance={handleChangeAdvance}
                             size="small"
+                            disabled={location?.state?.bank_group_name === "Cash in Hand" ? true : false}
                         />
                     </Box>
 
@@ -525,7 +539,7 @@ function VendorMasterIndex() {
                         backgroundColor: "#376a7d !important",
                         color: "#fff",
                         '&:hover': {
-                            backgroundColor: "#2a5262 !important", 
+                            backgroundColor: "#2a5262 !important",
                         }
                     },
                     '& .header-bg': {

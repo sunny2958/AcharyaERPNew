@@ -190,7 +190,7 @@ function StudentDetailsIndex() {
     feeTemplateRemaks: false,
     adj_status: false,
     IVR: false,
-    Email: false,
+    Mail: false,
     cancelRemarks: false,
     reporting_date: false,
   });
@@ -852,10 +852,10 @@ function StudentDetailsIndex() {
       // hide: pathname.toLowerCase() === "/student-master-user" ? true : false,
     },
     {
-      field: "Email",
+      field: "Mail",
       type: "actions",
       flex: 1,
-      headerName: "Email",
+      headerName: "Mail",
       getActions: (params) => [
         <IconButton
           label="Send Email"
@@ -1432,7 +1432,7 @@ function StudentDetailsIndex() {
           active: true,
           school_id: mailData?.school_id,
           user_id: userId,
-         date_of_meeting: new Date().toISOString().substr(0, 19) + "Z",
+          date_of_meeting: new Date().toISOString().substr(0, 19) + "Z",
           meeting_agenda: values.meetingAgenda,
           student_ids: [mailData.id],
           description: values.description,
@@ -1642,8 +1642,8 @@ function StudentDetailsIndex() {
               <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
                 Contact Details
               </Typography>
-              <SimpleRow label="Mobile" value={rowData?.mobile} />
-              <SimpleRow label="Email" value={rowData?.acharya_email} />
+              <SimpleRow label="Mobile" value={maskMobile(rowData?.mobile ?? "")} />
+              <SimpleRow label="Email" value={maskEmail(rowData.acharya_email ?? "")} />
               <SimpleRow label="Address" value={rowData?.permanent_address} />
             </Box>
           </Stack>
@@ -1938,93 +1938,84 @@ function StudentDetailsIndex() {
         buttons={modalContent.buttons}
       />
       <ModalWrapper
-        title={`Mail`}
-        maxWidth={800}
+        title="Send Mail"
+        maxWidth={1000}
         open={modalMailOpen}
         setOpen={setModalMailOpen}
       >
         <Grid
           container
+          spacing={3}
           justifyContent="flex-start"
-          alignItems="center"
-          rowSpacing={2}
-          columnSpacing={2}
+          alignItems="flex-start"
         >
-          <Grid item xs={12} md={5}>
+          <Grid item xs={12} md={6}>
             <CustomSelect
-              multiline
               name="meetingAgenda"
               label="Subject"
               value={values.meetingAgenda}
               handleChange={handleChangeOne}
               items={[
-                {
-                  label: "IA marks review",
-                  value: "IA marks review",
-                },
-                {
-                  label: "Attendence review",
-                  value: "Attendence review",
-                },
-                {
-                  label: "Discipline matter",
-                  value: "Discipline matter",
-                },
-                {
-                  label: "Academic Issues",
-                  value: "Academic Issues",
-                },
-                {
-                  label: "Leave Issues",
-                  value: "Leave Issues",
-                },
-                {
-                  label: "Fee due",
-                  value: "Fee due",
-                },
-                {
-                  label: "Monthly meeting",
-                  value: "Monthly meeting",
-                },
-                {
-                  label: "Others",
-                  value: "Others",
-                },
+                { label: "IA marks review", value: "IA marks review" },
+                { label: "Attendence review", value: "Attendence review" },
+                { label: "Discipline matter", value: "Discipline matter" },
+                { label: "Academic Issues", value: "Academic Issues" },
+                { label: "Leave Issues", value: "Leave Issues" },
+                { label: "Fee due", value: "Fee due" },
+                { label: "Monthly meeting", value: "Monthly meeting" },
+                { label: "Others", value: "Others" },
               ]}
               checks={checks.meetingAgenda}
               errors={errorMessages.meetingAgenda}
               required
+              fullWidth
             />
           </Grid>
 
-          <Grid item xs={12} md={5} mt={2.4}>
+          <Grid item xs={12} md={6}>
             <CustomDatePicker
               name="meetingDate"
-              label="Mail Send"
-              value={values.meetingDate || new Date()} // Always select current date
+              label="Mail Send Date"
+              value={values.meetingDate || new Date()}
               handleChangeAdvance={handleChangeAdvance}
               disablePast
               disabled
               required
+              fullWidth
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+
+          {/* Mail Content */}
+          <Grid item xs={12} md={8}>
+            <Typography variant="subtitle1" fontWeight={600} mb={1}>
+              Mail Content
+            </Typography>
             <CustomTextField
               multiline
-              rows={2}
+              rows={8}
               name="description"
-              label="Content"
+              placeholder="Write the mail content here..."
               value={values.description}
               handleChange={handleChangeOne}
               checks={checks.description}
               errors={errorMessages.description}
+              fullWidth
               required
+              sx={{
+                "& .MuiInputBase-root": {
+                  fontSize: "1rem",
+                  lineHeight: "1.6",
+                  backgroundColor: "#fff",
+                  borderRadius: 2,
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                },
+              }}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4} mt={4}>
             <CustomFileInput
               name="document"
-              label="Document"
+              label="Attach Document"
               file={values.document}
               helperText="PDF - smaller than 2 MB"
               handleFileDrop={handleFileDrop}
@@ -2033,28 +2024,24 @@ function StudentDetailsIndex() {
               errors={errorMessages.document}
             />
           </Grid>
-
-          <Grid item xs={12} align="right">
+          <Grid item xs={12} display="flex" justifyContent="flex-end">
             <Button
               variant="contained"
               onClick={() => handleCreate("Mail")}
-              sx={{ borderRadius: 2 }}
+              sx={{ borderRadius: 2, minWidth: 120 }}
               disabled={loading}
-              endIcon={<EmailIcon />}
+              endIcon={!loading && <EmailIcon />}
             >
               {loading ? (
-                <CircularProgress
-                  size={25}
-                  color="blue"
-                  style={{ margin: "2px 13px" }}
-                />
+                <CircularProgress size={24} color="inherit" />
               ) : (
-                <strong>{"Send"}</strong>
+                <strong>Send</strong>
               )}
             </Button>
           </Grid>
         </Grid>
       </ModalWrapper>
+
     </>
   );
 }
