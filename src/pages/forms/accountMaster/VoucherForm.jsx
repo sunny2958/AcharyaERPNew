@@ -342,6 +342,7 @@ function VoucherForm() {
               items={[
                 { value: "ASSETS/ADVANCE", label: "Assets/Advance" },
                 { value: "EXPENDITURE", label: "Expenditure" },
+                { value: "LIABILITY", label: "Liability" },
               ]}
               handleChange={handleChange}
             />
