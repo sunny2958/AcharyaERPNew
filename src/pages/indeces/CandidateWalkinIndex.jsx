@@ -207,8 +207,8 @@ function CandidateWalkinIndex() {
             npf_status === 3
               ? "Offer Accepted"
               : npf_status === 4
-              ? "Registration Fee Paid"
-              : ""
+                ? "Registration Fee Paid"
+                : ""
           }
           onClick={() => navigate(`/admissions/offer-view/${id}/admin`)}
         >
@@ -230,7 +230,7 @@ function CandidateWalkinIndex() {
           color: "primary",
           func: () => handleDeleteOffer(id, scholarship),
         },
-        { name: "No", color: "primary", func: () => {} },
+        { name: "No", color: "primary", func: () => { } },
       ],
     });
     setConfirmOpen(true);
@@ -475,8 +475,8 @@ function CandidateWalkinIndex() {
           params.row.npf_status >= 3) ||
           params.row.npf_status === 4 ||
           params.row.counselor_status === 1) &&
-        params.row.feeTemplateStatus &&
-        params.row.approved_status ? (
+          params.row.feeTemplateStatus &&
+          params.row.approved_status ? (
           <IconButton
             title="Create AUID"
             onClick={() =>
@@ -519,19 +519,44 @@ function CandidateWalkinIndex() {
         return null;
       },
     });
-  }
+  } else if (roleId == 9 || roleId == 11) {
+    columns.splice(9, 0, {
+      field: "mail_sent_date",
+      headerName: "Delete Offer",
+      flex: 1,
+      renderCell: (params) => {
+        const allowedRoles = [9, 11];
+        const userRole = roleId;
 
-  if (roleId === 1 || roleId === 9 || roleId === 11) {
-    columns.push({
-      field: "logs",
-      headerName: "Logs",
-      renderCell: (params) => (
-        <IconButton onClick={() => handleLogs(params.row)}>
-          <ArticleIcon color="primary" sx={{ fontSize: 24 }} />
-        </IconButton>
-      ),
+        if (
+          allowedRoles.includes(userRole) &&
+          params.row.npf_status === 1
+        ) {
+          return (
+            <IconButton
+              title="Delete Offer"
+              onClick={() => handleDelete(params.row)}
+            >
+              <HighlightOffIcon color="error" sx={{ fontSize: 22 }} />
+            </IconButton>
+          );
+        }
+        return null;
+      },
     });
   }
+
+  // if (roleId === 1 || roleId === 9 || roleId === 11) {
+  //   columns.push({
+  //     field: "logs",
+  //     headerName: "Logs",
+  //     renderCell: (params) => (
+  //       <IconButton onClick={() => handleLogs(params.row)}>
+  //         <ArticleIcon color="primary" sx={{ fontSize: 24 }} />
+  //       </IconButton>
+  //     ),
+  //   });
+  // }
 
   return (
     <>
@@ -674,8 +699,8 @@ function CandidateWalkinIndex() {
                             </TableCell>
                             <TableCell>
                               {value !== null &&
-                              value !== undefined &&
-                              value !== ""
+                                value !== undefined &&
+                                value !== ""
                                 ? value.toString()
                                 : "—"}
                             </TableCell>
