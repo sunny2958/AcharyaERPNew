@@ -15,11 +15,11 @@ const BankGroupBankBalanceIndex = () => {
         getCashInHandData()
     }, []);
 
-    const getCashInHandData = async() => {
+    const getCashInHandData = async () => {
         try {
             setLoading(true);
             const res = await axios.get(`api/finance/getTotalCashInHand`);
-            if(res.status == 200 || res.status == 201){
+            if (res.status == 200 || res.status == 201) {
                 getData(res.data.data);
             }
         } catch (error) {
@@ -86,7 +86,7 @@ const BankGroupBankBalanceIndex = () => {
                 ...(cashCredit ? [cashCredit] : []),
                 ...(cashInHand ? [cashInHand] : [])
             ];
-            const finalData = data?.map((ele)=>(ele.id == cashInHandDetails?.bankGroupId ? ({...ele,"total_balance": cashInHandDetails?.CashInHandAmount}): {...ele}));
+            const finalData = data?.map((ele) => (ele.id == cashInHandDetails?.bankGroupId ? ({ ...ele, "total_balance": cashInHandDetails?.CashInHandAmount }) : { ...ele }));
             setRows(finalData);
             setLoading(false)
         } catch (err) {
@@ -97,8 +97,13 @@ const BankGroupBankBalanceIndex = () => {
         }
     };
 
-    const handleCellClick = (bankGroupId) => {
-        navigate('/institute-bank-balance', { state: { bankGroupId } })
+    const handleCellClick = (bankGroupId, row) => {
+
+        if (row?.bank_group_name === "Cash in Hand") {
+            navigate('/Accounts-ledger', { state: row })
+        } else {
+            navigate('/institute-bank-balance', { state: { bankGroupId } })
+        }
     }
 
     return (
@@ -204,7 +209,7 @@ const BankGroupBankBalanceIndex = () => {
                                     return isSpecial ? (
                                         <TableRow
                                             key={i}
-                                            onClick={!isTotal ? () => handleCellClick(row?.id) : undefined}
+                                            onClick={!isTotal ? () => handleCellClick(row?.id, row) : undefined}
                                             sx={{
                                                 backgroundColor: isTotal ? '#f8f9fa' : '#e8f4ff',
                                                 cursor: !isTotal ? 'pointer' : 'default',
@@ -280,7 +285,7 @@ const BankGroupBankBalanceIndex = () => {
                                                 }}
                                             >
                                                 <Box
-                                                    onClick={() => handleCellClick(row?.id)}
+                                                    onClick={() => handleCellClick(row?.id, row)}
                                                     sx={{
                                                         display: 'inline-flex',
                                                         alignItems: 'center',
