@@ -203,6 +203,7 @@ function CancelAdmissionHistoryIndex() {
       }
       const res = await axios.put(`/api/updateRetrieveStudentAdmission/${rowDetails.id}`, payload);
       if (res.status == 200 || res.status == 201) {
+        getData();
         setIsRetrieveModalOpen(!isRetrieveModalOpen);
         setAlertMessage({
           severity: "success",
