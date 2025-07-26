@@ -207,11 +207,10 @@ const ViewBonafide = () => {
             semesterHeaderLists,
             studentDetails
           );
-
-          if (!!location.state.semRange) {
+          if (bonafideDetail[0]?.from_sem && bonafideDetail[0]?.to_sem) {
             filterBonafideLetterSemesterHeader = semData.slice(
-              location.state.semRange?.from - 1,
-              location.state.semRange?.to
+              bonafideDetail[0].from_sem - 1,
+              bonafideDetail[0].to_sem
             );
           } else {
             filterBonafideLetterSemesterHeader = semData;

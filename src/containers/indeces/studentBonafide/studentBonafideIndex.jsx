@@ -135,7 +135,7 @@ const VacationLeaveIndex = () => {
 
   const getHostelFeeTemplate = async (rowValue) => {
     try {
-      const res = await axios.get(`api/finance/hostelFeeTemplateByAcademicYearAndSchool/${rowValue?.acYearId}/${rowValue.schoolId}`);
+      const res = await axios.get(`/api/finance/getHostelFeeTemplateByAcademicYearAndSchool/${rowValue.schoolId}`);
       if (res.status == 200 || res.status == 201) {
         setState((prevState) => ({
           ...prevState,
