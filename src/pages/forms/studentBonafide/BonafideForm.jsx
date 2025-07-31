@@ -236,8 +236,8 @@ const BonafideForm = () => {
               auid: auid,
               bonafide_type: bonafideType,
               hostel_fee_template_id: null,
-              from_sem: null,
-              to_sem: null,
+              from_sem: semesterList.find((ele) => ele.value === from)?.id || null,
+              to_sem: semesterList.find((ele) => ele.value === to)?.id || null,
             };
             const res = await axios.post(
               "/api/student/studentBonafide",
