@@ -481,7 +481,8 @@ const BRSTransactionDetail = () => {
                                                     <TableCell sx={{ width: 150, minWidth: '140px' }} align="center">TRN No</TableCell>
                                                     <TableCell sx={{ width: 140, minWidth: '140px' }} align="center">Order Id</TableCell>
                                                     <TableCell sx={{ width: 70, minWidth: '70px' }} align="center">AUID</TableCell>
-                                                    <TableCell align="center" sx={{ width: 80, minWidth: '80px' }}>Amount</TableCell>
+                                                    <TableCell align="center" sx={{ width: 80, minWidth: '80px' }}>Pending</TableCell>
+                                                    <TableCell align="center" sx={{ width: 80, minWidth: '80px' }}>Partial Pending</TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
@@ -501,7 +502,8 @@ const BRSTransactionDetail = () => {
                                                         </TableCell>
                                                         <TableCell>{item?.order_id}</TableCell>
                                                         <TableCell>{item?.auid}</TableCell>
-                                                        <TableCell align="center">{item?.balance}</TableCell>
+                                                        <TableCell align="center">{item?.amount == item?.balance  ? item.amount:""}</TableCell>
+                                                        <TableCell align="center">{item?.amount != item?.balance  ? item.balance:""}</TableCell>
                                                     </TableRow>
                                                 ))}
                                             </TableBody>
@@ -639,5 +641,4 @@ const CustomBreadCrumbs = ({ crumbs = [] }) => {
         </Box>
     )
 }
-
 

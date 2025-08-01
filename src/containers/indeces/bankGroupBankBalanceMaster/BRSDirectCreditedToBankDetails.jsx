@@ -52,11 +52,18 @@ function BRSDirectCreditedToBankDetail() {
             renderCell : (params) => {
                 return parseDate(params?.row?.transaction_date)
             }
-         },
-         { field: "cheque_dd_no", headerName: "TRN No", flex: 1, headerClassName: "header-bg", headerAlign: 'center', align: 'left' },
+        },
+        { field: "cheque_dd_no", headerName: "TRN No", flex: 1, headerClassName: "header-bg", headerAlign: 'center', align: 'left' },
         { field: "order_id", headerName: "Order Id", flex: 1, headerClassName: "header-bg", align: 'left', headerAlign: 'center' },
         { field: "auid", headerName: "AUID", flex: 1, headerClassName: "header-bg", align: 'center', headerAlign: 'center' },
-        { field: "amount", headerName: "Amount", flex: 1, headerClassName: "header-bg", align: 'right', headerAlign: 'center', }
+        {
+            field: "amount", headerName: "Pending", flex: 1, headerClassName: "header-bg", align: 'right', headerAlign: 'center',
+            valueGetter: (value,row) => row.amount == row.balance ? row.amount : ""
+        },
+        {
+            field: "balance", headerName: "Partial Pending", flex: 1, headerClassName: "header-bg", align: 'right', headerAlign: 'center',
+            valueGetter: (value,row) => row.amount != row.balance ? row.balance : ""
+        }
     ];
 
      const getDirectCreditToBankData = async () => {

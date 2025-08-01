@@ -145,7 +145,24 @@ const bankDetails = [
 
 const feeTemplateHeads = ["campusFee", "registrationFee", "compositeFee"];
 
-const logos = require.context("../../../assets", true);
+// const logos = require.context("../../../assets", true);
+
+const logos = (org_type,school_name_short) => {
+  try {
+    if (!org_type || !school_name_short) {
+      throw new Error("schoolShortName is not defined");
+    }
+    return require(`../../../assets/${org_type}${school_name_short}.jpg`);
+  } catch (error) {
+    console.error(
+      "Image not found for schoolShortName:",
+      school_name_short,
+      "Error:",
+      error.message
+    );
+     return require(`../../../assets/aisjmj.jpg`);
+  }
+};
 
 export const GenerateOfferPdf = (data, feeTemplateData, noOfYears, remarks) => {
   const {
@@ -561,9 +578,7 @@ export const GenerateOfferPdf = (data, feeTemplateData, noOfYears, remarks) => {
     <View style={{ ...styles.pageLayout }}>
       <Image
         style={styles.image}
-        src={logos(
-          `./${orgType.toLowerCase()}${schoolShortName.toLowerCase()}.jpg`
-        )}
+        src={logos(orgType.toLowerCase(),schoolShortName.toLowerCase())}
       />
       <View style={styles.layout}>
         <FirstPage />
@@ -1054,9 +1069,7 @@ export const GenerateOfferPdf = (data, feeTemplateData, noOfYears, remarks) => {
     <View style={styles.pageLayout}>
       <Image
         style={styles.image}
-        src={logos(
-          `./${orgType.toLowerCase()}${schoolShortName.toLowerCase()}.jpg`
-        )}
+        src={logos(orgType.toLowerCase(),schoolShortName.toLowerCase())}
       />
       <View style={styles.layout}>
         <SecondPage />
@@ -1068,9 +1081,7 @@ export const GenerateOfferPdf = (data, feeTemplateData, noOfYears, remarks) => {
     <View style={styles.pageLayout}>
       <Image
         style={styles.image}
-        src={logos(
-          `./${orgType.toLowerCase()}${schoolShortName.toLowerCase()}.jpg`
-        )}
+        src={logos(orgType.toLowerCase(),schoolShortName.toLowerCase())}
       />
       <View style={styles.layout}>
         <CancelPolicy />
@@ -1085,9 +1096,7 @@ export const GenerateOfferPdf = (data, feeTemplateData, noOfYears, remarks) => {
     <View style={styles.pageLayout}>
       <Image
         style={styles.image}
-        src={logos(
-          `./${orgType.toLowerCase()}${schoolShortName.toLowerCase()}.jpg`
-        )}
+        src={logos(orgType.toLowerCase(),schoolShortName.toLowerCase())}
       />
       <View style={styles.layout}>
         <AcceptanceData />
