@@ -425,7 +425,7 @@ const AdmissionPage = () => {
 		axios
 			.get("/api/institute/school")
 			.then((res) => {
-				setSelectedInstitute(res.data.data[0]?.school_id);
+				setSelectedInstitute(selectedGraph =="AdmissionReport" || selectedGraph =="Programme" ? res.data.data[0]?.school_id : null);
 				setInstituteList(
 					res.data.data.map((obj) => {
 						return { label: obj.school_name_short, value: obj.school_id };
@@ -3203,7 +3203,7 @@ const AdmissionPage = () => {
 												label="Institute"
 												handleChangeAdvance={(name, newValue) => { setSelectedInstitute(newValue); getProgramData(newValue)}}
 												options={selectedGraph !== "AdmissionReport" ? instituteList : fullNameInstituteList}
-												required
+												required={selectedGraph == "AdmissionReport" || selectedGraph =="Programme" ? true : false}
 											/>
 										</Grid>
 									)}
