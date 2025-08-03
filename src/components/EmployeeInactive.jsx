@@ -18,10 +18,10 @@ const EmployeeInactive = () => {
   const getData = async () => {
     await axios
       .get(
-        `/api/employee/fetchAllInActiveEmployeeDetails?page=${0}&page_size=${10000}&sort=created_date`
+        `/api/employee/fetchAllInActiveEmployeeDetails?page=${0}&page_size=${100000}&sort=created_date`
       )
       .then((res) => {
-        setRows(res.data.data.Paginated_data.content);
+        setRows(res.data.data.Paginated_data.content.map((ele,index)=>({...ele,id:index+1})));
       })
       .catch((err) => console.error(err));
   };
